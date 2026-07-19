@@ -173,6 +173,60 @@ Vintage print homage to the 1930s book:
   bloom on hover, deal-the-cards animation on Surprise Me.
 - Responsive: wheel scales down; side panels become bottom sheets on phones.
 
+## Architecture & maintainability
+
+This is a v1 with many iterations ahead, maintained entirely by Claude. The
+architecture optimizes for that: every future session should find an obvious
+place for new code, and expensive mistakes are prevented mechanically (by
+tests and tooling), not just by documentation.
+
+### Layered structure
+
+```
+scripts/ingest/       Data processing (runs at build time, not in browser).
+                      Knowledge of the SOURCE format lives ONLY here.
+data/raw/             Vendored source data (colors.json).
+data/processed/       Stable internal format: schema-versioned, validated.
+src/core/             Pure TypeScript kernel: types, data access, grouping,
+                      aggregation, chord-matrix math, color math, export
+                      formatters. NO React/D3/browser imports — enforced by
+                      an automated test that fails CI on violation.
+src/viz/              All D3 code (the chord diagram), quarantined behind a
+                      single React wrapper component.
+src/components/       React UI: header, panels, cards, filters, About.
+src/styles/tokens.css Every design token (color/font/spacing) in ONE file.
+```
+
+### Rules that prevent tech debt
+
+- **Core purity is mechanical:** a CI test fails if `src/core/` imports
+  React, D3, or browser APIs. The kernel stays reusable for PWA/mobile.
+- **Schema-versioned data:** processed data carries a `schemaVersion`;
+  validated when the ingest script writes it and when the app loads it, so
+  app and data cannot drift silently.
+- **App state is one serializable object** (view, granularity, filters,
+  selection) — makes future shareable deep links trivial instead of a
+  rewrite.
+- **Dependency budget:** react, react-dom, d3, vite, typescript, vitest —
+  adding anything else requires a written justification in CLAUDE.md.
+- **TypeScript strict mode**; small single-purpose files, each with a
+  one-line header comment stating its purpose.
+- **Deliberate YAGNI list** (recorded so future sessions don't "helpfully"
+  add them): no state-management library, no router until there are real
+  pages, no CSS framework, no plugin abstractions.
+
+### Roadmap-proofing: future feature → what it touches
+
+| Future feature | Touches |
+|---|---|
+| Nearest-color search ("match my hex") | `src/core/` color math + one UI input |
+| PWA (installable, camera) | manifest + service worker; core unchanged |
+| Native mobile app | consumes `src/core/` + processed data as-is |
+| Replace/add data source (licensing) | `scripts/ingest/` only |
+| Re-theme / aesthetic changes | `src/styles/tokens.css` only |
+| Shareable deep links | serialize the existing state object into the URL |
+| New view (e.g. grid of all 157) | new component + nav entry; core query added |
+
 ## Tech stack
 
 - **Vite + React + TypeScript**, with **D3** driving the chord layout/render.
@@ -207,7 +261,9 @@ same commit.
 - **TODO-completed.md** — items moved here when done, each with the commit
   hash that completed it (best effort).
 - **CLAUDE.md** — context for future Claude sessions: architecture map,
-  conventions, and the explicit rule to keep all the above updated.
+  the rules from "Architecture & maintainability" (core purity, dependency
+  budget with justifications, YAGNI list), conventions, and the explicit
+  rule to keep all the above updated.
 
 ## Decisions log (brainstorming answers)
 
