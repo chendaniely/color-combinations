@@ -32,6 +32,24 @@ be written for a non-JS reader and kept current by every session.
   **plus quirks:** 10 one-color "combinations" and 3 five-color ones.
 - One color, Vandar Poel's Blue, appears in zero combinations.
 
+### Data processing layer (internal format)
+
+**The app never reads the source JSON directly.** A processing script
+(run via `make update-data`) ingests raw source data and emits a stable,
+documented internal format the site consumes:
+
+- Raw source lives in `data/raw/` (vendored copy of `colors.json`).
+- The script transforms it into `data/processed/`: explicit color records,
+  explicit combination records (reconstructed from the per-color
+  combination IDs), and the grouping hierarchy.
+- **Why the indirection:** the incoming data may have to change — licensing
+  issues could force replacing or supplementing the source. Only the ingest
+  script knows the source format; swapping or adding sources touches that
+  one script, not the app. The internal schema is the contract and is
+  documented in the repo.
+- The quirks policy below is applied at ingest time and recorded as flags
+  in the processed data (nothing is silently deleted).
+
 ### Data quirks policy
 
 - The 10 one-color combinations are **excluded** everywhere (data errors; the
@@ -202,6 +220,24 @@ same commit.
 | Tech stack | Vite + React + TypeScript (+ D3, Vitest) |
 | Prompt tracking | PROMPTS.md, update rule recorded in CLAUDE.md |
 | Idea tracking | TODO.md / TODO-completed.md with commit hashes |
+
+## Stretch goal: mobile app
+
+Eventually: an iOS/Android app for viewing colors on the phone, including
+**take a photo → find related color combinations** (color output matching —
+point the camera at a garment or print and get its nearest Sanzo Wada colors
+and their book combinations).
+
+Consequences for v1 architecture (cheap now, valuable later):
+
+- Keep the data layer and core logic (grouping, aggregation, combination
+  lookup, nearest-color math when it arrives) in **plain TypeScript modules
+  with no React or browser dependencies**, so they can be reused by a React
+  Native app or any other client later.
+- The stable internal data format doubles as the mobile app's data contract.
+- A likely intermediate step is a **PWA** (installable web app with camera
+  access via the browser) before native apps — no app store needed. Recorded
+  in TODO.md; no PWA work in v1.
 
 ## Out of scope for v1
 
