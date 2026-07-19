@@ -125,10 +125,15 @@ Vintage print homage to the 1930s book:
 ## Repo documentation contract
 
 These files are first-class deliverables and every future session must keep
-them current (enforced by instructions in CLAUDE.md):
+them current (enforced by instructions in CLAUDE.md). **Documentation must
+ALWAYS be up to date and in sync with the code and with each other — wrong
+documentation is worse than no documentation.** Any change that affects
+setup, commands, structure, or behavior must update the affected docs in the
+same commit.
 
-- **README.md** — what the site is, how to run/deploy, written for a non-JS
-  reader.
+- **README.md** — what the site is, plus complete setup and installation
+  instructions (prerequisites, install, run, test, deploy), written for a
+  non-JS reader.
 - **Makefile** — always matches reality.
 - **PROMPTS.md** — chronological log of the owner's prompts and the choices
   they made in response to Claude's questions, detailed enough that the site
