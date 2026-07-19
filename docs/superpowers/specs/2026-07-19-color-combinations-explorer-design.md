@@ -164,21 +164,54 @@ ancestor at every level; assignments are sane vs. computed hue).
 
 ## Visual design
 
-**Chosen direction: "Washi & Ink" — japandi / wabi-sabi** (picked from three
-rendered mockups; all three are preserved for reference in
-`docs/superpowers/specs/2026-07-19-aesthetic-mockups.html`, open it in a
-browser to see them).
+**Chosen direction: "Washi & Ink" — japandi / wabi-sabi, personalized with
+the owner's brand.** Decided over three mockup rounds (all preserved for
+reference; open in a browser):
 
-- Warm washi-paper ground (soft gradient, e.g. `#f7f3ea → #f1ebdd`), soft
-  ink text (`#3a352d` family), muted supporting grays with warm undertones.
-- Elegant serif display face (self-hosted), airy letterspacing, small caps
-  for color names; generous whitespace and calm, unhurried composition.
-- Hairline rules (`~#d9d1bf`) instead of boxes/borders; elements allowed to
-  sit slightly off-grid / organic (wabi-sabi), e.g. the wheel gently
-  rotated.
-- A single vermilion seal (hanko, `~#b5493a`) as the only ornament.
-- Combination cards as quiet plates: color bars with proportions, names in
-  letterspaced small caps beneath, no heavy frames.
+- `docs/superpowers/specs/2026-07-19-aesthetic-mockups.html` — round 1:
+  Washi & Ink chosen over Vintage Print and Modern Gallery.
+- `docs/superpowers/specs/2026-07-19-aesthetic-brand-mockups.html` —
+  round 2: brand-integration intensity; subtle ("A1") level chosen.
+- `docs/superpowers/specs/2026-07-19-typography-mockups.html` — round 3:
+  typography; hybrid ("T3") chosen.
+
+### Palette (from the owner's personal brand)
+
+Neutrals and accents come from the owner's site brand file
+(https://github.com/chendaniely/chendaniely.github.io/blob/main/_brand.yml),
+whose warm-neutral philosophy ("sand/linen/taupe, never cool gray") is
+already japandi:
+
+- Ground: warm-white `#F8F6F2` with a soft gradient toward `#F0EBE2`.
+- Ink: charcoal `#2F2A26`; muted text warm-gray `#7E7468`; faint text and
+  disabled states stone `#B8AEA2`; hairlines sand `#E8DDD2`.
+- **NYC flag orange `#F26522` — sparingly, as the owner's brand dictates:**
+  the seal (hanko with 色), the active-nav underline, the granularity
+  slider's active stop, hover states. Nowhere else.
+- **NYC flag blue `#236192`:** links and informational accents, exactly as
+  on the owner's site.
+- Sanzo Wada's colors always keep their own values; the brand lives only in
+  the chrome.
+
+### Typography (hybrid — "both styles speak to their parts")
+
+All fonts self-hosted (no external font CDN at runtime):
+
+- **EB Garamond** (serif) speaks only where the book speaks: the wordmark
+  and color/combination names, at display sizes.
+- **Atkinson Hyperlegible** (the owner's brand face) for all UI chrome,
+  labels, body and About text.
+- **Atkinson Hyperlegible Mono** for color codes (hex/RGB/CMYK) — designed
+  to be read, ideal for a copy-the-code tool.
+
+### Composition & motion
+
+- Airy letterspacing, small caps for labels; generous whitespace and calm,
+  unhurried composition.
+- Hairline sand rules instead of boxes/borders; elements allowed to sit
+  slightly off-grid / organic (wabi-sabi), e.g. the wheel gently rotated.
+- Combination cards as quiet plates: color bars with proportions, names
+  beneath, no heavy frames.
 - Fun through motion, not decoration: silky chord transitions, ribbons that
   bloom on hover, deal-the-cards animation on Surprise Me.
 - Responsive: wheel scales down; side panels become bottom sheets on phones.
@@ -283,6 +316,8 @@ same commit.
 | Primary experience | Visual explorer first — chord diagram is the homepage |
 | Grouping | Granularity slider over 4 curated levels (157 / ~20 / ~10 / ~5) |
 | Aesthetic | "Washi & Ink" japandi / wabi-sabi (chosen from 3 rendered mockups) |
+| Personal branding | Owner's brand woven in subtly: warm neutrals + NYC orange `#F26522` (sparing accents) and blue `#236192` (links), from the owner's `_brand.yml` |
+| Typography | Hybrid ("T3"): EB Garamond for wordmark & color names; Atkinson Hyperlegible for UI/body; Hyperlegible Mono for codes; all self-hosted |
 | V1 features | Combination browser, color detail, copy & export, random inspiration |
 | Tech stack | Vite + React + TypeScript (+ D3, Vitest) |
 | Prompt tracking | PROMPTS.md, update rule recorded in CLAUDE.md |
