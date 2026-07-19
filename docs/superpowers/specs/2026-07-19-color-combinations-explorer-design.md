@@ -41,6 +41,41 @@ be written for a non-JS reader and kept current by every session.
 - Vandar Poel's Blue still appears on the wheel and has a color detail view,
   honestly labeled "appears in no combinations."
 
+## User stories
+
+These stories drive the UI/UX; each view exists to serve specific ones.
+
+1. **Outfit from scratch ("dress me").** Wants a fresh outfit palette.
+   → Surprise Me, or Browse filtered to 2–3 color combos in preferred
+   families. Plate proportions suggest dominant garment vs accent pieces.
+2. **Build around an anchor item ("my navy shirt").** Owns a piece, wants
+   partners for it. → Search or click their color, color detail lists every
+   combination containing it; since real items never match exactly, bump the
+   granularity slider a level to see what pairs with Blues in general, and
+   note repeated partner families (a wardrobe signal).
+3. **Website / slide theme.** Needs 2–4 colors plus the codes. → Browse →
+   combination detail → copy CSS variables / hex codes; plate proportions
+   map to background/primary/accent roles.
+4. **Learn color theory.** → Set the wheel to broad families and read the
+   ribbon weights: which families did Sanzo Wada combine most? The coarse
+   wheel is a lesson, not just a picture.
+5. **Match an exact outside color** (brand hex, paint chip) to the nearest
+   of the 157. → Deferred to TODO.md (nearest-color search), not v1.
+6. **Just play.** No goal; the wheel is a toy. Motivates the motion/polish
+   investment.
+
+Story 2 adds a v1 requirement: a **search box** (by color name) in the
+header, since typing "navy" beats hunting the wheel.
+
+### In-site guidance
+
+- An **About panel** (opened from the header): the book's story, and short
+  "how to use this" recipes matching the user stories above.
+- **Contextual one-line hints** on each view where the user already is,
+  e.g. the granularity slider gets "your shirt doesn't have to match
+  exactly — zoom out to see what pairs with blues in general"; Browse gets
+  a hint about plate proportions mapping to dominant/accent roles.
+
 ## Site structure (single-page app)
 
 ### The Wheel (homepage)
@@ -78,6 +113,16 @@ Slide-in side panels (bottom sheets on mobile), no page reloads:
 
 Header button that deals a random combination (with a card-deal animation) —
 the outfit-of-the-day use case.
+
+### Header search
+
+Type-ahead search over the 157 color names (e.g. "navy") that opens the
+matching color's detail panel. Serves the anchor-item story.
+
+### About panel
+
+Opened from the header: the story of the book, and "how to use this"
+recipes matching the user stories.
 
 ## Grouping: the granularity slider
 
@@ -165,3 +210,6 @@ same commit.
 - Fetching live data at runtime
 - Color-blindness simulation modes (candidate for TODO.md)
 - Outfit/website mockup previews (candidate for TODO.md)
+- Nearest-color search: paste an outside hex (brand color, paint chip,
+  photo of a garment) and find the closest of the 157 colors and its
+  combinations (candidate for TODO.md)
