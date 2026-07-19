@@ -164,14 +164,25 @@ ancestor at every level; assignments are sane vs. computed hue).
 
 ## Visual design
 
-Vintage print homage to the 1930s book:
+**Chosen direction: "Washi & Ink" — japandi / wabi-sabi** (picked from three
+rendered mockups; all three are preserved for reference in
+`docs/superpowers/specs/2026-07-19-aesthetic-mockups.html`, open it in a
+browser to see them).
 
-- Warm paper background, dark warm-gray "ink" text, elegant serif display
-  face (self-hosted), generous whitespace.
-- Combination cards styled like printed plates, names in small caps.
+- Warm washi-paper ground (soft gradient, e.g. `#f7f3ea → #f1ebdd`), soft
+  ink text (`#3a352d` family), muted supporting grays with warm undertones.
+- Elegant serif display face (self-hosted), airy letterspacing, small caps
+  for color names; generous whitespace and calm, unhurried composition.
+- Hairline rules (`~#d9d1bf`) instead of boxes/borders; elements allowed to
+  sit slightly off-grid / organic (wabi-sabi), e.g. the wheel gently
+  rotated.
+- A single vermilion seal (hanko, `~#b5493a`) as the only ornament.
+- Combination cards as quiet plates: color bars with proportions, names in
+  letterspaced small caps beneath, no heavy frames.
 - Fun through motion, not decoration: silky chord transitions, ribbons that
   bloom on hover, deal-the-cards animation on Surprise Me.
 - Responsive: wheel scales down; side panels become bottom sheets on phones.
+- All of the above expressed as design tokens in `src/styles/tokens.css`.
 
 ## Architecture & maintainability
 
@@ -271,7 +282,7 @@ same commit.
 |---|---|
 | Primary experience | Visual explorer first — chord diagram is the homepage |
 | Grouping | Granularity slider over 4 curated levels (157 / ~20 / ~10 / ~5) |
-| Aesthetic | Vintage print homage |
+| Aesthetic | "Washi & Ink" japandi / wabi-sabi (chosen from 3 rendered mockups) |
 | V1 features | Combination browser, color detail, copy & export, random inspiration |
 | Tech stack | Vite + React + TypeScript (+ D3, Vitest) |
 | Prompt tracking | PROMPTS.md, update rule recorded in CLAUDE.md |
