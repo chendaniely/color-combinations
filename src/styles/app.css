@@ -151,6 +151,13 @@ main { flex: 1; min-height: 0; position: relative; }
   background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
   padding: var(--s1) var(--s2);
 }
+.browse-section { margin-top: var(--s8); }
+.browse-section-head {
+  font-family: var(--font-ui); font-weight: 400; font-size: 0.8rem;
+  letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--ink-muted);
+  padding-bottom: var(--s2); border-bottom: 1px solid var(--hairline);
+}
+.browse-section-head .muted { text-transform: none; letter-spacing: normal; }
 .browse-grid {
   margin-top: var(--s6); display: grid; gap: var(--s6) var(--s4);
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));

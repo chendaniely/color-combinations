@@ -39,8 +39,9 @@ Move finished items to TODO-completed.md with the commit hash.
       correct, only the comment is wrong
 - [ ] Owner: verify in browser (deferred from the final whole-branch
       review — needs eyes, not just tests): per-level arc counts on the
-      wheel at all 4 granularities; hover dim + center label; the
-      crossfade between granularity levels; the size-chip filter live
+      wheel at all 4 granularities; the reworked hover dim + center label
+      (rebuilt 2026-07-20 — confirm the flicker is gone and dimming reads
+      right); the crossfade between granularity levels; the size-chip filter live
       toggle; clipboard copies (hex/CSS/JSON) actually land on the
       clipboard; PNG download for a few combos including the 5-color
       combo No. 331 (longest name string — check it doesn't overflow the

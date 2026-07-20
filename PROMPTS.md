@@ -116,3 +116,43 @@ enabled, and the site went live at
 https://chendaniely.github.io/color-combinations/ (verified HTTP 200,
 deploy run 29718883122). Task 18 (this one) closed out the loop: docs
 true-up, TODO ledger reconciliation, and the `v1.0.0` tag.
+
+## 2026-07-20 — Session 3: Post-v1 performance & browse polish
+
+**Owner prompt:**
+
+> great v1. we need to look into performance now.
+>
+> the wheel flickers a lot when hovering over. sometimes even flickering
+> completely off where no wheel is seen. let's fix the weel hover
+> performance before i'm able to use it in a way for next iteration.
+>
+> for the browse page. it would be good to have a header for the 2, 3, and
+> 4+ colors so a 3 color palet isn't on the same line as the 2, for example.
+> and easier to flip through and search
+
+**What happened:**
+
+- *Wheel hover flicker (root-caused, not patched).* The Colors level renders
+  ~996 ribbon paths + ~157 arc groups. The original hover attached
+  `mouseenter`/`mouseleave` to every one of those ~1150 elements, and each
+  fire ran a full-scene `classed()` sweep over all ribbons and arcs with a
+  200ms opacity transition — so every time the cursor crossed an element
+  boundary (constantly, over hundreds of tiny paths) every transition
+  restarted, producing the flicker. Worse, ribbon hover dimmed the *entire*
+  wheel to 0.08 opacity; since the disc interior is wall-to-wall ribbons, the
+  wheel visually vanished whenever the cursor was inside it (the "flickering
+  completely off" symptom). `mix-blend-mode: multiply` on all 996 ribbons
+  added compositing cost on top. Fix (`db37b1b`): replaced per-element
+  listeners with **three delegated listeners** on the wheel `<g>`; hover
+  state is **keyed** so moving between sub-elements of the same arc is a
+  no-op and element-to-element moves swap state with no clear-all flash;
+  dimming is now **one container class + a small `.hot` set** (writes scale
+  with the hovered neighborhood, not the whole scene); ribbon hover only
+  brightens the ribbon itself (the spec only asked for dimming on *arc*
+  hover); blend mode is enabled only at group levels (≤40 nodes); labels get
+  `pointer-events: none`; hover transition shortened to a 120ms token.
+- *Browse size sections.* Plates are now grouped under **2 colors / 3 colors
+  / 4+ colors** headers (letterspaced small-caps with a hairline rule and a
+  per-section count), each in its own grid, so a 3-color palette never shares
+  a row with a 2-color one and the page is easier to flip through.

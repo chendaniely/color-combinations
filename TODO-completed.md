@@ -34,3 +34,12 @@ Format: `- [x] item — done in <commit hash> (YYYY-MM-DD)`
       pipeline (test + typecheck + build + GitHub Pages deploy), live at
       https://chendaniely.github.io/color-combinations/ — done in
       575dcd5 (2026-07-19)
+
+## Post-v1 (2026-07-20)
+
+- [x] Wheel hover flicker fix: delegated events + keyed hover state +
+      scoped dimming (container class + `.hot` set) instead of per-element
+      listeners doing full-scene sweeps; blend mode only at group levels —
+      done in db37b1b (2026-07-20)
+- [x] Browse: group plates under 2 / 3 / 4+ color section headers — done in
+      <pending> (2026-07-20)

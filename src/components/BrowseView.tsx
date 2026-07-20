@@ -20,6 +20,14 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
 
   const comboCount = `${combos.length} combinations`
 
+  const sections = SIZES
+    .map((s) => ({
+      size: s,
+      heading: s === 4 ? '4+ colors' : `${s} colors`,
+      combos: combos.filter((c) => sizeBucket(c) === s),
+    }))
+    .filter((sec) => sec.combos.length > 0)
+
   return (
     <div className="browse-view">
       <div className="browse-filters">
@@ -44,9 +52,16 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
         <span className="muted">{comboCount}</span>
       </div>
       <p className="hint">Taller bars suggest the dominant color — the main garment, the page background; slivers are accents.</p>
-      <div className="browse-grid">
-        {combos.map((c) => <PlateCard key={c.id} comboId={c.id} dispatch={dispatch} />)}
-      </div>
+      {sections.map((sec) => (
+        <section key={sec.size} className="browse-section">
+          <h2 className="browse-section-head">
+            {sec.heading} <span className="muted">{`— ${sec.combos.length}`}</span>
+          </h2>
+          <div className="browse-grid">
+            {sec.combos.map((c) => <PlateCard key={c.id} comboId={c.id} dispatch={dispatch} />)}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }
