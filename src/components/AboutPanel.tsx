@@ -23,6 +23,14 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
         zoom the wheel out a level and see what pairs with blues in general. If
         blues meet ochres twelve times, ochre belongs in your wardrobe.
       </p>
+      <h3>Build an outfit of several colors</h3>
+      <p>
+        Open <strong>Match</strong>, start from a shade you own (say Olives), and
+        add shades it goes with — Deep Teals, Tans, Russets — to build a palette
+        of three or more. A <em>★ book-verified</em> suggestion means Sanzo Wada
+        actually used all of them together; the rest still pair with each shade
+        you've chosen, which is what makes it wardrobe-friendly.
+      </p>
       <h3>Theme a website or deck</h3>
       <p>
         Find a combination you love, then copy its hex codes, CSS variables, or

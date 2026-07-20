@@ -32,6 +32,25 @@ Run these from the project folder. `make help` lists them all.
 | `make update-data` | Re-downloads the source colors and regenerates the processed data |
 | `make clean` | Deletes build output and `node_modules/` |
 
+## Features
+
+- **Dress yourself** — hit Surprise me, or browse 2–3 color combinations in
+  families you like wearing. Taller bars suggest the main garment; slivers
+  are accents.
+- **Build around what you own** — search for your item's color, open it, and
+  see every combination the book endorses. Don't have the exact shade? Zoom
+  the wheel out a level to see what pairs with blues, ochres, etc. in general.
+- **Match** (header tab) — build an outfit palette: start from a shade, see
+  what the book pairs it with, and add more shades to make a 3-, 4-, or
+  more-color set. General shade-level matching, so colors don't have to be
+  exact. Also reachable from any group on the wheel via "Build a palette from
+  this →".
+- **Theme a website or deck** — find a combination you love, then copy its hex
+  codes, CSS variables, or JSON straight into your project.
+- **Learn from the master** — set the wheel to Families or Groups and read the
+  ribbons: their thickness is how often Wada combined those families. The
+  coarse wheel is a lesson in what harmonizes.
+
 ## How this project is organized
 
 - `src/` — the website's code. `src/core/` is pure logic (no browser code),
