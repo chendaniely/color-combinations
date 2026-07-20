@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const CORE = 'src/core'
@@ -26,9 +26,10 @@ describe('core purity (never weaken this test — see CLAUDE.md)', () => {
           spec.startsWith('./') || spec.startsWith('../'),
           `${file} imports package "${spec}" — core may only import core`,
         ).toBe(true)
+        const coreRoot = resolve(CORE) + sep
         const target = resolve(dirname(file), spec)
         expect(
-          target.startsWith(resolve(CORE)),
+          target.startsWith(coreRoot),
           `${file} imports "${spec}" which resolves outside src/core`,
         ).toBe(true)
       }
