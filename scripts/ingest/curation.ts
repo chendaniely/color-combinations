@@ -263,14 +263,14 @@ export const curation: Curation = {
     // --- gray / Ivories (pale warm/cool near-neutrals) ---
     white: 'ivories',
     ecru: 'ivories',
-    'ivory-buff': 'ivories',
+    'ivory-buff': 'tans',
     'warm-gray': 'ivories',
     'mineral-gray': 'ivories',
     'neutral-gray': 'ivories',
 
     // --- gray / Slate Grays (dark, desaturated cool neutrals) ---
     black: 'slate-grays',
-    'slate-color': 'slate-grays',
+    'slate-color': 'deep-blues',
     'deep-violet-plumbeous': 'slate-grays',
   },
 }
