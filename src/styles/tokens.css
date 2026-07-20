@@ -1,0 +1,32 @@
+/* Design tokens — the ONLY place style values live. Spec: Washi & Ink +
+   owner's brand (see docs/superpowers/specs/, mockup HTML files). */
+:root {
+  /* ground */
+  --paper-1: #f8f6f2;
+  --paper-2: #f0ebe2;
+  /* ink */
+  --ink: #2f2a26;
+  --ink-muted: #7e7468;
+  --ink-faint: #b8aea2;
+  --hairline: #e8ddd2;
+  /* brand accents — orange ONLY for seal/active-nav/slider-stop/hover */
+  --accent: #f26522;
+  --link: #236192;
+  /* type */
+  --font-display: 'EB Garamond', 'Iowan Old Style', Palatino, Georgia, serif;
+  --font-ui: 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, 'SF Mono', monospace;
+  --tracking-wide: 0.2em;
+  --tracking-label: 0.14em;
+  /* space (4px scale) */
+  --s1: 0.25rem; --s2: 0.5rem; --s3: 0.75rem; --s4: 1rem;
+  --s6: 1.5rem; --s8: 2rem; --s12: 3rem;
+  /* layout */
+  --panel-width: 400px;
+  --radius: 3px;
+  --header-height: 64px;
+  /* motion */
+  --dur-fast: 200ms;
+  --dur: 500ms;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
