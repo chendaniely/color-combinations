@@ -32,7 +32,7 @@ describe('app shell', () => {
 
   it('renders group, ribbon, and about panels without crashing', () => {
     const noop = () => {}
-    expect(renderToString(<GroupDetail groupId="blue" dispatch={noop} />)).toContain('colors')
+    expect(renderToString(<GroupDetail groupId="blue" dispatch={noop} />)).toContain('Pairs well with')
     expect(
       renderToString(
         <RibbonDetail sel={{ kind: 'ribbon', level: 2, keyA: 'pink', keyB: 'blue' }} sizes={new Set<2 | 3 | 4>([2, 3, 4])} dispatch={noop} />,
@@ -50,5 +50,13 @@ describe('app shell', () => {
     const html = renderToString(<MatchPage state={seeded} dispatch={() => {}} />)
     expect(html).toContain('Your palette')
     expect(html).toContain('Build a palette')
+  })
+
+  it('group panel shows breadcrumb, matches, and narrow-to for a shade', () => {
+    const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
+    const html = renderToString(<GroupDetail groupId={olives} dispatch={() => {}} />)
+    expect(html).toContain('Pairs well with')
+    expect(html).toContain('Build a palette from this')
+    expect(html).toContain('Narrow to a single color')
   })
 })
