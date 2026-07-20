@@ -1,4 +1,5 @@
 import { useReducer } from 'react'
+import { AboutPanel } from './components/AboutPanel'
 import { BrowseView } from './components/BrowseView'
 import { ChordWheel } from './components/ChordWheel'
 import { ColorDetail } from './components/ColorDetail'
@@ -29,6 +30,7 @@ export default function App() {
         {state.selection?.kind === 'ribbon' && (
           <RibbonDetail sel={state.selection} sizes={new Set(state.sizes)} dispatch={dispatch} />
         )}
+        {state.aboutOpen && <AboutPanel dispatch={dispatch} />}
       </main>
     </div>
   )
