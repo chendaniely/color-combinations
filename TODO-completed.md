@@ -42,4 +42,4 @@ Format: `- [x] item — done in <commit hash> (YYYY-MM-DD)`
       listeners doing full-scene sweeps; blend mode only at group levels —
       done in db37b1b (2026-07-20)
 - [x] Browse: group plates under 2 / 3 / 4+ color section headers — done in
-      <pending> (2026-07-20)
+      3cd01df (2026-07-20)
