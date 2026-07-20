@@ -1,4 +1,5 @@
 import { useReducer } from 'react'
+import { BrowseView } from './components/BrowseView'
 import { ChordWheel } from './components/ChordWheel'
 import { ColorDetail } from './components/ColorDetail'
 import { CombinationDetail } from './components/CombinationDetail'
@@ -20,7 +21,7 @@ export default function App() {
             <WheelControls state={state} dispatch={dispatch} />
           </div>
         ) : (
-          <p style={{ padding: '2rem' }}>browse goes here</p>
+          <BrowseView state={state} dispatch={dispatch} />
         )}
         {state.selection?.kind === 'color' && <ColorDetail colorId={state.selection.id} dispatch={dispatch} />}
         {state.selection?.kind === 'combination' && <CombinationDetail comboId={state.selection.id} dispatch={dispatch} />}

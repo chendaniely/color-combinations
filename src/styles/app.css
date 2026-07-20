@@ -135,3 +135,17 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Group swatch grid */
 .swatch-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s1); margin-top: var(--s3); }
 .swatch-cell { aspect-ratio: 1; border: none; border-radius: var(--radius); }
+
+/* Browse */
+.browse-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
+.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+.browse-filters select {
+  font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink);
+  background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
+  padding: var(--s1) var(--s2);
+}
+.browse-grid {
+  margin-top: var(--s6); display: grid; gap: var(--s6) var(--s4);
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.browse-grid .plate-bars { height: 96px; }
