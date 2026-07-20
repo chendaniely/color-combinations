@@ -18,12 +18,12 @@ export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
     if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(a + 1, matches.length - 1)) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)) }
     else if (e.key === 'Enter' && matches[active]) choose(matches[active].id)
-    else if (e.key === 'Escape') setQ('')
+    else if (e.key === 'Escape') { e.stopPropagation(); setQ('') }
   }
 
   return (
     <div className="search-box">
-      <input ref={inputRef} value={q} placeholder="find a color… (navy, olive)"
+      <input ref={inputRef} value={q} placeholder="find a color… (indigo, olive)"
         aria-label="Search colors"
         onChange={(e) => { setQ(e.target.value); setActive(0) }} onKeyDown={onKeyDown}
         onBlur={() => { setTimeout(() => setQ(''), 150) }} />

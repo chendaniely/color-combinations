@@ -1,9 +1,12 @@
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import App from '../src/App'
+import { AboutPanel } from '../src/components/AboutPanel'
 import { BrowseView } from '../src/components/BrowseView'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
+import { GroupDetail } from '../src/components/GroupDetail'
+import { RibbonDetail } from '../src/components/RibbonDetail'
 import { initialState } from '../src/core/state'
 
 describe('app shell', () => {
@@ -23,5 +26,16 @@ describe('app shell', () => {
   it('renders browse view with all 338 displayable combos', () => {
     const html = renderToString(<BrowseView state={initialState} dispatch={() => {}} />)
     expect(html).toContain('338 combinations')
+  })
+
+  it('renders group, ribbon, and about panels without crashing', () => {
+    const noop = () => {}
+    expect(renderToString(<GroupDetail groupId="blue" dispatch={noop} />)).toContain('colors')
+    expect(
+      renderToString(
+        <RibbonDetail sel={{ kind: 'ribbon', level: 2, keyA: 'pink', keyB: 'blue' }} sizes={new Set<2 | 3 | 4>([2, 3, 4])} dispatch={noop} />,
+      ),
+    ).toContain('combination')
+    expect(renderToString(<AboutPanel dispatch={noop} />)).toContain('Sanzo Wada')
   })
 })

@@ -202,6 +202,7 @@ export const curation: Curation = {
     'deep-lyons-blue': 'deep-blues',
     'deep-indigo': 'deep-blues',
     'violet-blue': 'deep-blues',
+    'slate-color': 'deep-blues',
 
     // --- purple / Lilacs (pale pastel lavenders) ---
     'grayish-lavender---a': 'lilacs',
@@ -259,18 +260,17 @@ export const curation: Curation = {
     'isabella-color': 'tans',
     khaki: 'tans',
     'yellow-ocher': 'tans',
+    'ivory-buff': 'tans',
 
     // --- gray / Ivories (pale warm/cool near-neutrals) ---
     white: 'ivories',
     ecru: 'ivories',
-    'ivory-buff': 'tans',
     'warm-gray': 'ivories',
     'mineral-gray': 'ivories',
     'neutral-gray': 'ivories',
 
     // --- gray / Slate Grays (dark, desaturated cool neutrals) ---
     black: 'slate-grays',
-    'slate-color': 'deep-blues',
     'deep-violet-plumbeous': 'slate-grays',
   },
 }

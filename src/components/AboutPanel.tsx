@@ -18,7 +18,7 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
       </p>
       <h3>Build around what you own</h3>
       <p>
-        Search for your item's color ("navy"), open it, and see every combination
+        Search for your item's color ("indigo"), open it, and see every combination
         the book endorses. Your shirt is never <em>exactly</em> Wada's blue — so
         zoom the wheel out a level and see what pairs with blues in general. If
         blues meet ochres twelve times, ochre belongs in your wardrobe.
