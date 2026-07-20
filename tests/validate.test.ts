@@ -45,4 +45,14 @@ describe('validateDataset', () => {
     const d = clone(); d.colors[0].combinationIds = [10]
     expect(() => validateDataset(d)).toThrow(/cross-reference/i)
   })
+  it('rejects missing groups with a named error', () => {
+    const d = clone() as Record<string, unknown>
+    delete d.groups
+    expect(() => validateDataset(d)).toThrow(/groups/)
+  })
+  it('rejects non-array rgb with a named error', () => {
+    const d = clone()
+    ;(d.colors[0] as { rgb: unknown }).rgb = undefined
+    expect(() => validateDataset(d)).toThrow(/rgb/)
+  })
 })

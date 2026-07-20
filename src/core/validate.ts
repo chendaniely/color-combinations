@@ -19,6 +19,10 @@ export function validateDataset(data: unknown): Dataset {
   if (!d.source?.name || !d.source?.retrievedOn) fail('missing source info')
   if (!Array.isArray(d.colors) || d.colors.length === 0) fail('colors missing')
   if (!Array.isArray(d.combinations)) fail('combinations missing')
+  if (
+    typeof d.groups !== 'object' || d.groups === null ||
+    !Array.isArray(d.groups.super) || !Array.isArray(d.groups.broad) || !Array.isArray(d.groups.fine)
+  ) fail('groups missing or malformed')
 
   const superIds = new Set(d.groups.super.map((g) => g.id))
   const broadIds = new Set(d.groups.broad.map((g) => g.id))
@@ -47,8 +51,8 @@ export function validateDataset(data: unknown): Dataset {
     colorIds.add(c.id)
     if (!HEX.test(c.hex)) fail(`color ${c.id} hex "${c.hex}" is not #rrggbb`)
     if (!fineIds.has(c.fineId)) fail(`color ${c.id} fineId "${c.fineId}" unknown`)
-    if (c.rgb.length !== 3) fail(`color ${c.id} rgb malformed`)
-    if (c.cmyk.length !== 4) fail(`color ${c.id} cmyk malformed`)
+    if (!Array.isArray(c.rgb) || c.rgb.length !== 3) fail(`color ${c.id} rgb malformed`)
+    if (!Array.isArray(c.cmyk) || c.cmyk.length !== 4) fail(`color ${c.id} cmyk malformed`)
   }
 
   const comboIds = new Set<number>()
