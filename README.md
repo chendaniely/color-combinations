@@ -52,5 +52,9 @@ in `index.html` — change both, nothing else refers to the name.
 
 ## Deployment
 
-Set up in a later task — this section will describe the GitHub Pages
-pipeline once it exists.
+Every push to `main` runs tests + typecheck + build in GitHub Actions and, if
+green, publishes to GitHub Pages automatically. Nothing to do by hand.
+
+- Live site: https://chendaniely.github.io/color-combinations/
+- Pipeline: `.github/workflows/deploy.yml` (watch runs in the repo's Actions tab)
+- If the repo is ever renamed, update `base` in `vite.config.ts` to match.
