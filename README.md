@@ -28,14 +28,18 @@ Run these from the project folder. `make help` lists them all.
 | `make test` | Runs the automated tests |
 | `make build` | Type-checks everything and builds the deployable site into `dist/` |
 | `make preview` | Serves the built `dist/` exactly as GitHub Pages will |
+| `make update-data` | Re-downloads the source colors and regenerates the processed data |
 | `make clean` | Deletes build output and `node_modules/` |
 
 ## How this project is organized
 
 - `src/` — the website's code. `src/core/` is pure logic (no browser code),
   `src/components/` is the UI, `src/viz/` is the D3 chord diagram.
-- `data/` — `raw/` is the vendored source data; `processed/` is the
-  generated internal format the site actually reads.
+- `data/raw/` — the vendored source data (downloaded from
+  sanzo-wada.dmbk.io; the site never fetches it live). `data/processed/` —
+  the generated, validated internal format the site actually reads.
+  Regenerate any time with `make update-data`. If the source data ever has
+  to change (e.g. licensing), only `scripts/ingest/` needs rewriting.
 - `docs/superpowers/` — the design spec and implementation plans.
 - `CLAUDE.md` — working rules for the AI sessions that maintain this repo.
 - `PROMPTS.md` — the owner's prompts & decisions that shaped this project.
