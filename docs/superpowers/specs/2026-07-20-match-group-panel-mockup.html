@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=EB+Garamond:ital@0;1&display=swap">
+<style>
+  :root{
+    --paper-1:#f8f6f2;--paper-2:#f0ebe2;--ink:#2f2a26;--muted:#7e7468;--faint:#b8aea2;
+    --hairline:#e8ddd2;--accent:#f26522;--link:#236192;
+    --serif:'EB Garamond',Georgia,serif;--ui:'Atkinson Hyperlegible',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:#efeae0;color:var(--ink);font-family:var(--ui);padding:28px;line-height:1.5}
+  .head{max-width:860px;margin:0 auto 22px}
+  .head h1{font-family:var(--serif);font-weight:400;font-size:1.5rem;letter-spacing:.02em}
+  .head p{color:#635c50;font-size:.9rem;margin-top:6px;max-width:70ch}
+  .stage{display:flex;gap:26px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+  .flow{align-self:center;color:var(--muted);font-size:.8rem;text-align:center;max-width:120px}
+  .flow .arrow{font-size:1.6rem;color:var(--accent)}
+
+  .panel{width:390px;background:linear-gradient(165deg,var(--paper-1),var(--paper-2));
+    border:1px solid var(--hairline);border-radius:4px;box-shadow:0 14px 40px rgb(47 42 38/.12);
+    padding:22px 22px 26px}
+  .crumb{font-size:.72rem;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+  .crumb a{color:var(--link);text-decoration:none}
+  .crumb .sep{color:var(--faint);margin:0 5px}
+  .crumb .here{color:var(--ink);font-weight:700}
+  .title{font-family:var(--serif);font-size:1.7rem;line-height:1.1}
+  .sub{color:var(--muted);font-size:.8rem;font-style:italic;margin-top:2px}
+  .cluster{display:flex;height:30px;border-radius:3px;overflow:hidden;margin:14px 0 4px}
+  .cluster span{flex:1}
+  .seclabel{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+    margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--hairline)}
+
+  /* a "group chip" row: little cluster + name + count, looks clickable */
+  .grow{display:flex;align-items:center;gap:11px;padding:7px 8px;border-radius:4px;cursor:pointer;
+    border:1px solid transparent}
+  .grow:hover{background:#fbf8f1;border-color:var(--hairline)}
+  .grow .mini{display:flex;width:74px;height:20px;border-radius:2px;overflow:hidden;flex:0 0 auto}
+  .grow .mini span{flex:1}
+  .grow .nm{font-size:.92rem;flex:1}
+  .grow .ct{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .grow .ct b{color:var(--accent);font-weight:700}
+  .grow .chev{color:var(--faint);font-size:.9rem}
+
+  .swrow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+  .swrow .cell{aspect-ratio:1;border-radius:3px;cursor:pointer}
+
+  .plates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  .plate{cursor:pointer}
+  .plate .bars{display:flex;flex-direction:column;height:74px;border-radius:2px;overflow:hidden}
+  .plate .bars span{flex:1}
+  .plate .cap{font-family:var(--serif);font-size:.78rem;margin-top:5px;color:#5c5548;line-height:1.25}
+  .plate .no{font-size:.62rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+  .hint{color:var(--faint);font-style:italic;font-size:.74rem;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="head">
+  <h1>Enriched group panel — matching &amp; progressive drill-down</h1>
+  <p>Two states of the same panel, showing the general→specific path for the outfit persona.
+  Left: you open a broad family (<b>Green</b>) and step down. Right: you've narrowed to a shade
+  (<b>Olives</b>) and see what it pairs with — all real data from the book. Nothing here forces
+  you down to a single color; every step is optional. Tell me in the terminal what to change.</p>
+</div>
+
+<div class="stage">
+
+  <!-- ============ PANEL A: GREEN (broad) ============ -->
+  <div class="panel">
+    <div class="crumb"><a>Cool</a><span class="sep">›</span><span class="here">Green</span></div>
+    <div class="title">Green</div>
+    <div class="sub">a broad family · 31 colors · 4 shades</div>
+    <div class="cluster" title="all greens">
+      <span style="background:#706934"></span><span style="background:#718600"></span>
+      <span style="background:#58771e"></span><span style="background:#6ea900"></span>
+      <span style="background:#7aff00"></span><span style="background:#a6ff47"></span>
+      <span style="background:#40c945"></span><span style="background:#19cc33"></span>
+      <span style="background:#33ff7d"></span><span style="background:#b5ffc2"></span>
+    </div>
+
+    <div class="seclabel">Narrow to a shade</div>
+    <div class="grow">
+      <span class="mini"><span style="background:#706934"></span><span style="background:#7e8743"></span><span style="background:#888d2a"></span><span style="background:#718600"></span><span style="background:#d1bd19"></span><span style="background:#99b333"></span></span>
+      <span class="nm">Olives</span><span class="chev">›</span>
+    </div>
+    <div class="grow">
+      <span class="mini"><span style="background:#172713"></span><span style="background:#324e2a"></span><span style="background:#405416"></span><span style="background:#58771e"></span><span style="background:#6ea900"></span><span style="background:#759243"></span></span>
+      <span class="nm">Olive Greens</span><span class="chev">›</span>
+    </div>
+    <div class="grow">
+      <span class="mini"><span style="background:#85b857"></span><span style="background:#a6d40d"></span><span style="background:#bdf226"></span><span style="background:#a6ff47"></span><span style="background:#7aff00"></span><span style="background:#bcd382"></span></span>
+      <span class="nm">Spring Greens</span><span class="chev">›</span>
+    </div>
+    <div class="grow">
+      <span class="mini"><span style="background:#328e13"></span><span style="background:#40c945"></span><span style="background:#19cc33"></span><span style="background:#56aa69"></span><span style="background:#33ff7d"></span><span style="background:#b5ffc2"></span></span>
+      <span class="nm">Leaf Greens</span><span class="chev">›</span>
+    </div>
+
+    <div class="seclabel">Pairs well with · families</div>
+    <div class="grow">
+      <span class="mini"><span style="background:#ffa6d9"></span><span style="background:#ff616b"></span><span style="background:#ffb852"></span></span>
+      <span class="nm">Warm tones</span><span class="ct"><b>›</b></span><span class="chev">›</span>
+    </div>
+    <p class="hint">…full ranked list appears here too; collapsed for the broad view</p>
+  </div>
+
+  <div class="flow">
+    <div class="arrow">→</div>
+    click a shade<br>to drill in
+  </div>
+
+  <!-- ============ PANEL B: OLIVES (fine) ============ -->
+  <div class="panel">
+    <div class="crumb"><a>Cool</a><span class="sep">›</span><a>Green</a><span class="sep">›</span><span class="here">Olives</span></div>
+    <div class="title">Olives</div>
+    <div class="sub">a shade of Green · 7 colors</div>
+    <div class="cluster" title="the olives">
+      <span style="background:#706934"></span><span style="background:#505423"></span>
+      <span style="background:#7e8743"></span><span style="background:#888d2a"></span>
+      <span style="background:#718600"></span><span style="background:#99b333"></span>
+      <span style="background:#d1bd19"></span>
+    </div>
+
+    <div class="seclabel">Pairs well with · shades</div>
+    <div class="grow">
+      <span class="mini"><span style="background:#0f261f"></span><span style="background:#00592e"></span><span style="background:#417777"></span><span style="background:#65a98f"></span><span style="background:#23c17c"></span><span style="background:#00d973"></span></span>
+      <span class="nm">Deep Teals</span><span class="ct"><b>12</b> palettes</span><span class="chev">›</span>
+    </div>
+    <div class="grow">
+      <span class="mini"><span style="background:#681916"></span><span style="background:#a32100"></span><span style="background:#a93400"></span><span style="background:#c74300"></span><span style="background:#c2612c"></span><span style="background:#a7374b"></span></span>
+      <span class="nm">Russets &amp; Siennas</span><span class="ct"><b>8</b> palettes</span><span class="chev">›</span>
+    </div>
+    <div class="grow">
+      <span class="mini"><span style="background:#c2975a"></span><span style="background:#b68400"></span><span style="background:#e0b81f"></span><span style="background:#c3a55c"></span><span style="background:#ebd999"></span><span style="background:#8c6510"></span></span>
+      <span class="nm">Tans &amp; Ochres</span><span class="ct"><b>6</b> palettes</span><span class="chev">›</span>
+    </div>
+    <div class="grow">
+      <span class="mini"><span style="background:#2619d1"></span><span style="background:#4733ff"></span><span style="background:#6e66d4"></span><span style="background:#9c52f2"></span><span style="background:#bf36e0"></span><span style="background:#b319ab"></span></span>
+      <span class="nm">Violets</span><span class="ct"><b>4</b> palettes</span><span class="chev">›</span>
+    </div>
+    <div class="grow" style="opacity:.75">
+      <span class="mini"><span style="background:#706934"></span><span style="background:#7e8743"></span><span style="background:#718600"></span><span style="background:#99b333"></span></span>
+      <span class="nm">Within Olives <span style="color:var(--faint);font-style:italic">(monochrome)</span></span><span class="ct"><b>2</b></span><span class="chev">›</span>
+    </div>
+
+    <div class="seclabel">The book's palettes with an olive</div>
+    <div class="plates">
+      <div class="plate">
+        <div class="bars"><span style="background:#7e8743;flex:1.4"></span><span style="background:#c2612c"></span></div>
+        <div class="cap"><span class="no">No. 10</span><br>Dark Citrine · Cinnamon Rufous</div>
+      </div>
+      <div class="plate">
+        <div class="bars"><span style="background:#718600;flex:1.4"></span><span style="background:#e0b81f"></span></div>
+        <div class="cap"><span class="no">No. 96</span><br>Olive · Yellow Ocher</div>
+      </div>
+      <div class="plate">
+        <div class="bars"><span style="background:#888d2a;flex:1.4"></span><span style="background:#6e66d4"></span></div>
+        <div class="cap"><span class="no">No. 100</span><br>Buffy Citrine · Dull Blue Violet</div>
+      </div>
+      <div class="plate">
+        <div class="bars"><span style="background:#7e8743;flex:1.4"></span><span style="background:#80ffcc"></span></div>
+        <div class="cap"><span class="no">No. 41</span><br>Dark Citrine · Calamine Blue</div>
+      </div>
+    </div>
+
+    <div class="seclabel">Narrow to a single color</div>
+    <div class="swrow">
+      <div class="cell" style="background:#706934" title="Light Brownish Olive"></div>
+      <div class="cell" style="background:#505423" title="Deep Grayish Olive"></div>
+      <div class="cell" style="background:#7e8743" title="Dark Citrine"></div>
+      <div class="cell" style="background:#888d2a" title="Buffy Citrine"></div>
+      <div class="cell" style="background:#718600" title="Olive"></div>
+      <div class="cell" style="background:#99b333" title="Olive Yellow"></div>
+      <div class="cell" style="background:#d1bd19" title="Olive Ocher"></div>
+    </div>
+    <p class="hint">the existing single-color view — still one click away, just no longer the only path</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=EB+Garamond:ital@0;1&display=swap">
+<style>
+  :root{
+    --paper-1:#f8f6f2;--paper-2:#f0ebe2;--ink:#2f2a26;--muted:#7e7468;--faint:#b8aea2;
+    --hairline:#e8ddd2;--accent:#f26522;--link:#236192;
+    --serif:'EB Garamond',Georgia,serif;--ui:'Atkinson Hyperlegible',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:linear-gradient(165deg,var(--paper-1),var(--paper-2));color:var(--ink);
+    font-family:var(--ui);line-height:1.5;min-height:100vh}
+  .topbar{display:flex;align-items:baseline;justify-content:space-between;gap:20px;
+    padding:16px 30px;border-bottom:1px solid var(--hairline)}
+  .brand{font-family:var(--serif);font-size:1.3rem;letter-spacing:.1em}
+  .brand .seal{color:var(--accent)}
+  .nav{font-size:.82rem;letter-spacing:.08em;color:var(--muted)}
+  .nav .on{color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:3px}
+  .nav span{margin-left:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 30px 60px}
+  .pagehead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .pagehead h1{font-family:var(--serif);font-weight:400;font-size:1.7rem}
+  .level{display:inline-flex;gap:6px}
+  .level button{font-family:var(--ui);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);background:none;border:1px solid var(--hairline);border-radius:20px;padding:5px 13px;cursor:pointer}
+  .level button.on{color:var(--ink);border-color:var(--accent);background:#fff}
+  .lede{color:#635c50;font-size:.9rem;margin:6px 0 0;max-width:80ch}
+
+  /* palette tray */
+  .tray{margin-top:22px;border:1px solid var(--hairline);border-radius:8px;background:#fbf8f1;padding:16px 18px}
+  .tray .lab{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .chips{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;align-items:stretch}
+  .chip{display:flex;flex-direction:column;gap:6px;border:1px solid var(--hairline);border-radius:6px;
+    background:#fff;padding:8px 8px 7px;min-width:112px}
+  .chip .cl{display:flex;height:26px;border-radius:3px;overflow:hidden}
+  .chip .cl span{flex:1}
+  .chip .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .chip .nm{font-size:.82rem;font-weight:700}
+  .chip .x{color:var(--faint);cursor:pointer;font-size:.95rem;line-height:1}
+  .chip.add{align-items:center;justify-content:center;border-style:dashed;color:var(--faint);
+    min-width:64px;cursor:pointer;font-size:1.5rem}
+
+  .cols{display:grid;grid-template-columns:1.15fr 1fr;gap:26px;margin-top:26px;align-items:start}
+  @media(max-width:820px){.cols{grid-template-columns:1fr}}
+  .seclabel{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+    padding-bottom:7px;border-bottom:1px solid var(--hairline);margin-bottom:12px}
+  .seclabel .q{color:var(--faint);text-transform:none;letter-spacing:0;font-style:italic;font-size:.78rem}
+
+  /* suggestion chips */
+  .sugs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:520px){.sugs{grid-template-columns:1fr}}
+  .sug{display:flex;align-items:center;gap:10px;border:1px solid var(--hairline);border-radius:6px;
+    background:#fff;padding:8px 10px;cursor:pointer}
+  .sug:hover{border-color:var(--accent)}
+  .sug .cl{display:flex;width:58px;height:22px;border-radius:2px;overflow:hidden;flex:0 0 auto}
+  .sug .cl span{flex:1}
+  .sug .meta{flex:1;min-width:0}
+  .sug .nm{font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sug .sc{font-size:.68rem;color:var(--muted)}
+  .sug .star{color:var(--accent);font-size:.7rem;font-weight:700}
+  .sug .plus{width:24px;height:24px;border-radius:50%;border:1px solid var(--hairline);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto}
+  .sug:hover .plus{border-color:var(--accent);color:var(--accent)}
+
+  /* book palettes */
+  .plate{border:1px solid var(--hairline);border-radius:6px;overflow:hidden;background:#fff;margin-bottom:12px;cursor:pointer}
+  .plate .bars{display:flex;height:46px}
+  .plate .bars span{flex:1}
+  .plate .cap{padding:6px 9px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .plate .nm{font-family:var(--serif);font-size:.82rem;color:#5c5548}
+  .plate .no{font-size:.62rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+  .foot{margin-top:30px;color:var(--faint);font-style:italic;font-size:.78rem;text-align:center}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Iro <span class="seal">色</span></div>
+    <div class="nav"><span>Wheel</span><span>Browse</span><span class="on">Match</span><span>About</span></div>
+  </div>
+
+  <div class="wrap">
+    <div class="pagehead">
+      <h1>Build a palette</h1>
+      <div class="level"><button class="on">Shades</button><button>Families</button></div>
+    </div>
+    <p class="lede">Start from a shade you have and see what it goes with; add more shades to build an
+      outfit of three, four, or more. Everything here is shade-level — general enough for a wardrobe,
+      where colors don't have to match exactly.</p>
+
+    <!-- YOUR PALETTE (multi-color) -->
+    <div class="tray">
+      <div class="lab">Your palette · 2 shades</div>
+      <div class="chips">
+        <div class="chip">
+          <div class="cl"><span style="background:#706934"></span><span style="background:#7e8743"></span><span style="background:#888d2a"></span><span style="background:#718600"></span><span style="background:#99b333"></span><span style="background:#d1bd19"></span></div>
+          <div class="row"><span class="nm">Olives</span><span class="x">×</span></div>
+        </div>
+        <div class="chip">
+          <div class="cl"><span style="background:#0f261f"></span><span style="background:#00592e"></span><span style="background:#5c8a73"></span><span style="background:#65a98f"></span><span style="background:#23c17c"></span><span style="background:#00d973"></span></div>
+          <div class="row"><span class="nm">Deep Teals</span><span class="x">×</span></div>
+        </div>
+        <div class="chip add" title="add a shade">+</div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <!-- SUGGESTIONS: pairs with EVERYTHING in the tray -->
+      <div>
+        <div class="seclabel">Add a shade &nbsp;<span class="q">— goes with both olives &amp; deep teals</span></div>
+        <div class="sugs">
+          <div class="sug">
+            <span class="cl"><span style="background:#faed8f"></span><span style="background:#fff59e"></span><span style="background:#ffe600"></span><span style="background:#baa600"></span><span style="background:#c4bf33"></span></span>
+            <span class="meta"><div class="nm">Sunny Yellows</div><div class="sc"><span class="star">★ book-verified</span> · strong</div></span>
+            <span class="plus">+</span>
+          </div>
+          <div class="sug">
+            <span class="cl"><span style="background:#681916"></span><span style="background:#a32100"></span><span style="background:#a93400"></span><span style="background:#c74300"></span><span style="background:#c2612c"></span></span>
+            <span class="meta"><div class="nm">Russets &amp; Siennas</div><div class="sc"><span class="star">★ book-verified</span> · strong</div></span>
+            <span class="plus">+</span>
+          </div>
+          <div class="sug">
+            <span class="cl"><span style="background:#ff7340"></span><span style="background:#ff8c00"></span><span style="background:#fa9442"></span><span style="background:#ffb852"></span><span style="background:#ffab00"></span></span>
+            <span class="meta"><div class="nm">Tangerines</div><div class="sc">pairs with both · strong</div></span>
+            <span class="plus">+</span>
+          </div>
+          <div class="sug">
+            <span class="cl"><span style="background:#b3d9a3"></span><span style="background:#328e13"></span><span style="background:#40c945"></span><span style="background:#19cc33"></span><span style="background:#94ff94"></span></span>
+            <span class="meta"><div class="nm">Leaf Greens</div><div class="sc">pairs with both · medium</div></span>
+            <span class="plus">+</span>
+          </div>
+          <div class="sug">
+            <span class="cl"><span style="background:#f59994"></span><span style="background:#ffcfc4"></span><span style="background:#f2ad78"></span><span style="background:#ffbf99"></span><span style="background:#d99e73"></span></span>
+            <span class="meta"><div class="nm">Blush Pinks</div><div class="sc">pairs with both · medium</div></span>
+            <span class="plus">+</span>
+          </div>
+          <div class="sug">
+            <span class="cl"><span style="background:#1b3644"></span><span style="background:#0d2b52"></span><span style="background:#003e83"></span><span style="background:#0057ba"></span><span style="background:#0024cc"></span></span>
+            <span class="meta"><div class="nm">Deep Blues</div><div class="sc">pairs with both · medium</div></span>
+            <span class="plus">+</span>
+          </div>
+        </div>
+        <p class="lede" style="margin-top:14px;font-size:.8rem">
+          A <span style="color:var(--accent)">★ book-verified</span> shade means the book has an actual
+          palette using all of these together. The rest still pair with each shade you've chosen — looser,
+          but that's what makes it wardrobe-friendly.
+        </p>
+      </div>
+
+      <!-- BOOK PALETTES matching the current set -->
+      <div>
+        <div class="seclabel">The book pairs these &nbsp;<span class="q">— real palettes with olive + teal</span></div>
+        <div class="plate">
+          <div class="bars"><span style="background:#d1bd19"></span><span style="background:#ffab00"></span><span style="background:#29bdad"></span></div>
+          <div class="cap"><span class="nm">Olive Ocher · Orange Yellow · Cerulean Blue</span><span class="no">No. 148</span></div>
+        </div>
+        <div class="plate">
+          <div class="bars"><span style="background:#681916"></span><span style="background:#c0b490"></span><span style="background:#d1bd19"></span><span style="background:#417777"></span></div>
+          <div class="cap"><span class="nm">Hay's Russet · Ecru · Olive Ocher · Dark Medici Blue</span><span class="no">No. 249</span></div>
+        </div>
+        <div class="plate">
+          <div class="bars"><span style="background:#ffb852"></span><span style="background:#d1bd19"></span><span style="background:#328e13"></span><span style="background:#00592e"></span></div>
+          <div class="cap"><span class="nm">Cream Yellow · Olive Ocher · Cossack Green · Dusky Green</span><span class="no">No. 278</span></div>
+        </div>
+        <div class="plate">
+          <div class="bars"><span style="background:#681916"></span><span style="background:#ffb852"></span><span style="background:#7e8743"></span><span style="background:#00d973"></span></div>
+          <div class="cap"><span class="nm">Hay's Russet · Cream Yellow · Dark Citrine · Benzol Green</span><span class="no">No. 304</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="foot">Start with one shade and this reads like an explorer (its partners). Add shades and it
+      becomes an outfit builder. Someday: snap a photo of a garment → we detect its shade → you land right here.</p>
+  </div>
+</body>
+</html>
