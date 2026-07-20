@@ -156,3 +156,18 @@ true-up, TODO ledger reconciliation, and the `v1.0.0` tag.
   / 4+ colors** headers (letterspaced small-caps with a hairline rule and a
   per-section count), each in its own grid, so a 3-color palette never shares
   a row with a 2-color one and the page is easier to flip through.
+
+**Follow-up prompt:**
+
+> better. but now when i over over one of the lines inside the circle, it
+> doesn't really stand out. before at least the other colors faded out a
+> bit. i liked that behaviour, you can see the color connections
+
+**What happened:** the first hover fix over-corrected — to kill the flicker I
+had dropped ribbon-hover dimming entirely, but the flicker's real cause was
+the event thrashing, not the dimming. With keyed delegated events now in
+place (moving between ribbons swaps hot state directly, never clearing then
+re-dimming), the "connections stand out" behavior is safe to restore. Ribbon
+hover once again dims the rest of the wheel and keeps the hovered ribbon
+**plus the two arcs it connects** bright, so you can read the color
+connection. Restored without the flicker returning.

@@ -127,10 +127,15 @@ export function renderChord(
       const key = `r${d.source.index}-${d.target.index}`
       if (key === hoverKey) return
       hoverKey = key
-      // Ribbon hover brightens just this ribbon — no full-scene dimming
-      // (the disc interior is all ribbons; dimming here strobes the wheel).
-      gNode.classList.remove('dimming')
-      setHot([ribbonEl])
+      // Highlight this ribbon + the two arcs it links; dim the rest so the
+      // connection reads clearly. Safe from the old flicker because keyed
+      // delegation swaps hot state directly — it never clears then re-dims.
+      const hot: Element[] = [ribbonEl]
+      arcGroups.each(function (a) {
+        if (a.index === d.source.index || a.index === d.target.index) hot.push(this as Element)
+      })
+      gNode.classList.add('dimming')
+      setHot(hot)
       centerLabel.text(`${nodes[d.source.index].label} × ${nodes[d.target.index].label}`)
     } else if (arcEl) {
       const d = d3.select(arcEl).datum() as d3.ChordGroup
