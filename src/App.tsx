@@ -31,7 +31,7 @@ export default function App() {
         {state.selection?.kind === 'combination' && <CombinationDetail comboId={state.selection.id} dispatch={dispatch} />}
         {state.selection?.kind === 'group' && <GroupDetail groupId={state.selection.id} dispatch={dispatch} />}
         {state.selection?.kind === 'ribbon' && (
-          <RibbonDetail sel={state.selection} sizes={new Set(state.sizes)} dispatch={dispatch} />
+          <RibbonDetail sel={state.selection} sizes={new Set(state.selection.sizes ?? state.sizes)} dispatch={dispatch} />
         )}
         {state.aboutOpen && <AboutPanel dispatch={dispatch} />}
       </main>

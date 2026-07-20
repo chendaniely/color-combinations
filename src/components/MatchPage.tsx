@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { combosForSet, remapKeysToLevel, suggestPartners } from '../core/matching'
 import type { Action, AppState, MatchLevel } from '../core/state'
 import { dataset } from '../data'
@@ -13,9 +14,14 @@ const LEVELS: { level: MatchLevel; label: string }[] = [
 
 export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: Action) => void }) {
   const { level, keys } = state.palette
+  const [levelNotice, setLevelNotice] = useState<string | null>(null)
   function switchLevel(to: MatchLevel) {
     if (to === level) return
-    dispatch({ type: 'setMatchLevel', level: to, keys: remapKeysToLevel(dataset, keys, level, to) })
+    const remapped = remapKeysToLevel(dataset, keys, level, to)
+    setLevelNotice(keys.length > 0 && remapped.length === 0
+      ? `Switched to ${to === 1 ? 'Shades' : 'Families'} — your previous palette doesn't map to a single shade, so pick a new one to start.`
+      : null)
+    dispatch({ type: 'setMatchLevel', level: to, keys: remapped })
   }
   const suggestions = keys.length ? suggestPartners(dataset, level, keys, MATCH_SIZES) : []
   const combos = keys.length ? combosForSet(dataset, level, keys, MATCH_SIZES) : []
@@ -32,7 +38,10 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
       <p className="lede">Start from a shade you have and see what it goes with; add more shades to build an
         outfit of three, four, or more. Colors don't have to match exactly.</p>
       {keys.length === 0 ? (
-        <ShadePicker level={level} dispatch={dispatch} />
+        <>
+          {levelNotice && <p className="empty-note">{levelNotice}</p>}
+          <ShadePicker level={level} dispatch={dispatch} />
+        </>
       ) : (
         <>
           <PaletteTray keys={keys} dispatch={dispatch} />

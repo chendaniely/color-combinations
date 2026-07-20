@@ -13,7 +13,10 @@ function Cluster({ groupId }: { groupId: string }) {
 export function PaletteTray({ keys, dispatch }: { keys: string[]; dispatch: (a: Action) => void }) {
   return (
     <div className="tray">
-      <div className="lab">Your palette · {keys.length} shade{keys.length === 1 ? '' : 's'}</div>
+      <div className="lab">
+        Your palette · {keys.length} shade{keys.length === 1 ? '' : 's'}
+        <button className="tray-clear" onClick={() => dispatch({ type: 'clearPalette' })}>Start over</button>
+      </div>
       <div className="chips">
         {keys.map((k) => (
           <div key={k} className="chip">

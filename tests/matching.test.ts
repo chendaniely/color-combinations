@@ -47,6 +47,10 @@ describe('combosForSet', () => {
   it('excludes quirk combos and non-supersets', () => {
     expect(combosForSet(ix, 1, ['true-reds'], ALL).map((c) => c.id)).toEqual([11, 14])
   })
+  it('respects a restricted size set', () => {
+    // only 2-color combos: 10=[1,4] and 11=[2,3] contain dusty-pinks; 12 (size3), 14 (size5) drop
+    expect(combosForSet(ix, 1, ['dusty-pinks'], new Set<2 | 3 | 4>([2])).map((c) => c.id)).toEqual([10, 11])
+  })
 })
 
 describe('suggestPartners', () => {
@@ -66,5 +70,10 @@ describe('suggestPartners', () => {
   })
   it('empty set returns nothing', () => {
     expect(suggestPartners(ix, 1, [], ALL)).toEqual([])
+  })
+  it('works at the super-group level (3)', () => {
+    // warm = {pink,red}, cool = {blue+grays}; combos link them
+    const res = suggestPartners(ix, 3, ['warm'], ALL)
+    expect(res.map((p) => p.key)).toEqual(['cool'])
   })
 })

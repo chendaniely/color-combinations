@@ -6,7 +6,7 @@ export type Selection =
   | { kind: 'color'; id: number }
   | { kind: 'combination'; id: number }
   | { kind: 'group'; id: string }
-  | { kind: 'ribbon'; level: GranularityLevel; keyA: string; keyB: string }
+  | { kind: 'ribbon'; level: GranularityLevel; keyA: string; keyB: string; sizes?: SizeBucket[] }
 
 export type MatchLevel = 1 | 2
 

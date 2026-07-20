@@ -16,7 +16,10 @@ export function GroupMatches({ groupId, dispatch }: { groupId: string; dispatch:
       <div className="partner-list">
         {partners.map((p) => (
           <button key={p.key} className="partner"
-            onClick={() => dispatch({ type: 'select', selection: { kind: 'ribbon', level, keyA: groupId, keyB: p.key } })}>
+            onClick={() => dispatch({
+              type: 'select',
+              selection: { kind: 'ribbon', level, keyA: groupId, keyB: p.key, sizes: [2, 3, 4] },
+            })}>
             <span className="cl">
               {groupMembers(dataset, p.key).map((c) => <span key={c.id} style={{ background: c.hex }} />)}
             </span>
