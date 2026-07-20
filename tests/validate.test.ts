@@ -46,7 +46,7 @@ describe('validateDataset', () => {
     expect(() => validateDataset(d)).toThrow(/cross-reference/i)
   })
   it('rejects missing groups with a named error', () => {
-    const d = clone() as Record<string, unknown>
+    const d = clone() as unknown as Record<string, unknown>
     delete d.groups
     expect(() => validateDataset(d)).toThrow(/groups/)
   })

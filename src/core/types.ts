@@ -1,5 +1,6 @@
 export const SCHEMA_VERSION = 1
-export type { RGB } from './colorMath'   // re-export
+import type { RGB } from './colorMath'
+export type { RGB }
 export type CMYK = [number, number, number, number]
 export interface ColorRecord {
   id: number            // source "index", stable
