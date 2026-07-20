@@ -25,7 +25,8 @@ export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
     <div className="search-box">
       <input ref={inputRef} value={q} placeholder="find a color… (navy, olive)"
         aria-label="Search colors"
-        onChange={(e) => { setQ(e.target.value); setActive(0) }} onKeyDown={onKeyDown} />
+        onChange={(e) => { setQ(e.target.value); setActive(0) }} onKeyDown={onKeyDown}
+        onBlur={() => { setTimeout(() => setQ(''), 150) }} />
       {matches.length > 0 && (
         <ul className="search-results" role="listbox">
           {matches.map((c, i) => (
