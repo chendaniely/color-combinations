@@ -6,8 +6,10 @@ import { BrowseView } from '../src/components/BrowseView'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
 import { GroupDetail } from '../src/components/GroupDetail'
+import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
 import { initialState } from '../src/core/state'
+import { dataset } from '../src/data'
 
 describe('app shell', () => {
   it('renders header, nav and data-driven shell without crashing', () => {
@@ -37,5 +39,16 @@ describe('app shell', () => {
       ),
     ).toContain('combination')
     expect(renderToString(<AboutPanel dispatch={noop} />)).toContain('Sanzo Wada')
+  })
+
+  it('match page shows the picker when empty and suggestions when seeded', () => {
+    const empty = { ...initialState, view: 'match' as const }
+    expect(renderToString(<MatchPage state={empty} dispatch={() => {}} />)).toContain('Pick a shade')
+
+    const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
+    const seeded = { ...initialState, view: 'match' as const, palette: { level: 1 as const, keys: [olives] } }
+    const html = renderToString(<MatchPage state={seeded} dispatch={() => {}} />)
+    expect(html).toContain('Your palette')
+    expect(html).toContain('Build a palette')
   })
 })
