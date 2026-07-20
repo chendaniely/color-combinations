@@ -1,0 +1,46 @@
+@import './fonts.css';
+@import './tokens.css';
+
+* { box-sizing: border-box; margin: 0; }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: linear-gradient(160deg, var(--paper-1), var(--paper-2)) fixed;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+a { color: var(--link); }
+button { font-family: var(--font-ui); cursor: pointer; }
+
+.app { display: flex; flex-direction: column; height: 100%; }
+main { flex: 1; min-height: 0; position: relative; }
+
+/* Header */
+.header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s6); padding: var(--s4) var(--s8);
+  border-bottom: 1px solid var(--hairline);
+}
+.wordmark { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.12em; }
+.wordmark .seal { color: var(--accent); }
+.wordmark small {
+  color: var(--ink-faint); font-family: var(--font-ui); font-size: 0.65rem;
+  letter-spacing: var(--tracking-wide); margin-left: var(--s2); text-transform: uppercase;
+}
+.nav { display: flex; align-items: center; gap: var(--s4); }
+.nav button {
+  background: none; border: none; color: var(--ink-muted); font-size: 0.85rem;
+  letter-spacing: var(--tracking-label); padding: var(--s1) 0;
+  border-bottom: 2px solid transparent;
+}
+.nav button:hover { color: var(--ink); }
+.nav button[aria-pressed='true'] { color: var(--ink); border-bottom-color: var(--accent); }
+.nav .surprise {
+  border: 1px solid var(--ink-faint); border-radius: var(--radius);
+  padding: var(--s1) var(--s3);
+}
+.nav .surprise:hover { border-color: var(--accent); color: var(--ink); }

@@ -1,3 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import App from './App'
+import './styles/app.css'
 
-createRoot(document.getElementById('root')!).render(<h1>Iro 色</h1>)
+createRoot(document.getElementById('root')!).render(<App />)
