@@ -1,6 +1,7 @@
 import { cssVariablesFor, jsonFor } from '../core/export'
 import type { Action } from '../core/state'
 import { copyText } from '../copy'
+import { downloadPlatePng } from '../exportPng'
 import { CopyField } from './CopyField'
 import { Panel } from './Panel'
 import { PlateCard } from './PlateCard'
@@ -36,6 +37,7 @@ export function CombinationDetail({ comboId, dispatch }: { comboId: number; disp
         <button onClick={() => copyAs('json', jsonFor(dataset, combo))}>
           {copiedWhat === 'json' ? 'copied ✓' : 'Copy JSON'}
         </button>
+        <button onClick={() => downloadPlatePng(dataset, combo)}>Download PNG</button>
       </div>
     </Panel>
   )
