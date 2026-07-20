@@ -1,6 +1,10 @@
 import { useReducer } from 'react'
 import { ChordWheel } from './components/ChordWheel'
+import { ColorDetail } from './components/ColorDetail'
+import { CombinationDetail } from './components/CombinationDetail'
+import { GroupDetail } from './components/GroupDetail'
 import { Header } from './components/Header'
+import { RibbonDetail } from './components/RibbonDetail'
 import { WheelControls } from './components/WheelControls'
 import { initialState, reducer } from './core/state'
 
@@ -17,6 +21,12 @@ export default function App() {
           </div>
         ) : (
           <p style={{ padding: '2rem' }}>browse goes here</p>
+        )}
+        {state.selection?.kind === 'color' && <ColorDetail colorId={state.selection.id} dispatch={dispatch} />}
+        {state.selection?.kind === 'combination' && <CombinationDetail comboId={state.selection.id} dispatch={dispatch} />}
+        {state.selection?.kind === 'group' && <GroupDetail groupId={state.selection.id} dispatch={dispatch} />}
+        {state.selection?.kind === 'ribbon' && (
+          <RibbonDetail sel={state.selection} sizes={new Set(state.sizes)} dispatch={dispatch} />
         )}
       </main>
     </div>
