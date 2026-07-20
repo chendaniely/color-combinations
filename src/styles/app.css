@@ -51,17 +51,24 @@ main { flex: 1; min-height: 0; position: relative; }
   flex: 1; min-height: 0; width: 100%; max-width: 78vh;
   transform: rotate(-4deg); /* wabi-sabi: gently off-axis */
 }
-.chord-wheel .ribbon { opacity: 0.55; mix-blend-mode: multiply; transition: opacity var(--dur-fast) var(--ease); cursor: pointer; }
-.chord-wheel .ribbon:hover { opacity: 0.85; }
-.chord-wheel .ribbon.dimmed { opacity: 0.08; }
-.chord-wheel .arc { cursor: pointer; transition: opacity var(--dur-fast) var(--ease); }
-.chord-wheel .arc.dimmed { opacity: 0.25; }
+.chord-wheel .ribbon { opacity: 0.55; transition: opacity var(--dur-hover) var(--ease); cursor: pointer; }
+/* Blend mode is painterly but expensive — chordRender enables it (g.wheel.blend)
+   only at group levels, where ribbons number dozens, not ~1000. */
+.chord-wheel g.wheel.blend .ribbon { mix-blend-mode: multiply; }
+.chord-wheel .ribbon.hot { opacity: 0.9; }
+.chord-wheel .arc { cursor: pointer; transition: opacity var(--dur-hover) var(--ease); }
+/* Arc hover dims everything outside the hovered neighborhood (one container
+   class + a small .hot set — never per-element sweeps; see chordRender.ts). */
+.chord-wheel g.wheel.dimming .ribbon:not(.hot) { opacity: 0.06; }
+.chord-wheel g.wheel.dimming .arc:not(.hot) { opacity: 0.25; }
 .chord-wheel .arc-label {
   font-family: var(--font-ui); font-size: 12px; letter-spacing: var(--tracking-label);
   fill: var(--ink-muted); text-transform: uppercase;
+  pointer-events: none;
 }
 .chord-wheel .wheel-center-label {
   font-family: var(--font-display); font-size: 26px; fill: var(--ink);
+  pointer-events: none;
 }
 .wheel-controls { padding: var(--s4) var(--s8) var(--s6); text-align: center; }
 .granularity { display: inline-flex; gap: var(--s2); }

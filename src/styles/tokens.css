@@ -26,6 +26,7 @@
   --radius: 3px;
   --header-height: 64px;
   /* motion */
+  --dur-hover: 120ms;
   --dur-fast: 200ms;
   --dur: 500ms;
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);

@@ -1,4 +1,10 @@
 // The chord diagram. ALL D3 usage is quarantined in this file.
+//
+// Hover design note: at the Colors level there are ~1000 ribbon paths and the
+// entire disc interior is covered by them. Hover state therefore uses three
+// delegated listeners on the wheel group and O(hovered-neighborhood) class
+// writes — never per-element listeners or full-scene class sweeps, which
+// caused visible flicker (see PROMPTS.md 2026-07-19 session 3).
 import * as d3 from 'd3'
 import type { WheelNode } from '../core/chord'
 
@@ -10,6 +16,8 @@ export interface ChordCallbacks {
 const SIZE = 840
 const OUTER = SIZE / 2 - 60
 const INNER = OUTER - 24
+// mix-blend-mode is painterly but expensive; only worth it when few ribbons.
+const BLEND_MAX_NODES = 40
 
 export function renderChord(
   svgEl: SVGSVGElement, nodes: WheelNode[], matrix: number[][], cb: ChordCallbacks,
@@ -25,8 +33,11 @@ export function renderChord(
     .padAngle(nodes.length > 40 ? 0.004 : 0.02)
     .sortSubgroups(d3.descending)(matrix)
 
-  const g = svg.append('g').attr('class', 'wheel').style('opacity', 0)
+  const g = svg.append('g')
+    .attr('class', nodes.length <= BLEND_MAX_NODES ? 'wheel blend' : 'wheel')
+    .style('opacity', 0)
   g.transition().duration(motionOk ? 300 : 0).style('opacity', 1)
+  const gNode = g.node()!
 
   const arcGen = d3.arc<d3.ChordGroup>().innerRadius(INNER).outerRadius(OUTER)
   const ribbonGen = d3.ribbon<d3.Chord, d3.ChordSubgroup>().radius(INNER - 2)
@@ -48,32 +59,14 @@ export function renderChord(
     .attr('class', 'ribbon')
     .attr('d', ribbonGen as never)
     .attr('fill', (d) => nodeColor(d.source.index))
-    .attr('data-a', (d) => nodes[d.source.index].key)
-    .attr('data-b', (d) => nodes[d.target.index].key)
-    .on('click', (_e, d) => cb.onRibbonClick(nodes[d.source.index].key, nodes[d.target.index].key))
-    .on('mouseenter', function (_e, d) {
-      ribbons.classed('dimmed', (r) => r !== d)
-      arcs.classed('dimmed', (_a, i) => i !== d.source.index && i !== d.target.index)
-      centerLabel.text(`${nodes[d.source.index].label} × ${nodes[d.target.index].label}`)
-    })
-    .on('mouseleave', clearHover)
 
   // Arcs: one group per node; group nodes render member-colored segments.
   const arcGroups = g.append('g').selectAll('g.arc')
     .data(layout.groups)
     .join('g')
     .attr('class', 'arc')
-    .on('click', (_e, d) => cb.onArcClick(nodes[d.index].key))
-    .on('mouseenter', function (_e, d) {
-      const key = nodes[d.index].key
-      ribbons.classed('dimmed', (r) =>
-        nodes[r.source.index].key !== key && nodes[r.target.index].key !== key)
-      arcs.classed('dimmed', (_a, i) => i !== d.index)
-      centerLabel.text(nodes[d.index].label)
-    })
-    .on('mouseleave', clearHover)
 
-  const arcs = arcGroups.each(function (d) {
+  arcGroups.each(function (d) {
     const hexes = nodes[d.index].swatchHexes
     const step = (d.endAngle - d.startAngle) / hexes.length
     d3.select(this).selectAll('path')
@@ -103,9 +96,68 @@ export function renderChord(
       .text((d) => nodes[d.index].label)
   }
 
-  function clearHover() {
-    ribbons.classed('dimmed', false)
-    arcs.classed('dimmed', false)
+  // --- Delegated hover & click ---------------------------------------------
+  // State is keyed so repeated pointerover events within the same element
+  // (e.g. crossing sub-segments of one arc) are no-ops, and moving between
+  // elements swaps state directly with no intermediate "clear all" flash.
+  let hoverKey: string | null = null
+  let hotEls: Element[] = []
+
+  function setHot(els: Element[]): void {
+    for (const el of hotEls) el.classList.remove('hot')
+    hotEls = els
+    for (const el of hotEls) el.classList.add('hot')
+  }
+
+  function clearHover(): void {
+    hoverKey = null
+    gNode.classList.remove('dimming')
+    setHot([])
     centerLabel.text('')
   }
+
+  function resolveTarget(target: Element): { ribbonEl: Element | null; arcEl: Element | null } {
+    return { ribbonEl: target.closest('path.ribbon'), arcEl: target.closest('g.arc') }
+  }
+
+  g.on('pointerover', (event: PointerEvent) => {
+    const { ribbonEl, arcEl } = resolveTarget(event.target as Element)
+    if (ribbonEl) {
+      const d = d3.select(ribbonEl).datum() as d3.Chord
+      const key = `r${d.source.index}-${d.target.index}`
+      if (key === hoverKey) return
+      hoverKey = key
+      // Ribbon hover brightens just this ribbon — no full-scene dimming
+      // (the disc interior is all ribbons; dimming here strobes the wheel).
+      gNode.classList.remove('dimming')
+      setHot([ribbonEl])
+      centerLabel.text(`${nodes[d.source.index].label} × ${nodes[d.target.index].label}`)
+    } else if (arcEl) {
+      const d = d3.select(arcEl).datum() as d3.ChordGroup
+      const key = `a${d.index}`
+      if (key === hoverKey) return
+      hoverKey = key
+      const connected: Element[] = [arcEl]
+      ribbons.each(function (r) {
+        if (r.source.index === d.index || r.target.index === d.index) connected.push(this as Element)
+      })
+      gNode.classList.add('dimming')
+      setHot(connected)
+      centerLabel.text(nodes[d.index].label)
+    }
+    // Anything else (gaps, center): keep the current state — no flashing.
+  })
+
+  g.on('pointerleave', clearHover)
+
+  g.on('click', (event: PointerEvent) => {
+    const { ribbonEl, arcEl } = resolveTarget(event.target as Element)
+    if (ribbonEl) {
+      const d = d3.select(ribbonEl).datum() as d3.Chord
+      cb.onRibbonClick(nodes[d.source.index].key, nodes[d.target.index].key)
+    } else if (arcEl) {
+      const d = d3.select(arcEl).datum() as d3.ChordGroup
+      cb.onArcClick(nodes[d.index].key)
+    }
+  })
 }
