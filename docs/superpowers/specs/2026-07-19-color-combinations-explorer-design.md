@@ -1,7 +1,7 @@
 # Design: Sanzo Wada Color Combinations Explorer
 
 **Date:** 2026-07-19
-**Status:** Approved pending user review of this document
+**Status:** v1 shipped (2026-07-19)
 **Deploy target:** GitHub Pages (fully static)
 
 ## Purpose
