@@ -171,3 +171,36 @@ re-dimming), the "connections stand out" behavior is safe to restore. Ribbon
 hover once again dims the rest of the wheel and keeps the hovered ribbon
 **plus the two arcs it connects** bright, so you can read the color
 connection. Restored without the flicker returning.
+
+**Follow-up prompt:**
+
+> let's do another thinking pass about a solution for the color wheel to
+> make it smoother. in the colors only verion (not shades, families, groups)
+> it still gets twitchy when i am hovering over.
+>
+> i think this is because sometimes as you are hovering over the inner lines
+> you rmouse doesn't actually land on anyplace, so it flashes back into the
+> full wheel view. let's have the mouse always snap to the nearest object
+> (line inside or box outside) it hinkt his will help. what do you think? or
+> do you think we need to use a different library?
+
+**What happened:** the owner's diagnosis was exactly right. An SVG `<g>` has
+no fill of its own, so at the Colors level (~1000 thin ribbons with gaps
+between them + a hollow center) a cursor in a gap is "over nothing" — the
+group's `pointerleave` fired and the wheel flashed back to the full view,
+then the next ribbon re-dimmed it. No library change was warranted (any
+renderer has the same gap problem, and d3 already bundles `d3-delaunay` for
+nearest-neighbor lookup). Fix (`chordRender.ts` rewrite): a transparent
+backing disc (`.wheel-hit`, radius `OUTER+30`) gives the whole wheel a hit
+surface so `pointerleave` only fires at the true edge; hover now resolves by
+**geometry from the cursor position** rather than which path it's on —
+outside the inner radius it snaps to the arc at that angle, inside it snaps
+to the nearest ribbon via a Delaunay index of points sampled along each
+ribbon's centerline (a quadratic Bézier through the origin, matching
+d3.ribbon). Resolution is keyed and rAF-throttled, so the highlight only
+changes when the nearest object changes — it glides instead of strobing, and
+there are no dead gaps to flash on. Clicks snap the same way (a click in a
+gap selects the nearest line/box). The wabi-sabi tilt moved from a CSS
+transform on the `<svg>` onto the SVG group so `d3.pointer`'s coordinate math
+includes it and pointer→angle stays exact. Ribbons/arcs are now
+`pointer-events: none` (the backing disc is the sole hit target).
