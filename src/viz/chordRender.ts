@@ -120,11 +120,13 @@ export function renderChord(
       .text((d) => nodes[d.index].label)
   }
 
-  // Center label appended last so it always reads on top.
+  // Center label appended last so it always reads on top. Counter-rotate the
+  // group's tilt so the hover text stays upright (only the wheel is off-axis).
   const centerLabel = g.append('text')
     .attr('class', 'wheel-center-label')
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
+    .attr('transform', `rotate(${-TILT_DEG})`)
 
   // --- Nearest-object index (the "snap") ------------------------------------
   // Sample points along each ribbon's centerline (a quadratic Bézier through

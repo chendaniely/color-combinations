@@ -172,6 +172,17 @@ hover once again dims the rest of the wheel and keeps the hovered ribbon
 **plus the two arcs it connects** bright, so you can read the color
 connection. Restored without the flicker returning.
 
+**Follow-up prompt (later, after the Match feature shipped):**
+
+> the text of the colors on hoverover is not straight naymore it's slanted
+
+**What happened:** the earlier snap-to-nearest fix moved the wheel's -4°
+wabi-sabi tilt from a CSS transform on the `<svg>` onto the SVG group (so
+`d3.pointer` angle math stays exact). That group rotation also tilted the
+center label that shows the hovered color's name. Fix: counter-rotate the
+center label by +4° (`rotate(${-TILT_DEG})`) so the hover text reads upright
+while the colorful wheel keeps its off-axis tilt.
+
 **Follow-up prompt:**
 
 > let's do another thinking pass about a solution for the color wheel to
