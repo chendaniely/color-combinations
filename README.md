@@ -43,7 +43,7 @@ Run these from the project folder. `make help` lists them all.
 - **Match** (header tab) — build an outfit palette: start from a shade, see
   what the book pairs it with, and add more shades to make a 3-, 4-, or
   more-color set. General shade-level matching, so colors don't have to be
-  exact. Also reachable from any group on the wheel via "Build a palette from
+  exact. Also reachable from any Shade or Family group on the wheel via "Build a palette from
   this →".
 - **Theme a website or deck** — find a combination you love, then copy its hex
   codes, CSS variables, or JSON straight into your project.
