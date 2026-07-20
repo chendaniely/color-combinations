@@ -204,3 +204,30 @@ gap selects the nearest line/box). The wabi-sabi tilt moved from a CSS
 transform on the `<svg>` onto the SVG group so `d3.pointer`'s coordinate math
 includes it and pointer→angle stays exact. Ribbons/arcs are now
 `pointer-events: none` (the backing disc is the sole hit target).
+
+## 2026-07-20 — Session 4: Color matching & outfit builder
+
+**Owner prompt (kickoff):** improve the outfit-matching persona — when working
+on a group (shades/families/groups) show the matching colors, and allow going
+from general and slowly drilling down without jumping straight to a single
+color ("we're skipping a bit too many steps").
+
+**Decisions (see the spec's decisions log):** panel shows ranked partners AND
+palettes; progressive narrowing within the panel (breadcrumb + sub-groups);
+**keep the enriched panel AND add a new Match page**; the Match page combines a
+pivot explorer with an outfit builder and supports **more than two colors**;
+build from shades (exact-color pinning deferred); Match levels are Shades and
+Families; a "Build a palette from this →" bridge seeds the page from a group.
+
+> "i do like the ability where i can still click on a single shade… but i need
+> a way to go from general and slowly drill down without drilling down to a
+> single color."
+>
+> "i like a combination of pivot + outfit builder. the goal is to be able to
+> pick colors and be able to pick more than 2 colors."
+>
+> "i do like the preview you also suggested earlier as well in the sidebar…
+> the new page here is just a more detailed way to build a color set as well."
+
+**Spec:** `docs/superpowers/specs/2026-07-20-color-matching-and-outfit-builder-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-20-color-matching-and-outfit-builder.md`

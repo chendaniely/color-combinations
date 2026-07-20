@@ -21,6 +21,7 @@ export function Header({ state, dispatch }: Props) {
         <SearchBox dispatch={dispatch} />
         <button aria-pressed={state.view === 'wheel'} onClick={() => dispatch({ type: 'setView', view: 'wheel' })}>Wheel</button>
         <button aria-pressed={state.view === 'browse'} onClick={() => dispatch({ type: 'setView', view: 'browse' })}>Browse</button>
+        <button aria-pressed={state.view === 'match'} onClick={() => dispatch({ type: 'setView', view: 'match' })}>Match</button>
         <button aria-pressed={state.aboutOpen} onClick={() => dispatch({ type: 'toggleAbout' })}>About</button>
         <button className="surprise" onClick={surprise}>Surprise me</button>
       </nav>

@@ -23,7 +23,10 @@ export function ChordWheel({ state, dispatch }: Props) {
             : { kind: 'group', id: key },
         }),
       onRibbonClick: (keyA, keyB) =>
-        dispatch({ type: 'select', selection: { kind: 'ribbon', level: granularity, keyA, keyB } }),
+        dispatch({
+          type: 'select',
+          selection: { kind: 'ribbon', level: granularity, keyA, keyB, sizes: [...state.sizes] },
+        }),
     })
   }, [granularity, sizes, dispatch])
 

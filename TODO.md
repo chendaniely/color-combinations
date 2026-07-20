@@ -50,3 +50,12 @@ Move finished items to TODO-completed.md with the commit hash.
       and a product call on whether colors with zero combinations reading
       as zero-width arcs at the Colors granularity level is acceptable or
       needs a minimum-width/placeholder treatment
+- [ ] Match page: pin an exact color per shade in a built palette (build is
+      shade-level today)
+- [ ] Match page: save / name / export a built outfit palette
+- [ ] Match page: super-group (Groups) level (currently Shades + Families only)
+- [ ] Seed the Match page from a detected shade (photo → shade → land here) —
+      depends on the nearest-color/photo work already in this list
+- [ ] Match page: clear the "Switched to Shades…" level-switch notice when the
+      palette is emptied by a non-switch path ("Start over" / removing the last
+      chip), so a stale message can't reappear on the picker

@@ -5,6 +5,7 @@ describe('app state reducer', () => {
   it('starts on the wheel at color granularity with all sizes on', () => {
     expect(initialState).toEqual({
       view: 'wheel', granularity: 0, sizes: [2, 3, 4], selection: null, aboutOpen: false,
+      palette: { level: 1, keys: [] },
     })
   })
   it('switches views', () => {
@@ -30,6 +31,45 @@ describe('app state reducer', () => {
   it('about toggles and state stays serializable', () => {
     const s = reducer(initialState, { type: 'toggleAbout' })
     expect(s.aboutOpen).toBe(true)
+    expect(JSON.parse(JSON.stringify(s))).toEqual(s)
+  })
+  it('starts with an empty shades palette', () => {
+    expect(initialState.palette).toEqual({ level: 1, keys: [] })
+  })
+  it('seedPalette sets one key, enters match, closes panels', () => {
+    const s = reducer(
+      { ...initialState, selection: { kind: 'color', id: 1 }, aboutOpen: true },
+      { type: 'seedPalette', key: 'olives', level: 1 })
+    expect(s.view).toBe('match')
+    expect(s.palette).toEqual({ level: 1, keys: ['olives'] })
+    expect(s.selection).toBeNull()
+    expect(s.aboutOpen).toBe(false)
+  })
+  it('addToPalette appends and dedupes', () => {
+    let s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
+    s = reducer(s, { type: 'addToPalette', key: 'deep-teals' })
+    s = reducer(s, { type: 'addToPalette', key: 'olives' }) // dup no-op
+    expect(s.palette.keys).toEqual(['olives', 'deep-teals'])
+  })
+  it('removeFromPalette drops a key', () => {
+    let s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
+    s = reducer(s, { type: 'addToPalette', key: 'deep-teals' })
+    s = reducer(s, { type: 'removeFromPalette', key: 'olives' })
+    expect(s.palette.keys).toEqual(['deep-teals'])
+  })
+  it('setMatchLevel replaces level and keys (mapping done by caller)', () => {
+    let s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
+    s = reducer(s, { type: 'setMatchLevel', level: 2, keys: ['green'] })
+    expect(s.palette).toEqual({ level: 2, keys: ['green'] })
+  })
+  it('clearPalette empties keys but keeps level and match view', () => {
+    let s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
+    s = reducer(s, { type: 'clearPalette' })
+    expect(s.palette).toEqual({ level: 1, keys: [] })
+    expect(s.view).toBe('match')
+  })
+  it('palette state stays JSON-serializable', () => {
+    const s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
     expect(JSON.parse(JSON.stringify(s))).toEqual(s)
   })
 })

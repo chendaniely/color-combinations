@@ -6,8 +6,10 @@ import { BrowseView } from '../src/components/BrowseView'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
 import { GroupDetail } from '../src/components/GroupDetail'
+import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
 import { initialState } from '../src/core/state'
+import { dataset } from '../src/data'
 
 describe('app shell', () => {
   it('renders header, nav and data-driven shell without crashing', () => {
@@ -30,12 +32,31 @@ describe('app shell', () => {
 
   it('renders group, ribbon, and about panels without crashing', () => {
     const noop = () => {}
-    expect(renderToString(<GroupDetail groupId="blue" dispatch={noop} />)).toContain('colors')
+    expect(renderToString(<GroupDetail groupId="blue" dispatch={noop} />)).toContain('Pairs well with')
     expect(
       renderToString(
         <RibbonDetail sel={{ kind: 'ribbon', level: 2, keyA: 'pink', keyB: 'blue' }} sizes={new Set<2 | 3 | 4>([2, 3, 4])} dispatch={noop} />,
       ),
     ).toContain('combination')
     expect(renderToString(<AboutPanel dispatch={noop} />)).toContain('Sanzo Wada')
+  })
+
+  it('match page shows the picker when empty and suggestions when seeded', () => {
+    const empty = { ...initialState, view: 'match' as const }
+    expect(renderToString(<MatchPage state={empty} dispatch={() => {}} />)).toContain('Pick a shade')
+
+    const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
+    const seeded = { ...initialState, view: 'match' as const, palette: { level: 1 as const, keys: [olives] } }
+    const html = renderToString(<MatchPage state={seeded} dispatch={() => {}} />)
+    expect(html).toContain('Your palette')
+    expect(html).toContain('Build a palette')
+  })
+
+  it('group panel shows breadcrumb, matches, and narrow-to for a shade', () => {
+    const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
+    const html = renderToString(<GroupDetail groupId={olives} dispatch={() => {}} />)
+    expect(html).toContain('Pairs well with')
+    expect(html).toContain('Build a palette from this')
+    expect(html).toContain('Narrow to a single color')
   })
 })
