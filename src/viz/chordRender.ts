@@ -14,17 +14,19 @@ const INNER = OUTER - 24
 export function renderChord(
   svgEl: SVGSVGElement, nodes: WheelNode[], matrix: number[][], cb: ChordCallbacks,
 ): void {
+  const motionOk = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   const svg = d3.select(svgEl)
     .attr('viewBox', `${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`)
 
-  svg.selectAll('g.wheel').transition().duration(200).style('opacity', 0).remove()
+  svg.selectAll('g.wheel').transition().duration(motionOk ? 200 : 0).style('opacity', 0).remove()
 
   const layout = d3.chord()
     .padAngle(nodes.length > 40 ? 0.004 : 0.02)
     .sortSubgroups(d3.descending)(matrix)
 
   const g = svg.append('g').attr('class', 'wheel').style('opacity', 0)
-  g.transition().duration(300).style('opacity', 1)
+  g.transition().duration(motionOk ? 300 : 0).style('opacity', 1)
 
   const arcGen = d3.arc<d3.ChordGroup>().innerRadius(INNER).outerRadius(OUTER)
   const ribbonGen = d3.ribbon<d3.Chord, d3.ChordSubgroup>().radius(INNER - 2)

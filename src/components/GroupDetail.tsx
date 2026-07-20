@@ -12,6 +12,7 @@ export function GroupDetail({ groupId, dispatch }: { groupId: string; dispatch: 
       <div className="swatch-grid">
         {members.map((c) => (
           <button key={c.id} className="swatch-cell" style={{ background: c.hex }} title={c.name}
+            aria-label={c.name}
             onClick={() => dispatch({ type: 'select', selection: { kind: 'color', id: c.id } })} />
         ))}
       </div>

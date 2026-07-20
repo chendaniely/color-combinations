@@ -32,6 +32,9 @@ export default function App() {
         )}
         {state.aboutOpen && <AboutPanel dispatch={dispatch} />}
       </main>
+      <footer className="footer">
+        <span className="hanko" title="iro — color">色</span>
+      </footer>
     </div>
   )
 }

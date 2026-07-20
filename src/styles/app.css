@@ -175,3 +175,36 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 .search-results [aria-selected='true'] button, .search-results button:hover { background: var(--paper-2); }
 .search-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+
+/* Footer */
+.footer { display: flex; justify-content: flex-end; padding: var(--s2) var(--s6); }
+.hanko {
+  width: 26px; height: 26px; background: var(--accent); color: var(--paper-1);
+  font-size: 13px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius);
+}
+
+/* Focus visibility */
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* Responsive */
+@media (max-width: 760px) {
+  .header { flex-direction: column; align-items: flex-start; gap: var(--s3); padding: var(--s3) var(--s4); }
+  .nav { flex-wrap: wrap; }
+  .search-box input { width: 130px; }
+  .chord-wheel { max-width: 96vw; }
+  .browse-view { padding: var(--s4); }
+  .browse-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  /* Panels become bottom sheets */
+  .panel {
+    top: auto; left: 0; right: 0; width: auto; max-width: none; max-height: 72vh;
+    border-left: none; border-top: 1px solid var(--hairline);
+    animation: sheet-in var(--dur) var(--ease);
+  }
+  @keyframes sheet-in { from { transform: translateY(30px); opacity: 0; } }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
