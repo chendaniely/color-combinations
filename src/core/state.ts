@@ -8,12 +8,15 @@ export type Selection =
   | { kind: 'group'; id: string }
   | { kind: 'ribbon'; level: GranularityLevel; keyA: string; keyB: string }
 
+export type MatchLevel = 1 | 2
+
 export interface AppState {
-  view: 'wheel' | 'browse'
+  view: 'wheel' | 'browse' | 'match'
   granularity: GranularityLevel
   sizes: SizeBucket[]
   selection: Selection | null
   aboutOpen: boolean
+  palette: { level: MatchLevel; keys: string[] }
 }
 
 export type Action =
@@ -23,6 +26,11 @@ export type Action =
   | { type: 'select'; selection: Selection }
   | { type: 'closePanel' }
   | { type: 'toggleAbout' }
+  | { type: 'seedPalette'; key: string; level: MatchLevel }
+  | { type: 'addToPalette'; key: string }
+  | { type: 'removeFromPalette'; key: string }
+  | { type: 'setMatchLevel'; level: MatchLevel; keys: string[] }
+  | { type: 'clearPalette' }
 
 export const initialState: AppState = {
   view: 'wheel',
@@ -30,6 +38,7 @@ export const initialState: AppState = {
   sizes: [2, 3, 4],
   selection: null,
   aboutOpen: false,
+  palette: { level: 1, keys: [] },
 }
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -52,5 +61,23 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, selection: null }
     case 'toggleAbout':
       return { ...state, aboutOpen: !state.aboutOpen, selection: null }
+    case 'seedPalette':
+      return {
+        ...state, view: 'match', selection: null, aboutOpen: false,
+        palette: { level: action.level, keys: [action.key] },
+      }
+    case 'addToPalette': {
+      if (state.palette.keys.includes(action.key)) return state
+      return { ...state, palette: { ...state.palette, keys: [...state.palette.keys, action.key] } }
+    }
+    case 'removeFromPalette':
+      return {
+        ...state,
+        palette: { ...state.palette, keys: state.palette.keys.filter((k) => k !== action.key) },
+      }
+    case 'setMatchLevel':
+      return { ...state, palette: { level: action.level, keys: action.keys } }
+    case 'clearPalette':
+      return { ...state, palette: { ...state.palette, keys: [] } }
   }
 }
