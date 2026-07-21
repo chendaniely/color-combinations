@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { groupMembers } from '../core/dataset'
-import type { Action, MatchLevel } from '../core/state'
+import type { Action } from '../core/state'
 import { dataset } from '../data'
 
-export function ShadePicker({ level, dispatch }: { level: MatchLevel; dispatch: (a: Action) => void }) {
+export function ShadePicker({ level, dispatch }: { level: 1 | 2; dispatch: (a: Action) => void }) {
   const [q, setQ] = useState('')
   const groups = level === 1 ? dataset.data.groups.fine : dataset.data.groups.broad
   const needle = q.trim().toLowerCase()

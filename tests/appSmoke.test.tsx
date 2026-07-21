@@ -52,6 +52,17 @@ describe('app shell', () => {
     expect(html).toContain('Build a palette')
   })
 
+  it('match page offers a Colors level with a snap/search prompt when empty', () => {
+    const empty = { ...initialState, view: 'match' as const, palette: { level: 0 as const, keys: [] } }
+    const html = renderToString(<MatchPage state={empty} dispatch={() => {}} />)
+    expect(html).toContain('Colors')
+    expect(html).toContain('snap a color')
+  })
+  it('match page renders a color-key palette by color name', () => {
+    const seeded = { ...initialState, view: 'match' as const, palette: { level: 0 as const, keys: ['c1'] } }
+    expect(renderToString(<MatchPage state={seeded} dispatch={() => {}} />)).toContain('Hermosa Pink')
+  })
+
   it('group panel shows breadcrumb, matches, and narrow-to for a shade', () => {
     const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
     const html = renderToString(<GroupDetail groupId={olives} dispatch={() => {}} />)

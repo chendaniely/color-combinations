@@ -9,8 +9,9 @@ import { SuggestionList } from './SuggestionList'
 
 const MATCH_SIZES = new Set<2 | 3 | 4>([2, 3, 4])
 const LEVELS: { level: MatchLevel; label: string }[] = [
-  { level: 1, label: 'Shades' }, { level: 2, label: 'Families' },
+  { level: 0, label: 'Colors' }, { level: 1, label: 'Shades' }, { level: 2, label: 'Families' },
 ]
+const LEVEL_LABEL: Record<MatchLevel, string> = { 0: 'Colors', 1: 'Shades', 2: 'Families' }
 
 export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: Action) => void }) {
   const { level, keys } = state.palette
@@ -19,7 +20,7 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
     if (to === level) return
     const remapped = remapKeysToLevel(dataset, keys, level, to)
     setLevelNotice(keys.length > 0 && remapped.length === 0
-      ? `Switched to ${to === 1 ? 'Shades' : 'Families'} — your previous palette doesn't map to a single shade, so pick a new one to start.`
+      ? `Switched to ${LEVEL_LABEL[to]} — your previous palette doesn't map here, so pick a new one to start.`
       : null)
     dispatch({ type: 'setMatchLevel', level: to, keys: remapped })
   }
@@ -40,7 +41,9 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
       {keys.length === 0 ? (
         <>
           {levelNotice && <p className="empty-note">{levelNotice}</p>}
-          <ShadePicker level={level} dispatch={dispatch} />
+          {level === 0
+            ? <p className="lede">Search a color name above, or snap a color with the camera — exact colors land here.</p>
+            : <ShadePicker level={level} dispatch={dispatch} />}
         </>
       ) : (
         <>
