@@ -16,6 +16,11 @@ Move finished items to TODO-completed.md with the commit hash.
       boundary (`ColorCapture` / `nearestColors` / `CaptureResult`) is
       already built for this; wiring a camera icon into those two tabs is a
       fast follow, just a different result-callback
+- [ ] Better camera-capture UX (v1.1.1 shipped explicit 2-step text as a
+      stopgap): the freeze-then-tap flow isn't self-evident — people expect the
+      center to be auto-selected and read the frozen photo as "stuck." Options
+      to explore: a default center sample the user can override by tapping; an
+      on-frame crosshair / tap-pulse hint; or a one-tap "use the center" shortcut
 - [ ] Live "eyedropper" sampling (continuous color-under-cursor while the
       camera is live) — v1 deliberately chose freeze-then-tap for accuracy
 - [ ] Multi-point / region-average or pattern (multi-color) detection from a
