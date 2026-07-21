@@ -3,9 +3,30 @@
 Move finished items to TODO-completed.md with the commit hash.
 
 - [ ] Nearest-color search: paste any hex (brand color, paint chip) → find
-      the closest of the 157 colors and its combinations
-- [ ] PWA: installable web app with camera access ("photo → related
-      combinations") — stepping stone to native
+      the closest of the 157 colors and its combinations — still open (a
+      *text* hex input wasn't built; the camera is the input for now), but
+      the perceptual matching engine it would call already exists
+      (`nearestColors` in `src/color/nearestColor.ts`, OKLab distance) — this
+      is now mostly a small UI task (a text field + the existing engine)
+- [ ] PWA: installable web app with camera access — the **camera capture
+      shipped** (photo → perceptual color match → Match/Browse; see README);
+      only the **PWA / installable** part (manifest, service worker,
+      home-screen install) remains
+- [ ] Camera doorways on the Match and Browse tabs — the reusable capture
+      boundary (`ColorCapture` / `nearestColors` / `CaptureResult`) is
+      already built for this; wiring a camera icon into those two tabs is a
+      fast follow, just a different result-callback
+- [ ] Live "eyedropper" sampling (continuous color-under-cursor while the
+      camera is live) — v1 deliberately chose freeze-then-tap for accuracy
+- [ ] Multi-point / region-average or pattern (multi-color) detection from a
+      camera capture — v1 samples one tapped point
+- [ ] ΔE2000 (or other) color-difference metric for camera matching — v1
+      default is OKLab (Euclidean, via culori); swapping is a one-file
+      change in `src/color/colorDistance.ts` (culori already ships
+      `differenceCiede2000`), not attempted yet
+- [ ] *(Not planned — logged so it isn't "helpfully" re-proposed.)* Camera
+      capture history / saved colors — deliberately excluded for privacy;
+      the camera stores nothing, see `tests/camera-privacy.test.ts`
 - [ ] Native iOS/Android app reusing src/core/ and the processed data
 - [ ] Shareable deep links (serialize the app-state object into the URL)
 - [ ] Color-blindness simulation modes
@@ -53,9 +74,8 @@ Move finished items to TODO-completed.md with the commit hash.
 - [ ] Match page: pin an exact color per shade in a built palette (build is
       shade-level today)
 - [ ] Match page: save / name / export a built outfit palette
-- [ ] Match page: super-group (Groups) level (currently Shades + Families only)
-- [ ] Seed the Match page from a detected shade (photo → shade → land here) —
-      depends on the nearest-color/photo work already in this list
+- [ ] Match page: super-group (Groups) level (currently Colors, Shades, and
+      Families only)
 - [ ] Match page: clear the "Switched to Shades…" level-switch notice when the
       palette is emptied by a non-switch path ("Start over" / removing the last
       chip), so a stale message can't reappear on the picker

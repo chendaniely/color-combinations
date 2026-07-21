@@ -39,12 +39,19 @@ Run these from the project folder. `make help` lists them all.
   are accents.
 - **Build around what you own** — search for your item's color, open it, and
   see every combination the book endorses. Don't have the exact shade? Zoom
-  the wheel out a level to see what pairs with blues, ochres, etc. in general.
-- **Match** (header tab) — build an outfit palette: start from a shade, see
-  what the book pairs it with, and add more shades to make a 3-, 4-, or
-  more-color set. General shade-level matching, so colors don't have to be
-  exact. Also reachable from any Shade or Family group on the wheel via "Build a palette from
-  this →".
+  the wheel out a level to see what pairs with blues, ochres, etc. in
+  general. Browse can also be filtered down to a single shade via a
+  dismissible chip.
+- **Match** (header tab) — build an outfit palette: start from a color, shade,
+  or family, see what the book pairs it with, and add more to make a 3-, 4-,
+  or more-color set. Also reachable from any Shade or Family group on the
+  wheel via "Build a palette from this →".
+- **Find a color by camera** — on a phone or webcam, tap the camera icon in
+  search, freeze a photo of a garment, and tap its color. The site matches it
+  to the closest book colors and lets you Match or Browse at color, shade, or
+  family level. **Your photo never leaves your device and is never saved** —
+  it needs a secure (HTTPS) connection and camera permission; where those
+  aren't available the camera icon simply doesn't appear.
 - **Theme a website or deck** — find a combination you love, then copy its hex
   codes, CSS variables, or JSON straight into your project.
 - **Learn from the master** — set the wheel to Families or Groups and read the
@@ -54,6 +61,7 @@ Run these from the project folder. `make help` lists them all.
 ## How this project is organized
 
 - `src/` — the website's code. `src/core/` is pure logic (no browser code),
+  `src/color/` is perceptual color-matching (OKLab distance, via culori),
   `src/components/` is the UI, `src/viz/` is the D3 chord diagram.
 - `data/raw/` — the vendored source data (downloaded from
   sanzo-wada.dmbk.io; the site never fetches it live). `data/processed/` —

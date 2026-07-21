@@ -57,3 +57,59 @@ Format: `- [x] item — done in <commit hash> (YYYY-MM-DD)`
       rotated so red sits at 12 o'clock (pure `redAnchorAngle`; Red-block center
       for Colors/Shades/Families, reddest-in-Warm for Groups) — done in
       972e10b..4337eae (2026-07-20)
+
+## Session 6 — camera color capture (2026-07-21)
+
+Design + plan: `docs/superpowers/specs/2026-07-20-camera-color-capture-design.md`,
+`docs/superpowers/plans/2026-07-20-camera-color-capture.md`. Executed
+subagent-driven, 13 tasks, each task-reviewed. Full range: `f3280e3..9900ffa`.
+
+- [x] Task 1 — `colorDistance` metric seam: perceptual (OKLab, via culori)
+      distance between two RGB colors + `closenessLabel` thresholds, isolated
+      in `src/color/colorDistance.ts` so the metric is a one-file swap later
+      — done in f3280e3 (2026-07-21)
+- [x] Task 2 — `nearestColors`: ranks every book color by the distance seam,
+      returns the top N — done in a3dfa9b (2026-07-21)
+- [x] Task 3 — `averagePatch`: samples a clamped, averaged RGBA patch from an
+      `ImageData`-style array (pure, stays in `src/core/`) — done in
+      bd4498d (2026-07-21)
+- [x] Task 4 — `keyName`/`keySwatches`/`keyColorId`/`isColorKey`: resolve a
+      key that may now be a single color or a shade/family group — done in
+      d27559d (2026-07-21)
+- [x] Task 5 — app state: `MatchLevel` gains Color (0); `browse` filter
+      (`family`/`shade`/`colorId`) lifted into `AppState` with a
+      `setBrowseFilter` action — done in 667bddc (2026-07-21)
+- [x] Task 6 — matching/remap logic extended to the Color level (partner
+      suggestions, `remapKeysToLevel` across 0/1/2) — done in 695e837
+      (2026-07-21)
+- [x] Task 7 — palette tray + suggestion chips render color-or-group keys via
+      the new key helpers — done in 9cada34 (2026-07-21)
+- [x] Task 8 — Match page: **Colors** level added to the level selector; the
+      empty Colors state shows a "search or snap a color to start" prompt
+      instead of all 157 swatches — done in 6e46ca7 (2026-07-21)
+- [x] Task 9 — Browse: filters (`family`/`shade`/`colorId`) read from app
+      state; **shade filter** with a dismissible chip — done in 3f24ad0
+      (2026-07-21)
+- [x] Task 10 — camera stream helpers (`cameraSupported`, `stopStream`) +
+      the privacy source-scan guard test (`tests/camera-privacy.test.ts`,
+      fails the build on any forbidden network/storage API in
+      `src/components/camera/*`) — done in 1cebca3 (2026-07-21)
+- [x] Task 11 — `ColorCapture` overlay: live viewfinder → freeze → tap →
+      `averagePatch` → `onSample(rgb)`; stops all tracks on close/unmount;
+      privacy line in the UI — done in 47d9a74, with tap-coordinate-mapping
+      fixes in 1577312, 1b04dd7 (2026-07-21)
+- [x] Task 12 — `CaptureResult`: sampled-swatch chip, hero, scrollable near-
+      match list (tap to promote), Color/Shade/Family selector (Shade
+      default), plain-words closeness, Match/Browse actions — done in
+      c8cd5c8, test pinned in 6dd3da0 (2026-07-21)
+- [x] Task 13 — search-box doorway: feature-detected camera icon, "Find a
+      color…" placeholder, wires capture → Match (seeds palette) / Browse
+      (applies the scoped filter + switches tabs) — done in 9900ffa
+      (2026-07-21)
+- [x] Seed the Match page from a detected shade (photo → shade → land
+      here) — superseded by the shipped design: capture lands at any of
+      Color/Shade/Family, not shade only — done in c8cd5c8, 9900ffa
+      (2026-07-21)
+- [x] Three new dependencies added with justification lines in `CLAUDE.md`:
+      `culori` (runtime), `jsdom` + `@testing-library/react` +
+      `@testing-library/dom` (dev) — done in 9a4e643 (2026-07-21)

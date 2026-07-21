@@ -369,3 +369,51 @@ wheel and dismisses any open About panel / detail selection — a proper "home."
 
 → Fast-forward merged to `main` and pushed; the CI "Test, build, deploy" workflow
 redeploys https://chendaniely.github.io/color-combinations/.
+
+## 2026-07-21 — Session 6: camera color capture
+
+**Owner prompt (stretch goal, from Session 1):** "even take a picture and
+look at related color combinations" — picked up as the next feature.
+
+**Design decisions (see the spec's decisions log):**
+
+- **Freeze-then-tap capture**, not a live continuous eyedropper: tap the
+  shutter to freeze a frame, then tap the exact spot on the garment (re-tap
+  to move the point; Retake returns to live). Chosen for accuracy — a moving
+  live sample is noisier and harder to aim.
+- **Result screen** is a hero (closest book color, name/code, plain-language
+  closeness — "very close" / "close" / "roughly") over a scrollable near-match
+  list (tap to promote to hero), plus a **Color / Shade / Family** selector
+  with **Shade preselected** and two actions, Match and Browse, re-labelled
+  to the chosen level.
+- **Match gains a Colors level; Browse gains a shade filter** (dismissible
+  chip) — the full grid the camera needed already: Match was Shade/Family
+  only, Browse had no shade filter.
+- **Perceptual matching via OKLab**, not naive RGB distance, using the
+  **culori** library, isolated behind one seam (`src/color/colorDistance.ts`)
+  so the metric (e.g. ΔE2000) is a one-file swap later. Lives in a new
+  `src/color/` layer, not `src/core/` — culori can't be imported into the
+  pure kernel without weakening `core-purity.test.ts`.
+- **Privacy is a hard requirement, mechanically enforced**: no upload, no
+  persistence, camera released (`track.stop()`) on close/unmount. Enforced by
+  a source-scanning test, `tests/camera-privacy.test.ts` (modeled on
+  `core-purity.test.ts`), that fails the build if `src/components/camera/*`
+  contains `fetch`, storage APIs, `toDataURL`/`toBlob`, `createObjectURL`, or
+  a download link.
+- **Three new dependencies**, each justified in `CLAUDE.md` in the same
+  commit as the plan: `culori` (runtime, OKLab distance); `jsdom`,
+  `@testing-library/react`, `@testing-library/dom` (dev, real DOM
+  interaction tests for the camera UI — opted into per-file, global test env
+  stays `node`).
+- Needs a secure (HTTPS/localhost) context + camera permission; where
+  unavailable the camera icon in search simply doesn't render (feature
+  detection, no dead button).
+
+**What happened:** designed and planned across three docs commits
+(`67d41c8` spec, `9b040e5` distance-seam note, `9a4e643` implementation plan
++ dependency additions), then executed **subagent-driven in 13 tasks**
+(`f3280e3..9900ffa`), each task-reviewed. Full commit list:
+`git log --oneline 87ffea2..HEAD`.
+
+**Spec:** `docs/superpowers/specs/2026-07-20-camera-color-capture-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-20-camera-color-capture.md`
