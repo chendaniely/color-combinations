@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   ancestorAtLevel, combinationsForColor, displayableCombinations,
   groupMembers, index, searchColors, sizeBucket,
+  isColorKey, keyColorId, keyName, keySwatches,
 } from '../src/core/dataset'
 import { mini } from './fixtures/miniDataset'
 
@@ -39,5 +40,22 @@ describe('dataset queries', () => {
   it('collects group members at any level, hue-sorted', () => {
     expect(groupMembers(ix, 'dusty-pinks').map((c) => c.id)).toEqual([2, 1])
     expect(groupMembers(ix, 'cool').map((c) => c.id)).toEqual([6, 5, 4])
+  })
+})
+
+describe('key display helpers', () => {
+  it('detects color keys but not group ids', () => {
+    expect(isColorKey('c1')).toBe(true)
+    expect(isColorKey('olives')).toBe(false)
+    expect(isColorKey('cool')).toBe(false) // starts with c, not /^c\d+$/
+    expect(keyColorId('c1')).toBe(1)
+  })
+  it('names and swatches a color key', () => {
+    expect(keyName(ix, 'c1')).toBe('Test Pink A')
+    expect(keySwatches(ix, 'c1')).toEqual(['#ffa6d9'])
+  })
+  it('names and swatches a group key', () => {
+    expect(keyName(ix, 'blue')).toBe('Blue')
+    expect(keySwatches(ix, 'blue').length).toBeGreaterThan(1)
   })
 })

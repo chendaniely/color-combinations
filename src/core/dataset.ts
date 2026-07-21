@@ -74,3 +74,24 @@ export function groupMembers(ix: Indexed, groupId: string): ColorRecord[] {
   })
   return members.sort((a, b) => a.hue - b.hue)
 }
+
+// A palette/match key is either a group id (kebab word) or a single color: `c{id}`.
+export function isColorKey(key: string): boolean {
+  return /^c\d+$/.test(key)
+}
+
+export function keyColorId(key: string): number {
+  return Number(key.slice(1))
+}
+
+export function keyName(ix: Indexed, key: string): string {
+  return isColorKey(key)
+    ? ix.colorById.get(keyColorId(key))!.name
+    : ix.groupById.get(key)!.name
+}
+
+export function keySwatches(ix: Indexed, key: string): string[] {
+  return isColorKey(key)
+    ? [ix.colorById.get(keyColorId(key))!.hex]
+    : groupMembers(ix, key).map((c) => c.hex)
+}
