@@ -70,4 +70,12 @@ describe('app shell', () => {
     expect(html).toContain('Build a palette from this')
     expect(html).toContain('Narrow to a single color')
   })
+
+  it('browse view shows a dismissible chip for an active shade filter', () => {
+    const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
+    const state = { ...initialState, view: 'browse' as const, browse: { family: '', shade: olives, colorId: '' } }
+    const html = renderToString(<BrowseView state={state} dispatch={() => {}} />)
+    expect(html).toContain('Olives')
+    expect(html).toContain('Clear shade')
+  })
 })

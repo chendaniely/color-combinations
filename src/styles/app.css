@@ -160,6 +160,14 @@ main { flex: 1; min-height: 0; position: relative; }
   background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
   padding: var(--s1) var(--s2);
 }
+.filter-chip {
+  font: inherit; font-size: 0.85rem;
+  background: var(--paper-2); color: var(--ink);
+  border: 1px solid var(--hairline); border-radius: 999px;
+  padding: 0.25rem 0.6rem; cursor: pointer;
+}
+.filter-chip span { color: var(--ink-muted); margin-left: 0.25rem; }
+.filter-chip:hover { border-color: var(--accent); }
 .browse-section { margin-top: var(--s8); }
 .browse-section-head {
   font-family: var(--font-ui); font-weight: 400; font-size: 0.8rem;
