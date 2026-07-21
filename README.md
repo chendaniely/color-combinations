@@ -54,7 +54,6 @@ Run these from the project folder. `make help` lists them all.
   those the camera icon simply doesn't appear. If you deny the camera
   permission prompt after tapping it, you'll see a short message in its
   place instead of a live view.
-
 - **Theme a website or deck** — find a combination you love, then copy its hex
   codes, CSS variables, or JSON straight into your project.
 - **Learn from the master** — set the wheel to Families or Groups and read the

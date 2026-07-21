@@ -86,7 +86,7 @@ export function accessibilityProfile(ix: Indexed): Map<number, Set<AccessLensId>
 
 // AND semantics: the combo ids passing EVERY active lens. Callers pass a
 // NON-empty `active`; an empty selection means "no filter" and is handled by
-// the caller (see allowedFor in src/data.ts) — do not call this with []].
+// the caller (see allowedFor in src/data.ts) — do not call this with [].
 export function allowedComboIds(
   profile: Map<number, Set<AccessLensId>>,
   active: AccessLensId[],

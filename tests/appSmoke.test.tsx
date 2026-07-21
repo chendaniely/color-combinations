@@ -4,6 +4,7 @@ import App from '../src/App'
 import { AboutPanel } from '../src/components/AboutPanel'
 import { BrowseView } from '../src/components/BrowseView'
 import { CaptureResult } from '../src/components/camera/CaptureResult'
+import { ChordWheel } from '../src/components/ChordWheel'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
 import { GroupDetail } from '../src/components/GroupDetail'
@@ -114,5 +115,11 @@ describe('app shell', () => {
       <BrowseView state={{ ...initialState, access: ['print-bw'] }} dispatch={() => {}} />,
     )
     expect(filtered).toContain('57 combinations')
+  })
+
+  it('wheel shows an empty-state note when goggles filter out every combination', () => {
+    const state = { ...initialState, sizes: [4] as (2 | 3 | 4)[], access: ['print-bw' as const] }
+    const html = renderToString(<ChordWheel state={state} dispatch={() => {}} />)
+    expect(html).toContain('No combinations match these goggles')
   })
 })

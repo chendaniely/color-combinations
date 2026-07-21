@@ -56,7 +56,7 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
               <h2 className="seclabel">Add a shade <span className="q">— goes with everything above</span></h2>
               <SuggestionList suggestions={suggestions} dispatch={dispatch} />
               {suggestions.length === 0 &&
-                <p className="empty-note">{state.access.length
+                <p className="empty-note">{state.access.length > 0 && combos.length === 0
                   ? 'No accessible pairings for this palette — loosen the goggles.'
                   : 'Nothing in the book pairs with all of these — try removing a shade.'}</p>}
             </section>

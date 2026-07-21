@@ -133,3 +133,11 @@ Move finished items to TODO-completed.md with the commit hash.
 - [ ] A genuinely-different-dataset selector (a second color book) — the
       original dataset-swap idea, retired for the goggles feature but valid
       future work; would need the dataset-registry + context approach.
+- [ ] Accessibility goggles — memoize `allowedFor(state.access)` in
+      `BrowseView`/`MatchPage` for uniformity with `ChordWheel`/`App` (they
+      `useMemo` it); negligible perf, just pattern consistency.
+- [ ] Accessibility goggles — make `LENSES[].passes` consistent for <2-color
+      input: `printBwSafe`/`colorBlindSafe` use `.every()` (vacuously true)
+      while `webTextReady` uses `.some()` (false); unreachable via
+      `accessibilityProfile` (displayable/size≥2 only) but a latent footgun
+      for any future direct caller.
