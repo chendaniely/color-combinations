@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { index } from '../src/core/dataset'
+import { ancestorAtLevel, index, keyColorId } from '../src/core/dataset'
 import {
   breadcrumbOf, childGroupsOf, combosForSet, groupKeysOfCombo,
   levelOfGroupKey, remapKeysToLevel, suggestPartners,
 } from '../src/core/matching'
+import { dataset } from '../src/data'
 import { mini } from './fixtures/miniDataset'
 
 const ix = index(mini)
@@ -75,5 +76,23 @@ describe('suggestPartners', () => {
     // warm = {pink,red}, cool = {blue+grays}; combos link them
     const res = suggestPartners(ix, 3, ['warm'], ALL)
     expect(res.map((p) => p.key)).toEqual(['cool'])
+  })
+})
+
+describe('level 0 matching', () => {
+  const sizes = new Set<2 | 3 | 4>([2, 3, 4])
+  it('remaps a color key up to shade and family, and refuses to go finer', () => {
+    const fine = ancestorAtLevel(dataset, 1, 1)
+    const broad = ancestorAtLevel(dataset, 1, 2)
+    expect(remapKeysToLevel(dataset, ['c1'], 0, 1)).toEqual([fine])
+    expect(remapKeysToLevel(dataset, ['c1'], 0, 2)).toEqual([broad])
+    expect(remapKeysToLevel(dataset, [fine], 1, 0)).toEqual([])   // finer: cannot pick
+    expect(remapKeysToLevel(dataset, ['c1'], 0, 0)).toEqual(['c1'])
+  })
+  it('suggests partner colors as color keys', () => {
+    const out = suggestPartners(dataset, 0, ['c1'], sizes)
+    expect(out.length).toBeGreaterThan(0)
+    expect(out.every((s) => /^c\d+$/.test(s.key))).toBe(true)
+    expect(out.every((s) => keyColorId(s.key) !== 1)).toBe(true) // never suggests itself
   })
 })

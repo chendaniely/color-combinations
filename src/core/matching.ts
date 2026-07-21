@@ -1,6 +1,7 @@
 // Matching engine + group-hierarchy navigation. Pure core kernel: no imports
 // outside src/core. Surfaced by the group panel and the Match page.
-import { ancestorAtLevel, displayableCombinations, sizeBucket, type Indexed } from './dataset'
+import { ancestorAtLevel, displayableCombinations, keyColorId, sizeBucket, type Indexed } from './dataset'
+import type { MatchLevel } from './state'
 import type { CombinationRecord, GranularityLevel, GroupNode, SizeBucket } from './types'
 
 export type GroupLevel = 1 | 2 | 3
@@ -41,11 +42,16 @@ export function groupKeysOfCombo(
 }
 
 export function remapKeysToLevel(
-  ix: Indexed, keys: readonly string[], from: 1 | 2, to: 1 | 2,
+  ix: Indexed, keys: readonly string[], from: MatchLevel, to: MatchLevel,
 ): string[] {
   if (to === from) return [...keys]
-  if (to === 1) return [] // finer: cannot uniquely pick a shade
-  return [...new Set(keys.map((k) => ix.broadOfFine.get(k)!))] // coarser: fine → broad
+  if (to < from) return [] // finer: cannot uniquely pick a narrower key
+  // coarser: lift each key up to `to`
+  if (from === 0) {
+    return [...new Set(keys.map((k) => ancestorAtLevel(ix, keyColorId(k), to)))]
+  }
+  // from === 1, to === 2
+  return [...new Set(keys.map((k) => ix.broadOfFine.get(k)!))]
 }
 
 function filtered(ix: Indexed, sizes: ReadonlySet<SizeBucket>): CombinationRecord[] {
@@ -84,8 +90,12 @@ export function suggestPartners(
   }
   // Display order for deterministic tie-break.
   const order = new Map<string, number>()
-  const groups = level === 1 ? ix.data.groups.fine : level === 2 ? ix.data.groups.broad : ix.data.groups.super
-  groups.forEach((g, i) => order.set(g.id, i))
+  if (level === 0) {
+    ix.data.colors.forEach((c, i) => order.set(`c${c.id}`, i))
+  } else {
+    const groups = level === 1 ? ix.data.groups.fine : level === 2 ? ix.data.groups.broad : ix.data.groups.super
+    groups.forEach((g, i) => order.set(g.id, i))
+  }
 
   const out: PartnerSuggestion[] = []
   for (const [cand, m] of perSetKeyCount) {
