@@ -1,11 +1,11 @@
-import { groupMembers } from '../core/dataset'
+import { keyName, keySwatches } from '../core/dataset'
 import type { Action } from '../core/state'
 import { dataset } from '../data'
 
-function Cluster({ groupId }: { groupId: string }) {
+function Swatches({ hexes }: { hexes: string[] }) {
   return (
     <span className="cl">
-      {groupMembers(dataset, groupId).map((c) => <span key={c.id} style={{ background: c.hex }} />)}
+      {hexes.map((h, i) => <span key={i} style={{ background: h }} />)}
     </span>
   )
 }
@@ -14,16 +14,16 @@ export function PaletteTray({ keys, dispatch }: { keys: string[]; dispatch: (a: 
   return (
     <div className="tray">
       <div className="lab">
-        Your palette · {keys.length} shade{keys.length === 1 ? '' : 's'}
+        Your palette · {keys.length} item{keys.length === 1 ? '' : 's'}
         <button className="tray-clear" onClick={() => dispatch({ type: 'clearPalette' })}>Start over</button>
       </div>
       <div className="chips">
         {keys.map((k) => (
           <div key={k} className="chip">
-            <Cluster groupId={k} />
+            <Swatches hexes={keySwatches(dataset, k)} />
             <div className="row">
-              <span className="nm">{dataset.groupById.get(k)!.name}</span>
-              <button className="x" aria-label={`Remove ${dataset.groupById.get(k)!.name}`}
+              <span className="nm">{keyName(dataset, k)}</span>
+              <button className="x" aria-label={`Remove ${keyName(dataset, k)}`}
                 onClick={() => dispatch({ type: 'removeFromPalette', key: k })}>×</button>
             </div>
           </div>
