@@ -95,7 +95,7 @@ export function redAnchorAngle(
   if (!redBroad) return 0
   if (level === 3) {
     const warmId = ix.superOfBroad.get(redBroad.id)
-    const g = groups.find((gr) => nodes[gr.index]?.key === warmId)
+    const g = groups.find((gr) => nodes[gr.index].key === warmId)
     if (!g) return 0
     const members = groupMembers(ix, nodes[g.index].key) // hue-sorted, matches swatchHexes
     if (!members.length) return (g.startAngle + g.endAngle) / 2

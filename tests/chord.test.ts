@@ -88,6 +88,24 @@ describe('redAnchorAngle', () => {
     expect(a).toBeCloseTo((0.5 / 3) * Math.PI)
     expect(a).toBeLessThan(Math.PI * 0.25)
   })
+
+  it('level 1 merges a multi-node Red block on the real dataset', () => {
+    const real = index(validateDataset(JSON.parse(readFileSync('data/processed/colors-data.json', 'utf8'))))
+    const TAU = 2 * Math.PI
+    const nodes = wheelNodes(real, 1)
+    const groups = nodes.map((_, i) => ({
+      index: i, startAngle: (i / nodes.length) * TAU, endAngle: ((i + 1) / nodes.length) * TAU,
+    }))
+    const redBroadId = real.data.groups.broad.find((g) => g.name === 'Red')!.id
+    const redIdx = nodes
+      .map((n, i) => [n, i] as const)
+      .filter(([n]) => real.broadOfFine.get(n.key) === redBroadId)
+      .map(([, i]) => i)
+    expect(redIdx.length).toBeGreaterThanOrEqual(2) // True Reds + Wine Reds → exercises the min/max merge
+    const start = Math.min(...redIdx.map((i) => groups[i].startAngle))
+    const end = Math.max(...redIdx.map((i) => groups[i].endAngle))
+    expect(redAnchorAngle(real, 1, groups, nodes)).toBeCloseTo((start + end) / 2)
+  })
 })
 
 describe('combosForPair', () => {
