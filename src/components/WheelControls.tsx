@@ -1,6 +1,5 @@
 import type { Action, AppState } from '../core/state'
 import type { GranularityLevel, SizeBucket } from '../core/types'
-import { AccessibilityGoggles } from './AccessibilityGoggles'
 
 const LEVELS: { level: GranularityLevel; label: string }[] = [
   { level: 0, label: 'Colors' },
@@ -34,9 +33,6 @@ export function WheelControls({ state, dispatch }: Props) {
           </button>
         ))}
         <span className="size-label">colors per combo</span>
-      </div>
-      <div className="a11y-row">
-        <AccessibilityGoggles state={state} dispatch={dispatch} />
       </div>
     </div>
   )

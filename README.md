@@ -63,10 +63,12 @@ Run these from the project folder. `make help` lists them all.
 ### Accessibility goggles
 
 A set of optional filters ("goggles") you can stack on any view — the Wheel,
-Browse, and Match. They narrow the combinations to those that meet an
-accessibility bar; turning several on shows only combinations that pass *all*
-of them. They filter what you see — they never change or hide the underlying
-book data.
+Browse, and Match. The **Accessibility** control lives in the top-right of the
+header, so it sits in the same place on every page and one selection carries
+across all three views. Its menu closes when you click anywhere outside it.
+The goggles narrow the combinations to those that meet an accessibility bar;
+turning several on shows only combinations that pass *all* of them. They filter
+what you see — they never change or hide the underlying book data.
 
 - **Web text-ready** — at least one pair of the colors has enough contrast to
   use as readable text on a background (WCAG AA, 4.5:1).

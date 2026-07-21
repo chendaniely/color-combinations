@@ -1,6 +1,7 @@
 import type { Action, AppState } from '../core/state'
 import { dataset } from '../data'
 import { displayableCombinations } from '../core/dataset'
+import { AccessibilityGoggles } from './AccessibilityGoggles'
 import { SearchBox } from './SearchBox'
 
 interface Props { state: AppState; dispatch: (a: Action) => void }
@@ -29,6 +30,7 @@ export function Header({ state, dispatch }: Props) {
         <button aria-pressed={state.view === 'browse'} onClick={() => dispatch({ type: 'setView', view: 'browse' })}>Browse</button>
         <button aria-pressed={state.aboutOpen} onClick={() => dispatch({ type: 'toggleAbout' })}>About</button>
         <button className="surprise" onClick={surprise}>Surprise me</button>
+        <AccessibilityGoggles state={state} dispatch={dispatch} />
       </nav>
     </header>
   )

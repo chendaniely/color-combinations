@@ -547,3 +547,63 @@ tasks (`1c4272a..ff0af04`), each task-reviewed:
 
 **Spec:** `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-21-accessibility-goggles.md`
+
+## 2026-07-21 — Session 8: v1.2.0 release + accessibility-control UX
+
+**Owner prompt (release):**
+
+> oh push up the changes and deploy it officially
+
+Bumped `package.json` to **1.2.0** (minor — new feature), committed as a
+`chore(release)`, tagged **v1.2.0** (annotated), and pushed `main` + tag. The
+`deploy.yml` workflow (test → build → deploy) ran green and published to
+GitHub Pages.
+
+**Owner prompt (wheel shrank):**
+
+> the accessibility button and everything made the actual chord diagram too small! i really liked it when the wheel was bigger on the font page. it made it seem more prominent that this is a color explorer.
+
+Regression from the goggles work: the chord `<svg>` had been wrapped in a new
+`.wheel-wrap` div (added to position the "no matches" note), but the wrapper
+didn't carry the `flex: 1; min-height: 0` the SVG relied on as a direct flex
+child of `.wheel-view`, so the wheel collapsed to a small content-sized box.
+Fix: moved the space-filling role onto `.wheel-wrap`.
+
+**Owner prompt (close on outside click):**
+
+> right now the accessibilty drop down only closes when the user re-clicks the button. i also want the dropdown to disapper when the user clicks anywhere outside of the button
+
+Added a document-level `pointerdown` listener in `AccessibilityGoggles` that
+closes the `<details>` when a press lands outside it (presses on the lens
+options stay inside, so several lenses can be toggled without the menu
+closing).
+
+**Owner prompt (open direction / sidebar idea):**
+
+> is it also a possible that when the accessibility button is clicked, the dropdown of selections pop upward? OR we can have another sidebar on the left that opens that explains the accessiblity options and all the toggles can happen there
+
+**Owner prompt (sync selection across pages):**
+
+> let's also sync up all the accessibilty options that are selected on each of the pages. if i'm looking at color blind, it should be selected across all the pages, and stuff
+
+**Owner prompt (consistent location + Match overflow):**
+
+> let's also think about the accessibilty button location. it's in a difference location across all 3 pages. that's a little jarring. it does kind of make sense where it is individually, but as a whole it seems all over the place. in particular in the Match page, when the accessibilty button is clicked, the options flow over the right of the page, and you get a horrizontal scroll bar. let's not let that happen
+
+**Decisions reached (asked as two multiple-choice questions):**
+
+- Open direction — chose **drop-up** first, then **superseded** by the
+  placement decision below.
+- Placement — chose **"Same spot on every page."** Moved the goggles out of
+  the three views (`WheelControls`, `BrowseView`, `MatchPage`) and into the
+  shared `Header`, so it renders **once** in the top-right nav, sits in the
+  identical spot on every page, and is structurally a single global control.
+  This also settled the "sync" ask for free — there is only one instance now,
+  so per-page state can't drift. Because it's at the top, the menu opens
+  **downward** (drop-up no longer needed), and the `.a11y-menu` was made
+  **right-aligned** (`right: 0`) so it can never run past the right viewport
+  edge — killing the Match horizontal-scrollbar bug.
+
+**What happened:** bugfix/UX pass, all under `make test` (142 passing, +2 new
+outside-click jsdom tests) and `make build` green. Docs updated in-commit
+(`README.md` accessibility section, this log). Follow-up patch release.

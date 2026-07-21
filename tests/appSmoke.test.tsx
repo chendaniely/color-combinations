@@ -8,6 +8,7 @@ import { ChordWheel } from '../src/components/ChordWheel'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
 import { GroupDetail } from '../src/components/GroupDetail'
+import { Header } from '../src/components/Header'
 import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
 import { hexToRgb } from '../src/core/colorMath'
@@ -96,16 +97,21 @@ describe('app shell', () => {
     expect(html).toContain('Find a color…')
   })
 
-  it('shows the accessibility goggles in wheel, browse, and match', () => {
-    const wheel = renderToString(<App />)
-    expect(wheel).toContain('Accessibility')
+  it('hosts the accessibility goggles once, in the shared header', () => {
+    // The control lives in the header (shared chrome) so it renders once, sits in
+    // the same spot on every view, and drives one global selection.
+    const app = renderToString(<App />)
+    expect(app).toContain('Accessibility')
 
+    const header = renderToString(<Header state={{ ...initialState, view: 'match' }} dispatch={() => {}} />)
+    expect(header).toContain('Accessibility')
+    expect(header).toContain('Color-blind safe')
+
+    // The views no longer render their own copy — guards against re-duplicating it.
     const browse = renderToString(<BrowseView state={{ ...initialState, view: 'browse' }} dispatch={() => {}} />)
-    expect(browse).toContain('Accessibility')
-    expect(browse).toContain('Color-blind safe')
-
+    expect(browse).not.toContain('Accessibility')
     const match = renderToString(<MatchPage state={{ ...initialState, view: 'match' }} dispatch={() => {}} />)
-    expect(match).toContain('Accessibility')
+    expect(match).not.toContain('Accessibility')
   })
 
   it('browse filters to fewer combos when a lens is active', () => {

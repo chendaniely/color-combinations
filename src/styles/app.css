@@ -392,7 +392,6 @@ main { flex: 1; min-height: 0; position: relative; }
   font: inherit; font-size: 0.85rem; cursor: pointer; margin-top: var(--s2); }
 
 /* Accessibility goggles — multi-select filter */
-.a11y-row { margin-top: var(--s3); }
 .a11y-goggles { position: relative; display: inline-block; text-align: left; }
 .a11y-goggles > summary {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: var(--s2);
@@ -402,7 +401,9 @@ main { flex: 1; min-height: 0; position: relative; }
 .a11y-goggles > summary::-webkit-details-marker { display: none; }
 .a11y-goggles[open] > summary { border-color: var(--ink); color: var(--ink); }
 .a11y-menu {
-  position: absolute; z-index: 20; margin-top: var(--s2); min-width: 250px;
+  /* Right-aligned (opens leftward) so the menu never runs off the right edge of
+     the viewport — the control sits at the top-right of the header. */
+  position: absolute; right: 0; z-index: 20; margin-top: var(--s2); min-width: 250px;
   display: flex; flex-direction: column; gap: var(--s1);
   padding: var(--s2); background: var(--paper-1);
   border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -418,5 +419,5 @@ main { flex: 1; min-height: 0; position: relative; }
 .a11y-option-label { font-weight: 700; font-size: 0.85rem; }
 .a11y-option-desc { font-size: 0.72rem; color: var(--ink-muted); }
 .a11y-option[aria-pressed='true'] .a11y-option-desc { color: var(--paper-2); }
-.wheel-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.wheel-wrap { position: relative; flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
 .wheel-empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; max-width: 260px; }

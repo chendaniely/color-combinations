@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { combosForSet, remapKeysToLevel, suggestPartners } from '../core/matching'
 import type { Action, AppState, MatchLevel } from '../core/state'
 import { allowedFor, dataset } from '../data'
-import { AccessibilityGoggles } from './AccessibilityGoggles'
 import { PaletteTray } from './PaletteTray'
 import { PlateCard } from './PlateCard'
 import { ShadePicker } from './ShadePicker'
@@ -37,7 +36,6 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
             <button key={lv} role="radio" aria-checked={level === lv} onClick={() => switchLevel(lv)}>{label}</button>
           ))}
         </div>
-        <AccessibilityGoggles state={state} dispatch={dispatch} />
       </div>
       <p className="lede">Start from a shade you have and see what it goes with; add more shades to build an
         outfit of three, four, or more. Colors don't have to match exactly.</p>

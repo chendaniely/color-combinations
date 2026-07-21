@@ -2,7 +2,6 @@ import { ancestorAtLevel, displayableCombinations, keyName, sizeBucket } from '.
 import type { Action, AppState } from '../core/state'
 import type { SizeBucket } from '../core/types'
 import { allowedFor, dataset } from '../data'
-import { AccessibilityGoggles } from './AccessibilityGoggles'
 import { PlateCard } from './PlateCard'
 
 const SIZES: SizeBucket[] = [2, 3, 4]
@@ -53,7 +52,6 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
             {keyName(dataset, shade)} <span aria-label="Clear shade" title="Clear shade">×</span>
           </button>
         )}
-        <AccessibilityGoggles state={state} dispatch={dispatch} />
         <span className="muted">{comboCount}</span>
       </div>
       <p className="hint">Taller bars suggest the dominant color — the main garment, the page background; slivers are accents.</p>
