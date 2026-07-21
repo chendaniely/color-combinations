@@ -54,8 +54,12 @@ export function ColorCapture({ onSample, onClose }: {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     const rect = canvas.getBoundingClientRect()
-    const cx = ((e.clientX - rect.left) / rect.width) * canvas.width
-    const cy = ((e.clientY - rect.top) / rect.height) * canvas.height
+    // canvas.width/height are the source (video) pixels; rect is the displayed box.
+    // The element is object-fit: cover, so invert the uniform cover scale + centered
+    // crop to map a tap to a source pixel (NOT an independent x/y stretch = fill).
+    const k = Math.max(rect.width / canvas.width, rect.height / canvas.height)
+    const cx = (e.clientX - rect.left - rect.width / 2) / k + canvas.width / 2
+    const cy = (e.clientY - rect.top - rect.height / 2) / k + canvas.height / 2
     const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
     const rgb = averagePatch(img.data, canvas.width, canvas.height, cx, cy, PATCH_RADIUS)
     setTap({ xPct: (cx / canvas.width) * 100, yPct: (cy / canvas.height) * 100, rgb })
