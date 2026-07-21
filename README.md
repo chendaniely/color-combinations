@@ -50,8 +50,10 @@ Run these from the project folder. `make help` lists them all.
   search, freeze a photo of a garment, and tap its color. The site matches it
   to the closest book colors and lets you Match or Browse at color, shade, or
   family level. **Your photo never leaves your device and is never saved** —
-  it needs a secure (HTTPS) connection and camera permission; where those
-  aren't available the camera icon simply doesn't appear.
+  it needs a secure (HTTPS) connection and browser camera support; without
+  those the camera icon simply doesn't appear. If you deny the camera
+  permission prompt after tapping it, you'll see a short message in its
+  place instead of a live view.
 - **Theme a website or deck** — find a combination you love, then copy its hex
   codes, CSS variables, or JSON straight into your project.
 - **Learn from the master** — set the wheel to Families or Groups and read the

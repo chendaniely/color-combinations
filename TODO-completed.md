@@ -85,8 +85,8 @@ subagent-driven, 13 tasks, each task-reviewed. Full range: `f3280e3..9900ffa`.
 - [x] Task 7 — palette tray + suggestion chips render color-or-group keys via
       the new key helpers — done in 9cada34 (2026-07-21)
 - [x] Task 8 — Match page: **Colors** level added to the level selector; the
-      empty Colors state shows a "search or snap a color to start" prompt
-      instead of all 157 swatches — done in 6e46ca7 (2026-07-21)
+      empty Colors state shows a short inline prompt to search or snap a
+      color instead of all 157 swatches — done in 6e46ca7 (2026-07-21)
 - [x] Task 9 — Browse: filters (`family`/`shade`/`colorId`) read from app
       state; **shade filter** with a dismissible chip — done in 3f24ad0
       (2026-07-21)
