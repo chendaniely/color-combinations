@@ -453,3 +453,97 @@ were also requested and reconciled into these logs.
 
 **Spec:** `docs/superpowers/specs/2026-07-20-camera-color-capture-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-20-camera-color-capture.md`
+
+## 2026-07-21 — Session 7: accessibility goggles
+
+**Owner prompt (opening, verbatim — typos preserved):**
+
+> i'd like to have a dropdown on the top that let's you pick the underlying
+> dataset. right now we are using the original dataset. let's create a
+> separate dataset that is takes our original combinations and see if they
+> pass a WCAG check for internet accessibilty. this way we can explore the
+> original data. but then also internet passable data. this toggle will then
+> we used in the future if we have more color datasets and can be used to
+> explore between them. if not WCAG, let's look at other internet
+> accessibilty checks that we can program and then create datasets for
+> those. but let's think through this before just going into implementation
+
+→ explored WCAG interpretations with real survivor counts against the
+dataset.
+
+**Owner prompt (verbatim):**
+
+> are there any other accessiblity checks that we can look into? things like
+> colorblind friendly and print friendly and black-and-white friendly?
+
+→ added a color-vision-deficiency (CVD) lens; established B&W/print-safe as
+an all-pairs ≥3:1 grayscale-contrast check; ruled out true CMYK soft-proofing
+as not honestly programmable (it would need an ICC printer profile the site
+doesn't have).
+
+**AskUserQuestion — "How should a multi-color combination pass the WCAG
+check?" — owner's answer (verbatim):**
+
+> Ship both as 2 datasets
+
+**AskUserQuestion — "Which derived datasets should v1 ship?" — owner's
+answer (verbatim; this is the pivot that reframed the whole feature):**
+
+> Web text-ready, Print & B&W safe, Color-blind safe, instead of dropdown i
+> think we can make this a multi-select dropdown / selectize object instead.
+> it's liek selecting the 2, 3, 4 color combo bits not actually changing the
+> underlying dataset. so these accessibilty goggles only filter on the
+> current dataset, they're not really new datasets. we should make sure
+> these options appear in the match and browse pages as well, not just the
+> wheel.
+
+**Owner prompt (design approval):**
+
+> yes make it so
+
+**Owner prompt (spec approval):**
+
+> yeah look good
+
+**Owner prompt (execution approach):**
+
+> subagents
+
+**Key decisions reached:**
+
+- Reframed from "swap the underlying dataset" to composable "accessibility
+  goggles" that FILTER the current dataset (like the existing 2/3/4 size
+  chips) — NOT separate datasets, NOT a dataset swap. The original
+  dataset-registry/selector idea was retired for this feature (logged in
+  `TODO.md` as future work).
+- Three lenses ship in v1: **Web text-ready** (max pair WCAG contrast ≥
+  4.5:1), **Print & B&W safe** (min pair ≥ 3:1 in grayscale — photocopy/B&W
+  distinguishable), **Color-blind safe** (OKLab distance under protan+deutan
+  simulation ≥ `CVD_THRESHOLD` 0.10, tunable).
+- Composition is AND (stacking), not OR — the data showed OR barely filters
+  (all-three OR ≈ 80% of combos = 272), while AND meaningfully narrows
+  (all-three AND = 36).
+- Goggles apply across the Wheel, Browse, AND Match — not just the wheel.
+- "Print-friendly" is honestly scoped to the B&W/grayscale check; true CMYK
+  soft-proofing is NOT claimed (would need an ICC printer profile the site
+  doesn't have).
+- culori stays confined to `src/color/` (new `src/color/accessibility.ts`
+  seam, alongside `colorDistance.ts`); zero new dependencies.
+
+**What happened:** designed and planned across two docs commits (`8f4d85a`
+spec, `a34e167` implementation plan), then executed subagent-driven in 5
+tasks (`1c4272a..ff0af04`), each task-reviewed:
+
+- Task 1 (`1c4272a`): core `AccessLensId` type + `state.access` +
+  `toggleAccess` reducer action.
+- Task 2 (`5ba3fda`): `src/color/accessibility.ts` (lenses, profile,
+  `allowedComboIds`) + `culori.d.ts` addition + `CLAUDE.md` note.
+- Task 3 (`c58624a`..`46b681a`): optional `allowed?` filter seam threaded
+  through `src/core/chord.ts` and `src/core/matching.ts`.
+- Task 4 (`3fd2fe5`): `src/data.ts` `accessProfile`/`allowedFor` glue + the
+  `AccessibilityGoggles` control.
+- Task 5 (`ff0af04`): goggles wired across the wheel, browse, and match
+  views + CSS + README.
+
+**Spec:** `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-21-accessibility-goggles.md`

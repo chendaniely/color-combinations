@@ -121,3 +121,15 @@ Move finished items to TODO-completed.md with the commit hash.
 - [ ] Camera overlay (`ColorCapture`/`CameraSearch` `.cam-overlay`,
       `role="dialog"`): no `aria-modal`, no Escape-to-close, no focus trap —
       add for a later a11y pass.
+- [ ] Accessibility goggles — APCA / WCAG-3 perceptual-contrast lens (v1 uses
+      WCAG 2 luminance contrast + OKLab-under-CVD).
+- [ ] Accessibility goggles — a separate tritan (blue-yellow) color-blind
+      option and/or a severity control (v1 covers protan+deutan at severity 1).
+- [ ] Accessibility goggles — a UI control to tune `CVD_THRESHOLD` (v1 ships
+      the constant 0.10 in `src/color/accessibility.ts`).
+- [ ] Accessibility goggles — consider unifying the goggles control with the
+      size chips into one filter bar (v1 keeps them adjacent but separate; size
+      chips are OR within a dimension, goggles are AND across dimensions).
+- [ ] A genuinely-different-dataset selector (a second color book) — the
+      original dataset-swap idea, retired for the goggles feature but valid
+      future work; would need the dataset-registry + context approach.

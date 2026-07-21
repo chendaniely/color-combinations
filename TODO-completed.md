@@ -121,3 +121,19 @@ subagent-driven, 13 tasks, each task-reviewed. Full range: `f3280e3..9900ffa`.
 - [x] Three new dependencies added with justification lines in `CLAUDE.md`:
       `culori` (runtime), `jsdom` + `@testing-library/react` +
       `@testing-library/dom` (dev) — done in 9a4e643 (2026-07-21)
+
+## Session 7 — accessibility goggles (2026-07-21)
+
+Design + plan: `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.md`,
+`docs/superpowers/plans/2026-07-21-accessibility-goggles.md`.
+
+- [x] Access lens filter in app state (AccessLensId, access, toggleAccess) —
+      done in 1c4272a (2026-07-21)
+- [x] Accessibility lens seam in src/color (web-text / print-bw / colorblind,
+      thresholds, profile, allowedComboIds) — done in 5ba3fda (2026-07-21)
+- [x] Optional allowed-combo filter through chord + matching core seams —
+      done in c58624a..46b681a (2026-07-21)
+- [x] accessProfile + allowedFor glue and the AccessibilityGoggles control —
+      done in 3fd2fe5 (2026-07-21)
+- [x] Goggles wired across wheel, browse, and match + docs — done in
+      ff0af04 (2026-07-21)

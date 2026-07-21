@@ -55,6 +55,12 @@ Run these from the project folder. `make help` lists them all.
   permission prompt after tapping it, you'll see a short message in its
   place instead of a live view.
 
+- **Theme a website or deck** — find a combination you love, then copy its hex
+  codes, CSS variables, or JSON straight into your project.
+- **Learn from the master** — set the wheel to Families or Groups and read the
+  ribbons: their thickness is how often Wada combined those families. The
+  coarse wheel is a lesson in what harmonizes.
+
 ### Accessibility goggles
 
 A set of optional filters ("goggles") you can stack on any view — the Wheel,
@@ -71,12 +77,6 @@ book data.
   profile the site doesn't have, so it isn't claimed.)
 - **Color-blind safe** — the colors stay distinct for the common red-green
   types of color blindness.
-
-- **Theme a website or deck** — find a combination you love, then copy its hex
-  codes, CSS variables, or JSON straight into your project.
-- **Learn from the master** — set the wheel to Families or Groups and read the
-  ribbons: their thickness is how often Wada combined those families. The
-  coarse wheel is a lesson in what harmonizes.
 
 ## How this project is organized
 
