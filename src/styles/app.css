@@ -76,7 +76,12 @@ main { flex: 1; min-height: 0; position: relative; }
   pointer-events: none;
 }
 .chord-wheel .wheel-center-label {
-  font-family: var(--font-display); font-size: 26px; fill: var(--ink);
+  font-family: var(--font-display); font-size: 30px; fill: var(--ink);
+  /* Paper halo drawn behind the fill so the name reads over the busy ribbon
+     crossings at center. --paper-1 is always the luminance-opposite of --ink,
+     so the moat works in either theme. */
+  stroke: var(--paper-1); stroke-width: 5px; paint-order: stroke;
+  stroke-linejoin: round;
   pointer-events: none;
 }
 .wheel-controls { padding: var(--s4) var(--s8) var(--s6); text-align: center; }
