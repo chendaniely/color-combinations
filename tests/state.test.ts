@@ -6,6 +6,7 @@ describe('app state reducer', () => {
     expect(initialState).toEqual({
       view: 'wheel', granularity: 0, sizes: [2, 3, 4], selection: null, aboutOpen: false,
       palette: { level: 1, keys: [] },
+      browse: { family: '', shade: '', colorId: '' },
     })
   })
   it('switches views', () => {
@@ -71,5 +72,17 @@ describe('app state reducer', () => {
   it('palette state stays JSON-serializable', () => {
     const s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
     expect(JSON.parse(JSON.stringify(s))).toEqual(s)
+  })
+  it('initial state carries empty browse filters', () => {
+    expect(initialState.browse).toEqual({ family: '', shade: '', colorId: '' })
+  })
+  it('seedPalette works at the color level', () => {
+    const s = reducer(initialState, { type: 'seedPalette', key: 'c12', level: 0 })
+    expect(s.view).toBe('match')
+    expect(s.palette).toEqual({ level: 0, keys: ['c12'] })
+  })
+  it('setBrowseFilter replaces the browse filter object', () => {
+    const s = reducer(initialState, { type: 'setBrowseFilter', browse: { family: 'green', shade: '', colorId: '' } })
+    expect(s.browse).toEqual({ family: 'green', shade: '', colorId: '' })
   })
 })

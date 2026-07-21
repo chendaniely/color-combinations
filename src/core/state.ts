@@ -8,7 +8,7 @@ export type Selection =
   | { kind: 'group'; id: string }
   | { kind: 'ribbon'; level: GranularityLevel; keyA: string; keyB: string; sizes?: SizeBucket[] }
 
-export type MatchLevel = 1 | 2
+export type MatchLevel = 0 | 1 | 2
 
 export interface AppState {
   view: 'wheel' | 'browse' | 'match'
@@ -17,6 +17,7 @@ export interface AppState {
   selection: Selection | null
   aboutOpen: boolean
   palette: { level: MatchLevel; keys: string[] }
+  browse: { family: string; shade: string; colorId: string }
 }
 
 export type Action =
@@ -31,6 +32,7 @@ export type Action =
   | { type: 'removeFromPalette'; key: string }
   | { type: 'setMatchLevel'; level: MatchLevel; keys: string[] }
   | { type: 'clearPalette' }
+  | { type: 'setBrowseFilter'; browse: { family: string; shade: string; colorId: string } }
 
 export const initialState: AppState = {
   view: 'wheel',
@@ -39,6 +41,7 @@ export const initialState: AppState = {
   selection: null,
   aboutOpen: false,
   palette: { level: 1, keys: [] },
+  browse: { family: '', shade: '', colorId: '' },
 }
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -79,5 +82,7 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, palette: { level: action.level, keys: action.keys } }
     case 'clearPalette':
       return { ...state, palette: { ...state.palette, keys: [] } }
+    case 'setBrowseFilter':
+      return { ...state, browse: action.browse }
   }
 }
