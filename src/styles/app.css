@@ -25,7 +25,7 @@ main { flex: 1; min-height: 0; position: relative; }
   gap: var(--s6); padding: var(--s4) var(--s8);
   border-bottom: 1px solid var(--hairline);
 }
-.wordmark { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.12em; }
+.wordmark { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.12em; background: none; border: 0; padding: 0; color: inherit; text-align: left; }
 .wordmark .seal { color: var(--accent); }
 .wordmark small {
   color: var(--ink-faint); font-family: var(--font-ui); font-size: 0.65rem;

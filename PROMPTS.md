@@ -349,3 +349,23 @@ whole-branch review passed — 86/86 tests, clean typecheck):
 
 **Spec:** `docs/superpowers/specs/2026-07-20-wheel-legibility-and-orientation.md`
 **Plan:** `docs/superpowers/plans/2026-07-20-wheel-legibility-and-orientation.md`
+
+**Owner prompts (post-review UI tweaks, while previewing the branch):**
+
+> for the top nav. let's have wheel, match, browse, and then about. so let's
+> swap the brose and match nav locations
+
+→ Nav reordered to **Wheel · Match · Browse · About** (`5b209f4`).
+
+> i'd like to add it so the site title on the top left of the menu all of those
+> take you to the front page, which is the wheel
+
+→ The "Iro" wordmark is now a clickable (accessible) button that returns to the
+wheel and dismisses any open About panel / detail selection — a proper "home."
+
+**Owner prompt (ship it):**
+
+> this looks good. let's publish/push this up to github
+
+→ Fast-forward merged to `main` and pushed; the CI "Test, build, deploy" workflow
+redeploys https://chendaniely.github.io/color-combinations/.

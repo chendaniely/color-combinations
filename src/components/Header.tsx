@@ -11,12 +11,17 @@ export function Header({ state, dispatch }: Props) {
     const pick = combos[Math.floor(Math.random() * combos.length)]
     dispatch({ type: 'select', selection: { kind: 'combination', id: pick.id } })
   }
+  function goHome() {
+    if (state.selection) dispatch({ type: 'closePanel' })
+    if (state.aboutOpen) dispatch({ type: 'toggleAbout' })
+    dispatch({ type: 'setView', view: 'wheel' })
+  }
   return (
     <header className="header">
-      <div className="wordmark">
+      <button type="button" className="wordmark" onClick={goHome} title="Go to the color wheel">
         Iro <span className="seal">色</span>
         <small>A Dictionary of Color Combinations</small>
-      </div>
+      </button>
       <nav className="nav">
         <SearchBox dispatch={dispatch} />
         <button aria-pressed={state.view === 'wheel'} onClick={() => dispatch({ type: 'setView', view: 'wheel' })}>Wheel</button>
