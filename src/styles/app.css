@@ -350,6 +350,8 @@ main { flex: 1; min-height: 0; position: relative; }
 .cam-btn.primary:disabled { opacity: 0.5; cursor: default; }
 .cam-btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--ink-faint); }
 .cam-error { color: var(--accent); font-size: 0.85rem; margin: 0; text-align: center; }
+.cam-steps { margin: 0; max-width: 420px; text-align: center; color: var(--ink-muted); font-size: 0.9rem; line-height: 1.35; }
+.cam-steps b { color: var(--ink); }
 .cam-privacy { color: var(--ink-muted); font-size: 0.8rem; margin: 0; text-align: center; }
 .cam-fallback { max-width: 360px; text-align: center; color: var(--ink-muted); }
 

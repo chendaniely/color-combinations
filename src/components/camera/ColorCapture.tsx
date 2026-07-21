@@ -84,6 +84,13 @@ export function ColorCapture({ onSample, onClose }: {
         </div>
       ) : (
         <>
+          <p className="cam-steps">
+            {!frozen
+              ? <><b>Step 1 of 2:</b> Point at the item, then tap the shutter to take a photo.</>
+              : !tap
+                ? <><b>Step 2 of 2:</b> Now tap the exact color on the photo — it won’t pick the center for you.</>
+                : <>Tap another spot to change your pick, or use the button below.</>}
+          </p>
           <div className="cam-stage">
             <video ref={videoRef} playsInline muted className="cam-video" style={{ display: frozen ? 'none' : 'block' }} />
             <canvas ref={canvasRef} className="cam-canvas" style={{ display: frozen ? 'block' : 'none' }}
