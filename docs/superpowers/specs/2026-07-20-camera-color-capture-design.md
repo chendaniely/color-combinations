@@ -100,35 +100,40 @@ callback, not a refactor:
 - **`CaptureResult`** (component) — hero + list + level selector; calls back
   `onMatch(level, key)` / `onBrowse(level, key)` supplied by the doorway.
 
-### Layer 1 — perceptual matching (core)
+### Layer 1 — perceptual matching (`src/color/`, a new non-core layer)
 
-The color-difference calculation is deliberately isolated behind **one seam** so
-it can be tuned or replaced later without touching anything downstream. Only
-`src/core/colorDistance.ts` knows *how* distance is computed; `nearestColors`,
-the closeness cue, and every consumer depend on the seam, not the space.
+The color-difference math uses the **culori** library (not hand-rolled), so it
+lives in a new **`src/color/`** layer — portable JS that may import npm libs —
+NOT in the pure `src/core/` kernel (which stays dependency-free; the color
+library can't be imported there without weakening `core-purity.test.ts`). The
+calculation is still isolated behind **one seam** so it can be tuned or replaced
+without touching anything downstream: only `src/color/colorDistance.ts` knows
+*how* distance is computed.
 
-- **`src/core/colorMath.ts`** (extend): OKLab primitives — `srgbToLinear`,
-  `rgbToOklab(rgb): [L, a, b]`. Pure conversion only, no ranking.
-- **`src/core/colorDistance.ts`** (new) — **the metric seam, the single place to
+- **`src/color/colorDistance.ts`** (new) — **the metric seam, the single place to
   change the algorithm**:
   - `colorDistance(a: RGB, b: RGB): number` — perceptual distance between two
-    colors. **Default implementation: Euclidean in OKLab** (modern, perceptually
-    uniform, far less bug-prone by hand than ΔE2000, and beats naive RGB under
-    colored lighting). Swapping in ΔE2000, a weighted metric, or a lighting
-    correction later means editing *only this function* and re-running its tests
-    and the `nearestColors` ranking tests — no call-site changes anywhere.
+    colors. **Default: culori's `differenceEuclidean('oklab')`** (Euclidean in
+    OKLab — modern, perceptually uniform, beats naive RGB under colored
+    lighting). culori also ships `differenceCiede2000`, `differenceCie94`, etc.,
+    so swapping the metric later is a one-line change in this file plus a retune
+    of the tests here and the `nearestColors` ranking tests — no call-site
+    changes anywhere.
   - `closenessLabel(distance): 'very close' | 'close' | 'roughly'` — lives here
-    too, so its thresholds move together with the metric they describe (a new
-    metric re-tunes them in one file). Thresholds asserted in tests at
-    representative distances.
-- **`src/core/nearestColor.ts`** (new):
+    too, so its thresholds move together with the metric they describe.
+    Thresholds asserted in tests at representative distances.
+- **`src/color/nearestColor.ts`** (new):
   - `nearestColors(ix, rgb, count): { color: ColorRecord; distance: number }[]` —
     ranks every book color by `colorDistance(rgb, color.rgb)` and returns the top
-    `count`. Agnostic to the color space — it never imports OKLab directly. An
-    exact book hex returns that color first at distance 0.
-- **`src/core/sampling.ts`** (new): `averagePatch(data, width, height, cx, cy,
-  radius): RGB` — averages an `ImageData`-style `Uint8ClampedArray` over a small
-  square clamped to bounds. Pure; the trickiest sampling math, unit-tested.
+    `count`. Agnostic to the metric — it depends on the seam, not the space. An
+    exact book hex returns that color first at distance 0. (Imports the `Indexed`
+    and `ColorRecord` *types* from `src/core`; app-layer importing core is fine.)
+- **`src/color/culori.d.ts`** (new) — a minimal `declare module 'culori'` for the
+  one function used (culori 4 ships no types).
+- **`src/core/sampling.ts`** (new, stays in **core** — pure, no lib):
+  `averagePatch(data, width, height, cx, cy, radius): RGB` — averages an
+  `ImageData`-style `Uint8ClampedArray` over a small square clamped to bounds.
+  The trickiest sampling math, unit-tested; dependency-free so it stays in the kernel.
 
 ### Layer 2 — level plumbing (core + state)
 
@@ -209,15 +214,14 @@ frozen frame ──tap──▶ averagePatch ──▶ RGB ──▶ nearestColo
 
 ## Testing
 
-**Core unit tests (`tests/`):**
-- `rgbToOklab` against reference values; `colorDistance` symmetry and zero on
-  identical inputs. (These tests belong to the seam — a future metric swap
-  updates them here and nowhere else.)
+**Core / color unit tests (`tests/`):**
+- `colorDistance` symmetry and zero on identical inputs; `closenessLabel`
+  thresholds at representative distances. (These belong to the seam — a future
+  metric swap updates them here and nowhere else.)
 - `nearestColors`: an exact book hex ranks itself first at distance 0; ranking
   order on a hand-picked example (olive garment → Olives shade neighbors). These
   ranking tests are written against `nearestColors`, so they re-validate any
   swapped-in metric unchanged.
-- `closenessLabel` thresholds at representative distances.
 - `averagePatch`: averages a synthetic pixel array; clamps at edges.
 - Reducer: `seedPalette` at level 0; `setBrowseFilter` set/clear; `remapKeysToLevel`
   across 0/1/2. Browse shade filtering via a dataset query test.
@@ -225,11 +229,16 @@ frozen frame ──tap──▶ averagePatch ──▶ RGB ──▶ nearestColo
 **Privacy tests:**
 - `tests/camera-privacy.test.ts` — source scan of `src/components/camera/*` fails
   on any forbidden network/storage/persistence API (allow-list: `getImageData`).
-- Track-stop test with a mocked `MediaStream`.
+- Track-stop test (`cameraStream`) with a mocked `MediaStream`.
 
-**UI:**
-- `renderToString` smoke: `CaptureResult` given a fixed `RGB` renders the hero
-  color's name and the three level options.
+**UI (now real interaction tests via jsdom):**
+- Camera UI test files opt into jsdom per-file (`// @vitest-environment jsdom`;
+  global env stays `node`). A shared helper mocks `getUserMedia`, the canvas 2D
+  context (jsdom's is a stub), and `video.videoWidth`. Tests cover: `ColorCapture`
+  shutter → frozen → tap → `onSample(rgb)`, and unmount stops the stream tracks;
+  `CaptureResult` promotes a tapped near-match to the hero, the level toggle
+  re-labels the actions, and Match/Browse fire `onMatch`/`onBrowse` with the right
+  `(level, key)`.
 - **Owner browser checklist** (not asserted): camera opens on phone + desktop;
   permission prompt; freeze/tap/re-tap/Retake; privacy line visible and the
   **camera light turns off on close**; each Level × (Match/Browse) navigates
@@ -249,8 +258,16 @@ Atkinson Hyperlegible, codes in the mono face.
 
 ## Dependency budget
 
-**No new dependencies.** Camera via native `getUserMedia`; pixel read via
-`<canvas>`; OKLab via hand-written pure functions in `colorMath.ts`.
+Three dependencies added (with justification lines in CLAUDE.md, same commit):
+- **`culori`** (runtime) — perceptual color-difference math (OKLab / ΔE) so we
+  don't hand-roll color science. Used ONLY in `src/color/`, never in `src/core/`.
+  Tree-shakeable; we import one function (`differenceEuclidean`).
+- **`jsdom`, `@testing-library/react`, `@testing-library/dom`** (dev) — unit-test
+  the camera UI's DOM interaction. Global test env stays `node`; camera UI tests
+  opt into jsdom per-file.
+
+The camera itself still uses native `getUserMedia` + `<canvas>` (no wrapper lib).
+`src/core/` remains dependency-free.
 
 ## Out of scope / deferred
 
@@ -260,6 +277,7 @@ Atkinson Hyperlegible, codes in the mono face.
 - Live continuous "eyedropper" sampling (we chose freeze-then-tap for accuracy).
 - Multi-point / region-average or pattern (multi-color) detection.
 - Any capture **history / saved colors** — deliberately excluded for privacy.
-- ΔE2000 / other color-difference metrics — OKLab distance is sufficient for v1.
-  Not built now, but explicitly *cheap to adopt later*: the metric is isolated in
-  `colorDistance.ts` (see Layer 1), so a swap or tuning pass touches one file.
+- ΔE2000 / other color-difference metrics — OKLab (Euclidean) is the v1 default.
+  Not chosen now, but explicitly *cheap to adopt later*: culori already ships
+  `differenceCiede2000` et al., and the metric is isolated in
+  `src/color/colorDistance.ts`, so a swap or tuning pass touches one file.
