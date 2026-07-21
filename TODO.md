@@ -141,3 +141,10 @@ Move finished items to TODO-completed.md with the commit hash.
       while `webTextReady` uses `.some()` (false); unreachable via
       `accessibilityProfile` (displayable/size≥2 only) but a latent footgun
       for any future direct caller.
+- [ ] Hex / photo color explorer — let the user provide a color directly (paste
+      a hex like NYC orange `#F26522` or blue `#236192`) OR a photo, then show
+      the nearest/similar book colors, mirroring the camera-capture flow
+      (`CaptureResult` → nearest colors → Match/Browse). User story: "paste NYC
+      orange or blue and see which book colors are close enough to build a
+      palette from." Needs its own brainstorm/spec (reuse `nearestColor` +
+      `CaptureResult`; add a hex-input entry alongside the camera).

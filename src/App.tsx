@@ -1,5 +1,6 @@
 import { useMemo, useReducer } from 'react'
 import { AboutPanel } from './components/AboutPanel'
+import { AccessibilityGoggles } from './components/AccessibilityGoggles'
 import { BrowseView } from './components/BrowseView'
 import { ChordWheel } from './components/ChordWheel'
 import { ColorDetail } from './components/ColorDetail'
@@ -19,6 +20,7 @@ export default function App() {
     <div className="app">
       <Header state={state} dispatch={dispatch} />
       <main>
+        <AccessibilityGoggles state={state} dispatch={dispatch} />
         {state.view === 'wheel' ? (
           <div className="wheel-view">
             <ChordWheel state={state} dispatch={dispatch} />

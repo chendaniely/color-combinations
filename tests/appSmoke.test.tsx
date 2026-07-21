@@ -97,17 +97,17 @@ describe('app shell', () => {
     expect(html).toContain('Find a color…')
   })
 
-  it('hosts the accessibility goggles once, in the shared header', () => {
-    // The control lives in the header (shared chrome) so it renders once, sits in
-    // the same spot on every view, and drives one global selection.
+  it('hosts the accessibility goggles once, floating in the content area', () => {
+    // The control lives once in <main> (App), floating in the top-right on every
+    // view, and drives one global selection.
     const app = renderToString(<App />)
     expect(app).toContain('Accessibility')
+    expect(app).toContain('Color-blind safe')
 
-    const header = renderToString(<Header state={{ ...initialState, view: 'match' }} dispatch={() => {}} />)
-    expect(header).toContain('Accessibility')
-    expect(header).toContain('Color-blind safe')
-
-    // The views no longer render their own copy — guards against re-duplicating it.
+    // Neither the header nor the individual views render their own copy — guards
+    // against re-duplicating it.
+    const header = renderToString(<Header state={initialState} dispatch={() => {}} />)
+    expect(header).not.toContain('Accessibility')
     const browse = renderToString(<BrowseView state={{ ...initialState, view: 'browse' }} dispatch={() => {}} />)
     expect(browse).not.toContain('Accessibility')
     const match = renderToString(<MatchPage state={{ ...initialState, view: 'match' }} dispatch={() => {}} />)

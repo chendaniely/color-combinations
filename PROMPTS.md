@@ -607,3 +607,50 @@ closing).
 **What happened:** bugfix/UX pass, all under `make test` (142 passing, +2 new
 outside-click jsdom tests) and `make build` green. Docs updated in-commit
 (`README.md` accessibility section, this log). Follow-up patch release.
+
+### Session 8 continued — live preview iteration (→ v1.2.1)
+
+Ran `make dev` and refined the accessibility control + wordmark against the
+live site.
+
+**Owner prompt:**
+
+> let's preview
+
+**Owner prompts (control placement + selected color):**
+
+> i don't like the accessibilty in the top right menu. i'd like to have it float in the top right corner below the menu, if possible
+
+> the accessibilty dropdown when an item is selected, the title color does not invert properly and is completely covered by the background selected color. first. i think the selected color is a bit too dark. for the selected color. let's use the NYC blue in this example (this is where my personal flair comes in)
+
+Moved the goggles out of the header `<nav>` and floated it in the top-right
+corner of the content area (`position: absolute` in `<main>`), reserving room
+on the Match/Browse top rows so nothing slides under it. Moving it out of the
+nav also fixed the "title covered" bug: the `.nav button` rules had been
+bleeding into the `.a11y-option` buttons and squashing their padding. Changed
+the selected-lens fill from the dark `--ink` to the owner's **NYC blue**
+(`--link`), with the label/description inverted to paper.
+
+**Owner prompt (shorten the wordmark):**
+
+> we might need to cut down the length of the title. "A dictonary of color combinations" has too many characters. let's explore some other options that's faithful to the original source text
+
+Offered four faithful options (incl. the original Japanese title 配色事典 /
+"Haishoku Jiten"); owner chose **"Color Combinations."** The full official
+title stays in the About panel and the PNG/JSON export credits for attribution.
+
+**Owner prompt (a Python pun), then reversal:**
+
+> what do you think of using `{color combinataions}` it's a bit of a pun of python, but i'm not sure tha'll make sense since we aren't coding this in python even though i'm a python dev
+
+> nvm i don't like it. you're right i want it more wabi-sabi less playful
+
+Tried `{color combinations}` set in the mono face (the braces echoing the
+source being a "Dictionary" = Python's dict literal), then reverted to the
+plain uppercase "Color Combinations" — owner wanted it quieter/more wabi-sabi.
+
+**Owner prompt (ship):**
+
+> not his is good let's push this verison
+
+Released as **v1.2.1**.

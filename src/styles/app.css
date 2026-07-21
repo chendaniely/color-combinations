@@ -159,7 +159,9 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Browse */
 .browse-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
-.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+/* padding-right reserves room for the floating accessibility goggles (top-right)
+   so the filter row never slides underneath it. */
+.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
 .browse-filters select {
   font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink);
   background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -267,7 +269,7 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Match page */
 .match-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
-.match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
+.match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
 .match-head h1 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; }
 .match-view .lede { color: var(--ink-muted); font-size: 0.9rem; margin-top: var(--s2); max-width: 80ch; }
 .match-view .level { display: inline-flex; gap: var(--s2); }
@@ -391,8 +393,10 @@ main { flex: 1; min-height: 0; position: relative; }
 .cap-retake { align-self: center; background: none; border: 0; color: var(--ink-muted);
   font: inherit; font-size: 0.85rem; cursor: pointer; margin-top: var(--s2); }
 
-/* Accessibility goggles — multi-select filter */
-.a11y-goggles { position: relative; display: inline-block; text-align: left; }
+/* Accessibility goggles — multi-select filter. Floats in the top-right corner
+   of the content area (just below the header), in the same spot on every view.
+   It's the positioning context for its own drop-down menu. */
+.a11y-goggles { position: absolute; top: var(--s4); right: var(--s8); z-index: 5; text-align: left; }
 .a11y-goggles > summary {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: var(--s2);
   padding: var(--s1) var(--s3); border: 1px solid var(--ink-faint); border-radius: var(--radius);
@@ -402,7 +406,7 @@ main { flex: 1; min-height: 0; position: relative; }
 .a11y-goggles[open] > summary { border-color: var(--ink); color: var(--ink); }
 .a11y-menu {
   /* Right-aligned (opens leftward) so the menu never runs off the right edge of
-     the viewport — the control sits at the top-right of the header. */
+     the viewport — the control floats at the top-right corner. */
   position: absolute; right: 0; z-index: 20; margin-top: var(--s2); min-width: 250px;
   display: flex; flex-direction: column; gap: var(--s1);
   padding: var(--s2); background: var(--paper-1);
@@ -415,8 +419,11 @@ main { flex: 1; min-height: 0; position: relative; }
   background: none; color: var(--ink); cursor: pointer;
 }
 .a11y-option:hover { border-color: var(--ink-faint); }
-.a11y-option[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper-1); }
+/* Selected fill is the owner's NYC blue; label + description invert to paper so
+   they read cleanly on it. */
+.a11y-option[aria-pressed='true'] { background: var(--link); border-color: var(--link); color: var(--paper-1); }
 .a11y-option-label { font-weight: 700; font-size: 0.85rem; }
+.a11y-option[aria-pressed='true'] .a11y-option-label { color: var(--paper-hi); }
 .a11y-option-desc { font-size: 0.72rem; color: var(--ink-muted); }
 .a11y-option[aria-pressed='true'] .a11y-option-desc { color: var(--paper-2); }
 .wheel-wrap { position: relative; flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
