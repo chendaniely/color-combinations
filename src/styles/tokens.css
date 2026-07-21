@@ -4,6 +4,7 @@
   /* ground */
   --paper-1: #f8f6f2;
   --paper-2: #f0ebe2;
+  --paper-hi: #fff; /* bright chrome for the dark camera viewfinder */
   /* ink */
   --ink: #2f2a26;
   --ink-muted: #7e7468;

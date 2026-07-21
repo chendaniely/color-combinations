@@ -91,3 +91,28 @@ Move finished items to TODO-completed.md with the commit hash.
       future dataset interleaves families, the levels 0–2 min/max block-center
       would silently drift off-top — add a validation check or make the anchor
       contiguity-robust if the grouping data ever changes
+- [ ] `src/core/sampling.ts`: `averagePatch`'s empty-patch branch
+      (`n === 0 → [0,0,0]`) is untested; an object-fit:cover edge tap can also
+      map outside bounds → returns black → matches to nearest-to-black. Add a
+      test and consider clamping `cx/cy` into `[0,width)`/`[0,height)` before
+      sampling.
+- [ ] `src/components/BrowseView.tsx`: move the shade-chip
+      `aria-label="Clear shade"` from the inner `<span>` onto the `<button>`;
+      add a Browse test asserting the shade predicate actually narrows
+      `combos.length`; the chip's `border-radius:999px`/padding are
+      un-tokenized spacing.
+- [ ] `tests/camera-privacy.test.ts`: `toBlob`/`toDataURL` checks are bare
+      substring matches (could over-flag an identifier); the `download`-attr
+      regex is JSX-shaped only (a programmatic `a.download=…;a.click()` would
+      evade it — mitigated because producing image bytes still needs
+      toDataURL/toBlob/createObjectURL, all caught).
+- [ ] `src/components/camera/CaptureResult.tsx`: `useMemo`d `nearestColors`
+      keys only on `rgb`; the Color/Shade/Family `role=radiogroup` lacks
+      arrow-key roving-tabindex (matches the pre-existing MatchPage `.level`
+      radiogroup gap).
+- [ ] `src/components/MatchPage.tsx`: the always-on lede "Start from a shade
+      you have…" and the "Add a shade" section heading read wrong when the
+      Colors (level 0) tab is active — generalize the copy.
+- [ ] Camera overlay (`ColorCapture`/`CameraSearch` `.cam-overlay`,
+      `role="dialog"`): no `aria-modal`, no Escape-to-close, no focus trap —
+      add for a later a11y pass.
