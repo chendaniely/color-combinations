@@ -43,3 +43,17 @@ Format: `- [x] item — done in <commit hash> (YYYY-MM-DD)`
       done in db37b1b (2026-07-20)
 - [x] Browse: group plates under 2 / 3 / 4+ color section headers — done in
       3cd01df (2026-07-20)
+
+## Session 5 — wheel legibility & orientation (2026-07-20)
+
+- [x] Rare-partner links invisible on hover: give highlighted ribbons a
+      stroke-width floor (bolder on color/arc-hover than single-link hover) so
+      even one-off pairings read, without changing the resting layout
+      (proportional-width-with-a-floor) — done in 76ddf7f (2026-07-20)
+- [x] Brighten the partner colors' arcs on color-hover (not just the connecting
+      links) — done in 76ddf7f (2026-07-20)
+- [x] Consistent, standard wheel orientation: family order at every granularity
+      (Colors re-sorted from pure hue so browns cluster like every other level),
+      rotated so red sits at 12 o'clock (pure `redAnchorAngle`; Red-block center
+      for Colors/Shades/Families, reddest-in-Warm for Groups) — done in
+      972e10b..4337eae (2026-07-20)

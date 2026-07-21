@@ -242,3 +242,110 @@ Families; a "Build a palette from this →" bridge seeds the page from a group.
 
 **Spec:** `docs/superpowers/specs/2026-07-20-color-matching-and-outfit-builder-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-20-color-matching-and-outfit-builder.md`
+
+## 2026-07-20 — Session 5: Wheel legibility & orientation
+
+**Owner prompt (opening — ribbon-hover clarification):** after asking why
+hovering a ribbon highlights only two colors when the underlying combination
+has more, the owner reconsidered:
+
+> oh i guess the behavior i was looking for was what happens when you hover over
+> the edge. i guess that makes sense
+
+→ No change: hovering a color (outer rim) already fans out to every partner;
+hovering a single link is inherently pairwise. Two optional enhancements were
+offered; the owner took up the second (brighten partner arcs) next.
+
+**Owner prompt (the work):**
+
+> let's build on that last option 2. and improve the visualization on the main
+> color wheel.
+> here are some issues i have with it:
+> - when i hover over an individual color (not on the edge), most of the time the
+>   line between the 2 connecting colors are too thin. this is probalby when a
+>   color only appears very few number of times. it seems the width of the
+>   starting line width is proportional to how many times the color appears int
+>   he dataset. that's fine, but it means rare color links wven when
+>   "highlighted" are barely visable. so we need to improve that. i'm not sure if
+>   a ticker line will fix this issue (let's think about this) becuase i don't
+>   want a think line to hinder you trying to select the next adjacent color
+>   either.
+> - i think you can make the lines thicker when i hover over the edge of the
+>   wheel, since there is no worry that i won't be able to hover over the
+>   immediate adjacent one.
+> - what do you think about making sure the colors for black are centered around
+>   the 12 o'clock positoin? do you think that will help with visualization
+>   consistency between the group sliders?
+
+**Owner prompt (standards):**
+
+> i just picked black because it throught it made sense. is there a more
+> understood standard of how color wheels are placed? i rather go with industry
+> and artistic standards than something i'm thinking of. you should defetnly
+> always push back when i'm trying to do somethign against a standard or common
+> practice
+
+→ Pushed back: black-at-top is not a standard. The recognized screen convention
+is **red at 12 o'clock, spectrum clockwise** (CSS `conic-gradient` default, most
+hue rings). Chose that.
+
+**Owner prompt:**
+
+> how does the current positioning compare to the suggested ones?
+
+→ Built a data-driven before/after prototype (real colors + real arc sizes) of
+all four levels. Finding: the three group levels are already mutually
+consistent; the Colors level is the outlier (pure-hue, so browns sit in the
+orange sector and jump when you zoom).
+
+**Owner decision:**
+
+> let's go with your recommendation. let's take a note about the before/after and
+> maybe prototype the layouts when you are planning
+
+→ Adopted: **family order at every level** (Colors re-sorted so browns cluster)
++ **red at 12 o'clock**. Prototype published as an artifact:
+https://claude.ai/code/artifact/06e012f8-559e-4663-bdbd-a62f048822f6
+
+**Owner prompt (brand, mid-turn):**
+
+> btw it should be NYC-orange-blue accent, not just orange. if possible
+
+→ Prototype re-themed to use both brand colors (orange = 12 o'clock marker, blue
+= the "proposed" column).
+
+**Owner prompt (rotation fix):**
+
+> the circle rotations look good. all exepct the first one, Groups — 4
+> super-families, have red in the 12 o'clock position, it seems like it just need
+> to rotate clockwise a bit for the red. i'm not questioning the ordering of the
+> colors, just the rotation. currently is on a shade of yellow
+
+→ Fixed the Groups (super) anchor: instead of centering the whole Warm arc
+(whose size-weighted center lands on yellow), place the **reddest member's slice
+within Warm** at top.
+
+**Owner prompt:**
+
+> ok this looks good for now, we can always go back to the rotation, color order,
+> and oritentation at a later time
+
+**Owner prompt (execute):**
+
+> go implement in subagent-driven dev
+
+**What happened:** executed subagent-driven in 3 tasks (each task-reviewed; final
+whole-branch review passed — 86/86 tests, clean typecheck):
+
+- Task 1 (`972e10b`, `c29643d`): Colors level re-sorted to family order (browns
+  cluster, neutrals stay last); new pure `redAnchorAngle` (Red-block center for
+  Colors/Shades/Families, reddest-in-Warm for Groups) with fixture + real-dataset
+  tests.
+- Task 2 (`4337eae`): the wheel rotates so red sits at 12 o'clock at every level;
+  the center hover-label is counter-rotated to stay upright.
+- Task 3 (`76ddf7f`): highlighted links get a stroke-width floor (bolder on
+  color-hover than single-link hover) so rare-partner links stay visible without
+  changing the resting layout; partner arcs brighten on color-hover.
+
+**Spec:** `docs/superpowers/specs/2026-07-20-wheel-legibility-and-orientation.md`
+**Plan:** `docs/superpowers/plans/2026-07-20-wheel-legibility-and-orientation.md`

@@ -59,3 +59,15 @@ Move finished items to TODO-completed.md with the commit hash.
 - [ ] Match page: clear the "Switched to Shades…" level-switch notice when the
       palette is emptied by a non-switch path ("Start over" / removing the last
       chip), so a stale message can't reappear on the picker
+- [ ] Revisit wheel orientation/ordering later (owner: "we can always go back
+      to the rotation, color order, and orientation at a later time"): options
+      considered but not taken were an RYB primary-triangle wheel (red/yellow/
+      blue at 12/4/8 o'clock) and a pure-hue Colors level (browns back in the
+      orange sector). Current choice is family-order + red-at-12-o'clock.
+- [ ] Gradient source→target highlight strokes on wheel hover — the highlight
+      stroke is currently the source-node color only
+- [ ] `redAnchorAngle` (`src/core/chord.ts`) assumes each broad family's nodes
+      are angularly contiguous (true for today's curated `fine` order). If a
+      future dataset interleaves families, the levels 0–2 min/max block-center
+      would silently drift off-top — add a validation check or make the anchor
+      contiguity-robust if the grouping data ever changes
