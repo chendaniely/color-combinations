@@ -58,6 +58,14 @@ Format: `- [x] item — done in <commit hash> (YYYY-MM-DD)`
       for Colors/Shades/Families, reddest-in-Warm for Groups) — done in
       972e10b..4337eae (2026-07-20)
 
+## Session 5 — post-review UI tweaks (2026-07-20)
+
+- [x] Reorder the top nav to Wheel · Match · Browse · About (swap Match/Browse)
+      — done in 5b209f4 (2026-07-20)
+- [x] Make the "Iro" wordmark a clickable home button (returns to the wheel and
+      dismisses any open About panel / detail selection) — done in 87ffea2
+      (2026-07-20)
+
 ## Session 6 — camera color capture (2026-07-21)
 
 Design + plan: `docs/superpowers/specs/2026-07-20-camera-color-capture-design.md`,
