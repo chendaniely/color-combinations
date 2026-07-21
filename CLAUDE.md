@@ -47,9 +47,12 @@ don't hand-roll color science — used ONLY in `src/color/` (see below), never
 in the pure `src/core/` kernel; jsdom + @testing-library/react +
 @testing-library/dom = unit-test the camera UI's DOM interaction (the app's
 other UI is covered by renderToString smoke + the owner browser checklist).
-culori ships no types, so `src/color/culori.d.ts` declares the one function we
-use. **Adding any other dependency requires appending a justification line
-here in the same commit.**
+culori ships no types, so `src/color/culori.d.ts` declares the culori
+functions we use (`differenceEuclidean`, `wcagContrast`,
+`filterDeficiencyProt`, `filterDeficiencyDeuter`). The accessibility "goggles"
+seam (`src/color/accessibility.ts`) computes, per combination, which
+accessibility lenses it passes; like `colorDistance` it lives in `src/color/`
+so the core kernel stays dependency-free. **No new dependency was added.**
 
 `src/color/` is a NON-core layer for portable color logic that may use npm
 libs (culori): the color-distance seam and nearest-color lookup live here so
