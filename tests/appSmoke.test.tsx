@@ -3,11 +3,13 @@ import { describe, expect, it } from 'vitest'
 import App from '../src/App'
 import { AboutPanel } from '../src/components/AboutPanel'
 import { BrowseView } from '../src/components/BrowseView'
+import { CaptureResult } from '../src/components/camera/CaptureResult'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
 import { GroupDetail } from '../src/components/GroupDetail'
 import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
+import { hexToRgb } from '../src/core/colorMath'
 import { initialState } from '../src/core/state'
 import { dataset } from '../src/data'
 
@@ -77,5 +79,14 @@ describe('app shell', () => {
     const html = renderToString(<BrowseView state={state} dispatch={() => {}} />)
     expect(html).toContain('Olives')
     expect(html).toContain('Clear shade')
+  })
+
+  it('capture result heroes the closest color and offers all three levels + destinations', () => {
+    const html = renderToString(
+      <CaptureResult rgb={hexToRgb('#7e8743')} onMatch={() => {}} onBrowse={() => {}} />,
+    )
+    expect(html).toContain('Dark Citrine') // closest book color
+    expect(html).toContain('Color'); expect(html).toContain('Shade'); expect(html).toContain('Family')
+    expect(html).toContain('Match'); expect(html).toContain('Browse')
   })
 })

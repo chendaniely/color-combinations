@@ -340,3 +340,39 @@ main { flex: 1; min-height: 0; position: relative; }
 .cam-error { color: var(--accent); font-size: 0.85rem; margin: 0; text-align: center; }
 .cam-privacy { color: var(--ink-muted); font-size: 0.8rem; margin: 0; text-align: center; }
 .cam-fallback { max-width: 360px; text-align: center; color: var(--ink-muted); }
+
+.cap-result { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: var(--s2); }
+.cap-saw { display: flex; align-items: center; gap: var(--s2); color: var(--ink-muted); font-size: 0.85rem; }
+.cap-saw b { color: var(--ink); font-family: var(--font-mono); font-weight: 400; }
+.cap-sw { width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--hairline); }
+.cap-hero { height: 120px; border-radius: var(--radius); position: relative; border: 1px solid var(--hairline); }
+.cap-tag { position: absolute; top: 8px; left: 9px; font-size: 0.6rem; letter-spacing: 0.08em;
+  text-transform: uppercase; background: rgba(248,246,242,0.85); color: var(--ink-muted);
+  padding: 2px 8px; border-radius: 999px; }
+.cap-name { font-family: var(--font-display); font-size: 1.5rem; }
+.cap-code { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-muted); }
+.cap-more { align-self: flex-start; background: none; border: 0; color: var(--link);
+  font: inherit; font-size: 0.8rem; cursor: pointer; padding: var(--s1) 0; }
+.cap-near { max-height: 150px; overflow-y: auto; border: 1px solid var(--hairline); border-radius: var(--radius); }
+.cap-li { display: flex; align-items: center; gap: var(--s2); width: 100%;
+  padding: 8px 10px; background: none; border: 0; border-bottom: 1px solid var(--hairline);
+  font: inherit; text-align: left; cursor: pointer; }
+.cap-li:last-child { border-bottom: 0; }
+.cap-li.sel { background: var(--paper-2); }
+.cap-li-sw { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--hairline); }
+.cap-li-nm { font-family: var(--font-display); }
+.cap-seg-h { font-size: 0.72rem; color: var(--ink-muted); margin: var(--s2) 0 0; }
+.cap-seg { display: flex; border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }
+.cap-opt { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 4px; background: var(--paper-1); border: 0; border-right: 1px solid var(--hairline);
+  font: inherit; cursor: pointer; }
+.cap-opt:last-child { border-right: 0; }
+.cap-opt-lv { font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+.cap-opt-val { font-family: var(--font-display); font-size: 0.9rem; color: var(--ink-muted); text-align: center; }
+.cap-opt.on { background: var(--paper-2); box-shadow: inset 0 -2px 0 var(--link); }
+.cap-opt.on .cap-opt-lv { color: var(--link); }
+.cap-opt.on .cap-opt-val { color: var(--ink); }
+.cap-cta { display: flex; gap: var(--s2); margin-top: var(--s2); }
+.cap-cta .cam-btn { flex: 1; }
+.cap-retake { align-self: center; background: none; border: 0; color: var(--ink-muted);
+  font: inherit; font-size: 0.85rem; cursor: pointer; margin-top: var(--s2); }
