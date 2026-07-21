@@ -195,6 +195,13 @@ main { flex: 1; min-height: 0; position: relative; }
   padding: var(--s1) var(--s2); width: 180px;
 }
 .search-box input:focus { outline: none; border-bottom-color: var(--accent); }
+.search-cam {
+  display: inline-grid; place-items: center;
+  width: 32px; height: 32px; margin-left: var(--s1);
+  background: var(--paper-2); color: var(--ink);
+  border: 1px solid var(--hairline); border-radius: var(--radius); cursor: pointer;
+}
+.search-cam:hover { border-color: var(--accent); color: var(--accent); }
 .search-results {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
   background: var(--paper-1); border: 1px solid var(--hairline); border-radius: var(--radius);

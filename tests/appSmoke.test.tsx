@@ -89,4 +89,9 @@ describe('app shell', () => {
     expect(html).toContain('Color'); expect(html).toContain('Shade'); expect(html).toContain('Family')
     expect(html).toContain('Match'); expect(html).toContain('Browse')
   })
+
+  it('search box uses the new placeholder copy', () => {
+    const html = renderToString(<App />)
+    expect(html).toContain('Find a color…')
+  })
 })
