@@ -102,16 +102,30 @@ callback, not a refactor:
 
 ### Layer 1 — perceptual matching (core)
 
-- **`src/core/colorMath.ts`** (extend): `srgbToLinear`, `rgbToOklab(rgb): [L,a,b]`,
-  `oklabDistance(a, b): number` (Euclidean in OKLab — a modern, perceptually
-  uniform space; simpler and more robust to implement correctly than ΔE2000, and
-  good enough to beat naive RGB distance under colored lighting).
+The color-difference calculation is deliberately isolated behind **one seam** so
+it can be tuned or replaced later without touching anything downstream. Only
+`src/core/colorDistance.ts` knows *how* distance is computed; `nearestColors`,
+the closeness cue, and every consumer depend on the seam, not the space.
+
+- **`src/core/colorMath.ts`** (extend): OKLab primitives — `srgbToLinear`,
+  `rgbToOklab(rgb): [L, a, b]`. Pure conversion only, no ranking.
+- **`src/core/colorDistance.ts`** (new) — **the metric seam, the single place to
+  change the algorithm**:
+  - `colorDistance(a: RGB, b: RGB): number` — perceptual distance between two
+    colors. **Default implementation: Euclidean in OKLab** (modern, perceptually
+    uniform, far less bug-prone by hand than ΔE2000, and beats naive RGB under
+    colored lighting). Swapping in ΔE2000, a weighted metric, or a lighting
+    correction later means editing *only this function* and re-running its tests
+    and the `nearestColors` ranking tests — no call-site changes anywhere.
+  - `closenessLabel(distance): 'very close' | 'close' | 'roughly'` — lives here
+    too, so its thresholds move together with the metric they describe (a new
+    metric re-tunes them in one file). Thresholds asserted in tests at
+    representative distances.
 - **`src/core/nearestColor.ts`** (new):
   - `nearestColors(ix, rgb, count): { color: ColorRecord; distance: number }[]` —
-    converts every book color to OKLab, ranks by distance, returns the top
-    `count`. An exact book hex returns that color at distance 0.
-  - `closenessLabel(distance): 'very close' | 'close' | 'roughly'` — thresholds
-    tuned to OKLab distance (asserted in tests at representative values).
+    ranks every book color by `colorDistance(rgb, color.rgb)` and returns the top
+    `count`. Agnostic to the color space — it never imports OKLab directly. An
+    exact book hex returns that color first at distance 0.
 - **`src/core/sampling.ts`** (new): `averagePatch(data, width, height, cx, cy,
   radius): RGB` — averages an `ImageData`-style `Uint8ClampedArray` over a small
   square clamped to bounds. Pure; the trickiest sampling math, unit-tested.
@@ -196,10 +210,13 @@ frozen frame ──tap──▶ averagePatch ──▶ RGB ──▶ nearestColo
 ## Testing
 
 **Core unit tests (`tests/`):**
-- `rgbToOklab` against reference values; `oklabDistance` symmetry and zero on
-  identical inputs.
+- `rgbToOklab` against reference values; `colorDistance` symmetry and zero on
+  identical inputs. (These tests belong to the seam — a future metric swap
+  updates them here and nowhere else.)
 - `nearestColors`: an exact book hex ranks itself first at distance 0; ranking
-  order on a hand-picked example (olive garment → Olives shade neighbors).
+  order on a hand-picked example (olive garment → Olives shade neighbors). These
+  ranking tests are written against `nearestColors`, so they re-validate any
+  swapped-in metric unchanged.
 - `closenessLabel` thresholds at representative distances.
 - `averagePatch`: averages a synthetic pixel array; clamps at edges.
 - Reducer: `seedPalette` at level 0; `setBrowseFilter` set/clear; `remapKeysToLevel`
@@ -244,3 +261,5 @@ Atkinson Hyperlegible, codes in the mono face.
 - Multi-point / region-average or pattern (multi-color) detection.
 - Any capture **history / saved colors** — deliberately excluded for privacy.
 - ΔE2000 / other color-difference metrics — OKLab distance is sufficient for v1.
+  Not built now, but explicitly *cheap to adopt later*: the metric is isolated in
+  `colorDistance.ts` (see Layer 1), so a swap or tuning pass touches one file.
