@@ -4,6 +4,8 @@ import {
   breadcrumbOf, childGroupsOf, combosForSet, groupKeysOfCombo,
   levelOfGroupKey, remapKeysToLevel, suggestPartners,
 } from '../src/core/matching'
+import type { Dataset } from '../src/core/types'
+import { SCHEMA_VERSION } from '../src/core/types'
 import { dataset } from '../src/data'
 import { mini } from './fixtures/miniDataset'
 
@@ -91,6 +93,42 @@ describe('allowed-combo filter seam (matching)', () => {
     const restricted = suggestPartners(ix, 2, ['pink'], ALL, new Set([10, 12])).map((s) => s.key)
     expect(restricted).toContain('blue')
     expect(restricted).not.toContain('red')
+  })
+  it('suggestPartners forwards allowed into the bookVerified check', () => {
+    // A tiny book where candidate X pairs with A (combo 100) and B (combo 101)
+    // separately, and a JOINT combo 102 = {A,B,X} exists. bookVerified for X is
+    // true only if a single allowed combo holds A+B+X together — combo 102. So
+    // excluding 102 from `allowed` must flip bookVerified to false, which only
+    // happens if `allowed` reaches the internal combosForSet call.
+    const book: Dataset = {
+      schemaVersion: SCHEMA_VERSION,
+      source: { name: 'test', url: 'https://example.com', retrievedOn: '2026-07-21' },
+      colors: [
+        { id: 1, name: 'A', slug: 'a', hex: '#000000', rgb: [0, 0, 0], cmyk: [0, 0, 0, 0], hue: 0, fineId: 'f', combinationIds: [100, 102] },
+        { id: 2, name: 'B', slug: 'b', hex: '#111111', rgb: [17, 17, 17], cmyk: [0, 0, 0, 0], hue: 0, fineId: 'f', combinationIds: [101, 102] },
+        { id: 3, name: 'X', slug: 'x', hex: '#222222', rgb: [34, 34, 34], cmyk: [0, 0, 0, 0], hue: 0, fineId: 'f', combinationIds: [100, 101, 102] },
+      ],
+      combinations: [
+        { id: 100, colorIds: [1, 3], size: 2, excluded: false }, // A,X
+        { id: 101, colorIds: [2, 3], size: 2, excluded: false }, // B,X
+        { id: 102, colorIds: [1, 2, 3], size: 3, excluded: false }, // A,B,X (joint)
+      ],
+      groups: {
+        fine: [{ id: 'f', name: 'F', parentId: 'b' }],
+        broad: [{ id: 'b', name: 'B', parentId: 's' }],
+        super: [{ id: 's', name: 'S', parentId: null }],
+      },
+    }
+    const fx = index(book)
+    const unfiltered = suggestPartners(fx, 0, ['c1', 'c2'], ALL)
+    const c3u = unfiltered.find((s) => s.key === 'c3')!
+    expect(c3u).toBeTruthy()
+    expect(c3u.bookVerified).toBe(true) // joint combo 102 present
+
+    const filtered = suggestPartners(fx, 0, ['c1', 'c2'], ALL, new Set([100, 101]))
+    const c3f = filtered.find((s) => s.key === 'c3')!
+    expect(c3f).toBeTruthy()          // still suggested: pairs with c1 via 100, c2 via 101
+    expect(c3f.bookVerified).toBe(false) // 102 excluded → false ONLY if `allowed` was forwarded
   })
 })
 
