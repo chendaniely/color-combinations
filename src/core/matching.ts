@@ -54,15 +54,20 @@ export function remapKeysToLevel(
   return [...new Set(keys.map((k) => ix.broadOfFine.get(k)!))]
 }
 
-function filtered(ix: Indexed, sizes: ReadonlySet<SizeBucket>): CombinationRecord[] {
-  return displayableCombinations(ix).filter((c) => sizes.has(sizeBucket(c)))
+function filtered(
+  ix: Indexed, sizes: ReadonlySet<SizeBucket>, allowed?: ReadonlySet<number>,
+): CombinationRecord[] {
+  return displayableCombinations(ix).filter(
+    (c) => sizes.has(sizeBucket(c)) && (!allowed || allowed.has(c.id)),
+  )
 }
 
 export function combosForSet(
   ix: Indexed, level: GranularityLevel, setKeys: readonly string[], sizes: ReadonlySet<SizeBucket>,
+  allowed?: ReadonlySet<number>,
 ): CombinationRecord[] {
   if (setKeys.length === 0) return []
-  return filtered(ix, sizes)
+  return filtered(ix, sizes, allowed)
     .filter((c) => {
       const keys = new Set(groupKeysOfCombo(ix, c, level))
       return setKeys.every((k) => keys.has(k))
@@ -72,12 +77,13 @@ export function combosForSet(
 
 export function suggestPartners(
   ix: Indexed, level: GranularityLevel, setKeys: readonly string[], sizes: ReadonlySet<SizeBucket>,
+  allowed?: ReadonlySet<number>,
 ): PartnerSuggestion[] {
   if (setKeys.length === 0) return []
   const want = new Set(setKeys)
   // For each candidate: how many combos pair it with each set key.
   const perSetKeyCount = new Map<string, Map<string, number>>() // candidate → (setKey → count)
-  for (const c of filtered(ix, sizes)) {
+  for (const c of filtered(ix, sizes, allowed)) {
     const keys = groupKeysOfCombo(ix, c, level)
     const present = setKeys.filter((k) => keys.includes(k))
     if (present.length === 0) continue
@@ -101,7 +107,7 @@ export function suggestPartners(
   for (const [cand, m] of perSetKeyCount) {
     if (m.size !== want.size) continue // must pair with EVERY set key
     const score = [...m.values()].reduce((a, b) => a + b, 0)
-    const bookVerified = combosForSet(ix, level, [...setKeys, cand], sizes).length > 0
+    const bookVerified = combosForSet(ix, level, [...setKeys, cand], sizes, allowed).length > 0
     out.push({ key: cand, score, bookVerified })
   }
   return out.sort((a, b) =>

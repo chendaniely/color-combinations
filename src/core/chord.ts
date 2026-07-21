@@ -28,19 +28,24 @@ export function wheelNodes(ix: Indexed, level: GranularityLevel): WheelNode[] {
   }))
 }
 
-function filteredCombos(ix: Indexed, sizes: ReadonlySet<SizeBucket>): CombinationRecord[] {
-  return displayableCombinations(ix).filter((c) => sizes.has(sizeBucket(c)))
+function filteredCombos(
+  ix: Indexed, sizes: ReadonlySet<SizeBucket>, allowed?: ReadonlySet<number>,
+): CombinationRecord[] {
+  return displayableCombinations(ix).filter(
+    (c) => sizes.has(sizeBucket(c)) && (!allowed || allowed.has(c.id)),
+  )
 }
 
 export function chordMatrix(
   ix: Indexed, level: GranularityLevel, sizes: ReadonlySet<SizeBucket>,
+  allowed?: ReadonlySet<number>,
 ): { nodes: WheelNode[]; matrix: number[][] } {
   const nodes = wheelNodes(ix, level)
   const idx = new Map(nodes.map((n, i) => [n.key, i]))
   const n = nodes.length
   const matrix: number[][] = Array.from({ length: n }, () => Array<number>(n).fill(0))
 
-  for (const combo of filteredCombos(ix, sizes)) {
+  for (const combo of filteredCombos(ix, sizes, allowed)) {
     const positions = new Map<number, number>() // node index → member count
     for (const colorId of combo.colorIds) {
       const i = idx.get(ancestorAtLevel(ix, colorId, level))!
@@ -62,9 +67,9 @@ export function chordMatrix(
 
 export function combosForPair(
   ix: Indexed, level: GranularityLevel, keyA: string, keyB: string,
-  sizes: ReadonlySet<SizeBucket>,
+  sizes: ReadonlySet<SizeBucket>, allowed?: ReadonlySet<number>,
 ): CombinationRecord[] {
-  return filteredCombos(ix, sizes)
+  return filteredCombos(ix, sizes, allowed)
     .filter((combo) => {
       const keys = combo.colorIds.map((id) => ancestorAtLevel(ix, id, level))
       if (keyA === keyB) return keys.filter((k) => k === keyA).length >= 2

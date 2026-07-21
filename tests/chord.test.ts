@@ -118,3 +118,17 @@ describe('combosForPair', () => {
     expect(combosForPair(ix, 3, 'warm', 'warm', ALL).map((c) => c.id)).toEqual([11, 14])
   })
 })
+
+describe('allowed-combo filter seam (chord)', () => {
+  it('chordMatrix: empty allowed set yields an all-zero matrix', () => {
+    const { matrix } = chordMatrix(ix, 2, ALL, new Set<number>())
+    expect(matrix.flat().every((v) => v === 0)).toBe(true)
+  })
+  it('chordMatrix: undefined allowed equals no filter', () => {
+    expect(chordMatrix(ix, 2, ALL, undefined).matrix).toEqual(chordMatrix(ix, 2, ALL).matrix)
+  })
+  it('combosForPair respects allowed', () => {
+    expect(combosForPair(ix, 2, 'pink', 'blue', ALL).map((c) => c.id)).toEqual([10, 12, 14])
+    expect(combosForPair(ix, 2, 'pink', 'blue', ALL, new Set([12])).map((c) => c.id)).toEqual([12])
+  })
+})

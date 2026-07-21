@@ -79,6 +79,21 @@ describe('suggestPartners', () => {
   })
 })
 
+describe('allowed-combo filter seam (matching)', () => {
+  it('combosForSet respects allowed', () => {
+    expect(combosForSet(ix, 2, ['blue'], ALL).map((c) => c.id)).toEqual([10, 12, 14])
+    expect(combosForSet(ix, 2, ['blue'], ALL, new Set([10])).map((c) => c.id)).toEqual([10])
+  })
+  it('suggestPartners respects allowed (drops partners with no allowed combo)', () => {
+    const full = suggestPartners(ix, 2, ['pink'], ALL).map((s) => s.key)
+    expect(full).toContain('blue')
+    expect(full).toContain('red')
+    const restricted = suggestPartners(ix, 2, ['pink'], ALL, new Set([10, 12])).map((s) => s.key)
+    expect(restricted).toContain('blue')
+    expect(restricted).not.toContain('red')
+  })
+})
+
 describe('level 0 matching', () => {
   const sizes = new Set<2 | 3 | 4>([2, 3, 4])
   it('remaps a color key up to shade and family, and refuses to go finer', () => {
