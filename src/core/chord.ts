@@ -1,6 +1,5 @@
 // Chord-diagram math: nodes per granularity level and co-occurrence matrix.
 // Core kernel: no imports outside src/core.
-import { isNeutral } from './colorMath'
 import type { Indexed } from './dataset'
 import {
   ancestorAtLevel, displayableCombinations, groupMembers, sizeBucket,
@@ -15,9 +14,9 @@ export interface WheelNode {
 
 export function wheelNodes(ix: Indexed, level: GranularityLevel): WheelNode[] {
   if (level === 0) {
+    const order = new Map(ix.data.groups.fine.map((g, i) => [g.id, i]))
     return [...ix.data.colors]
-      .sort((a, b) =>
-        Number(isNeutral(a.hex)) - Number(isNeutral(b.hex)) || a.hue - b.hue)
+      .sort((a, b) => (order.get(a.fineId)! - order.get(b.fineId)!) || (a.hue - b.hue))
       .map((c) => ({ key: `c${c.id}`, label: c.name, swatchHexes: [c.hex] }))
   }
   const groups =
@@ -72,4 +71,46 @@ export function combosForPair(
       return keys.includes(keyA) && keys.includes(keyB)
     })
     .sort((a, b) => a.id - b.id)
+}
+
+export interface AngleGroup { startAngle: number; endAngle: number; index: number }
+
+function broadKeyOf(ix: Indexed, level: GranularityLevel, nodeKey: string): string | null {
+  if (level === 0) return ancestorAtLevel(ix, Number(nodeKey.slice(1)), 2)
+  if (level === 1) return ix.broadOfFine.get(nodeKey) ?? null
+  if (level === 2) return nodeKey
+  return null
+}
+
+// Arc-angle (radians) to rotate to 12 o'clock so "red" leads. Levels 0-2:
+// center of the Red broad-family block (contiguous in family order). Level 3:
+// the reddest member's slice within the Warm arc (members are drawn hue-sorted).
+export function redAnchorAngle(
+  ix: Indexed,
+  level: GranularityLevel,
+  groups: readonly AngleGroup[],
+  nodes: readonly WheelNode[],
+): number {
+  const redBroad = ix.data.groups.broad.find((g) => g.name === 'Red')
+  if (!redBroad) return 0
+  if (level === 3) {
+    const warmId = ix.superOfBroad.get(redBroad.id)
+    const g = groups.find((gr) => nodes[gr.index]?.key === warmId)
+    if (!g) return 0
+    const members = groupMembers(ix, nodes[g.index].key) // hue-sorted, matches swatchHexes
+    if (!members.length) return (g.startAngle + g.endAngle) / 2
+    let bestIdx = 0
+    let bestD = Infinity
+    members.forEach((c, i) => {
+      const d = Math.min(c.hue, 360 - c.hue)
+      if (d < bestD) { bestD = d; bestIdx = i }
+    })
+    const f = (bestIdx + 0.5) / members.length
+    return g.startAngle + f * (g.endAngle - g.startAngle)
+  }
+  const reds = groups.filter((g) => broadKeyOf(ix, level, nodes[g.index].key) === redBroad.id)
+  if (!reds.length) return 0
+  const start = Math.min(...reds.map((g) => g.startAngle))
+  const end = Math.max(...reds.map((g) => g.endAngle))
+  return (start + end) / 2
 }
