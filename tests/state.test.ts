@@ -7,6 +7,7 @@ describe('app state reducer', () => {
       view: 'wheel', granularity: 0, sizes: [2, 3, 4], selection: null, aboutOpen: false,
       palette: { level: 1, keys: [] },
       browse: { family: '', shade: '', colorId: '' },
+      access: [],
     })
   })
   it('switches views', () => {
@@ -84,5 +85,16 @@ describe('app state reducer', () => {
   it('setBrowseFilter replaces the browse filter object', () => {
     const s = reducer(initialState, { type: 'setBrowseFilter', browse: { family: 'green', shade: '', colorId: '' } })
     expect(s.browse).toEqual({ family: 'green', shade: '', colorId: '' })
+  })
+  it('toggleAccess adds and removes lenses; empty is allowed', () => {
+    let s = reducer(initialState, { type: 'toggleAccess', id: 'web-text' })
+    expect(s.access).toEqual(['web-text'])
+    s = reducer(s, { type: 'toggleAccess', id: 'colorblind' })
+    expect(s.access).toEqual(['web-text', 'colorblind'])
+    s = reducer(s, { type: 'toggleAccess', id: 'web-text' })
+    expect(s.access).toEqual(['colorblind'])
+    s = reducer(s, { type: 'toggleAccess', id: 'colorblind' })
+    expect(s.access).toEqual([]) // unlike sizes, empty IS allowed (= no filter)
+    expect(JSON.parse(JSON.stringify(s))).toEqual(s) // stays serializable
   })
 })

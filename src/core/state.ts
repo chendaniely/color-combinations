@@ -1,6 +1,6 @@
 // The single serializable app-state object and its reducer.
 // Core kernel: no imports outside src/core.
-import type { GranularityLevel, SizeBucket } from './types'
+import type { AccessLensId, GranularityLevel, SizeBucket } from './types'
 
 export type Selection =
   | { kind: 'color'; id: number }
@@ -18,6 +18,7 @@ export interface AppState {
   aboutOpen: boolean
   palette: { level: MatchLevel; keys: string[] }
   browse: { family: string; shade: string; colorId: string }
+  access: AccessLensId[]
 }
 
 export type Action =
@@ -33,6 +34,7 @@ export type Action =
   | { type: 'setMatchLevel'; level: MatchLevel; keys: string[] }
   | { type: 'clearPalette' }
   | { type: 'setBrowseFilter'; browse: { family: string; shade: string; colorId: string } }
+  | { type: 'toggleAccess'; id: AccessLensId }
 
 export const initialState: AppState = {
   view: 'wheel',
@@ -42,6 +44,7 @@ export const initialState: AppState = {
   aboutOpen: false,
   palette: { level: 1, keys: [] },
   browse: { family: '', shade: '', colorId: '' },
+  access: [],
 }
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -84,5 +87,12 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, palette: { ...state.palette, keys: [] } }
     case 'setBrowseFilter':
       return { ...state, browse: action.browse }
+    case 'toggleAccess': {
+      const has = state.access.includes(action.id)
+      const access = has
+        ? state.access.filter((a) => a !== action.id)
+        : [...state.access, action.id]
+      return { ...state, access }
+    }
   }
 }

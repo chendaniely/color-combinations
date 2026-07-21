@@ -34,3 +34,4 @@ export interface Dataset {
 }
 export type GranularityLevel = 0 | 1 | 2 | 3   // colors/fine/broad/super
 export type SizeBucket = 2 | 3 | 4             // 4 includes 5-color combos
+export type AccessLensId = 'web-text' | 'print-bw' | 'colorblind'
