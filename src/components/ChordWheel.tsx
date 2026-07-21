@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { chordMatrix } from '../core/chord'
+import { chordMatrix, redAnchorAngle } from '../core/chord'
 import type { Action, AppState } from '../core/state'
 import { dataset } from '../data'
 import { renderChord } from '../viz/chordRender'
@@ -27,7 +27,7 @@ export function ChordWheel({ state, dispatch }: Props) {
           type: 'select',
           selection: { kind: 'ribbon', level: granularity, keyA, keyB, sizes: [...state.sizes] },
         }),
-    })
+    }, (groups) => redAnchorAngle(dataset, granularity, groups, nodes))
   }, [granularity, sizes, dispatch])
 
   return <svg ref={svgRef} className="chord-wheel" role="img"

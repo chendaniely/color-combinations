@@ -11,7 +11,7 @@
 // highlight only changes when the nearest object changes — it glides, never
 // strobes.
 import * as d3 from 'd3'
-import type { WheelNode } from '../core/chord'
+import type { AngleGroup, WheelNode } from '../core/chord'
 
 export interface ChordCallbacks {
   onArcClick(key: string): void
@@ -41,6 +41,7 @@ function angularGap(a: number, b: number): number {
 
 export function renderChord(
   svgEl: SVGSVGElement, nodes: WheelNode[], matrix: number[][], cb: ChordCallbacks,
+  anchorAngleFor?: (groups: readonly AngleGroup[]) => number,
 ): void {
   const motionOk = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -53,11 +54,14 @@ export function renderChord(
     .padAngle(nodes.length > 40 ? 0.004 : 0.02)
     .sortSubgroups(d3.descending)(matrix)
 
+  const anchorRad = anchorAngleFor ? anchorAngleFor(layout.groups) : 0
+  const anchorDeg = (anchorRad * 180) / Math.PI
+
   // The tilt lives on the group (not CSS on the <svg>) so d3.pointer's
   // getScreenCTM math includes it and pointer→angle stays exact.
   const g = svg.append('g')
     .attr('class', nodes.length <= BLEND_MAX_NODES ? 'wheel blend' : 'wheel')
-    .attr('transform', `rotate(${TILT_DEG})`)
+    .attr('transform', `rotate(${TILT_DEG - anchorDeg})`)
     .style('opacity', 0)
   g.transition().duration(motionOk ? 300 : 0).style('opacity', 1)
   const gNode = g.node()!
@@ -126,7 +130,7 @@ export function renderChord(
     .attr('class', 'wheel-center-label')
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
-    .attr('transform', `rotate(${-TILT_DEG})`)
+    .attr('transform', `rotate(${anchorDeg - TILT_DEG})`)
 
   // --- Nearest-object index (the "snap") ------------------------------------
   // Sample points along each ribbon's centerline (a quadratic Bézier through
