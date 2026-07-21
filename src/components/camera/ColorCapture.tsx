@@ -62,7 +62,15 @@ export function ColorCapture({ onSample, onClose }: {
     const cy = (e.clientY - rect.top - rect.height / 2) / k + canvas.height / 2
     const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
     const rgb = averagePatch(img.data, canvas.width, canvas.height, cx, cy, PATCH_RADIUS)
-    setTap({ xPct: (cx / canvas.width) * 100, yPct: (cy / canvas.height) * 100, rgb })
+    // cx/cy are source-image space (needed for averagePatch above). The .cam-tap
+    // marker is positioned inside .cam-stage — display/box space — so its percentages
+    // must come from the raw box-relative tap position, not the cover-inverted source
+    // coords (those would misplace the marker under any non-3:4 camera aspect).
+    setTap({
+      xPct: ((e.clientX - rect.left) / rect.width) * 100,
+      yPct: ((e.clientY - rect.top) / rect.height) * 100,
+      rgb,
+    })
   }
 
   return (

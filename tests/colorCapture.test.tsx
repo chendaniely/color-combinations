@@ -45,6 +45,11 @@ describe('ColorCapture (jsdom)', () => {
     const { unmount } = render(<ColorCapture onSample={leftSample} onClose={() => {}} />)
     fireEvent.click(await screen.findByLabelText('Freeze the frame'))
     fireEvent.pointerDown(document.querySelector('canvas')!, { clientX: 20, clientY: 50 })
+    // The .cam-tap marker is positioned in display/box space (it's absolutely
+    // positioned inside .cam-stage), NOT source-image space — so its percentage
+    // must reflect the raw box-relative tap (20% into a 100px-wide box), not the
+    // cover-inverted source coordinate used for averagePatch.
+    expect((document.querySelector('.cam-tap') as HTMLElement).style.left).toBe('20%')
     fireEvent.click(screen.getByText('Use this color'))
     expect(leftSample).toHaveBeenCalledWith([200, 50, 50])
     unmount()
