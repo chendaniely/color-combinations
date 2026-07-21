@@ -1,7 +1,8 @@
 import { ancestorAtLevel, displayableCombinations, keyName, sizeBucket } from '../core/dataset'
 import type { Action, AppState } from '../core/state'
 import type { SizeBucket } from '../core/types'
-import { dataset } from '../data'
+import { allowedFor, dataset } from '../data'
+import { AccessibilityGoggles } from './AccessibilityGoggles'
 import { PlateCard } from './PlateCard'
 
 const SIZES: SizeBucket[] = [2, 3, 4]
@@ -10,8 +11,10 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
   const { family, shade, colorId } = state.browse
   const setFilter = (patch: Partial<AppState['browse']>) =>
     dispatch({ type: 'setBrowseFilter', browse: { ...state.browse, ...patch } })
+  const allowed = allowedFor(state.access)
 
   const combos = displayableCombinations(dataset).filter((c) => {
+    if (allowed && !allowed.has(c.id)) return false
     if (!state.sizes.includes(sizeBucket(c))) return false
     if (family && !c.colorIds.some((id) => ancestorAtLevel(dataset, id, 2) === family)) return false
     if (shade && !c.colorIds.some((id) => ancestorAtLevel(dataset, id, 1) === shade)) return false
@@ -50,6 +53,7 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
             {keyName(dataset, shade)} <span aria-label="Clear shade" title="Clear shade">×</span>
           </button>
         )}
+        <AccessibilityGoggles state={state} dispatch={dispatch} />
         <span className="muted">{comboCount}</span>
       </div>
       <p className="hint">Taller bars suggest the dominant color — the main garment, the page background; slivers are accents.</p>
@@ -63,6 +67,7 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
           </div>
         </section>
       ))}
+      {combos.length === 0 && <p className="empty-note">No combinations match these filters — loosen one.</p>}
     </div>
   )
 }

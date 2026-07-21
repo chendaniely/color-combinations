@@ -54,6 +54,24 @@ Run these from the project folder. `make help` lists them all.
   those the camera icon simply doesn't appear. If you deny the camera
   permission prompt after tapping it, you'll see a short message in its
   place instead of a live view.
+
+### Accessibility goggles
+
+A set of optional filters ("goggles") you can stack on any view — the Wheel,
+Browse, and Match. They narrow the combinations to those that meet an
+accessibility bar; turning several on shows only combinations that pass *all*
+of them. They filter what you see — they never change or hide the underlying
+book data.
+
+- **Web text-ready** — at least one pair of the colors has enough contrast to
+  use as readable text on a background (WCAG AA, 4.5:1).
+- **Print & B&W safe** — every color stays tellable apart in grayscale, so the
+  combination survives a black-and-white print or photocopy. (This is the
+  honest version of "print-friendly"; true CMYK ink proofing needs a printer
+  profile the site doesn't have, so it isn't claimed.)
+- **Color-blind safe** — the colors stay distinct for the common red-green
+  types of color blindness.
+
 - **Theme a website or deck** — find a combination you love, then copy its hex
   codes, CSS variables, or JSON straight into your project.
 - **Learn from the master** — set the wheel to Families or Groups and read the

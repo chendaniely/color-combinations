@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+import { useMemo, useReducer } from 'react'
 import { AboutPanel } from './components/AboutPanel'
 import { BrowseView } from './components/BrowseView'
 import { ChordWheel } from './components/ChordWheel'
@@ -10,9 +10,11 @@ import { MatchPage } from './components/MatchPage'
 import { RibbonDetail } from './components/RibbonDetail'
 import { WheelControls } from './components/WheelControls'
 import { initialState, reducer } from './core/state'
+import { allowedFor } from './data'
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const allowed = useMemo(() => allowedFor(state.access), [state.access])
   return (
     <div className="app">
       <Header state={state} dispatch={dispatch} />
@@ -31,7 +33,7 @@ export default function App() {
         {state.selection?.kind === 'combination' && <CombinationDetail comboId={state.selection.id} dispatch={dispatch} />}
         {state.selection?.kind === 'group' && <GroupDetail groupId={state.selection.id} dispatch={dispatch} />}
         {state.selection?.kind === 'ribbon' && (
-          <RibbonDetail sel={state.selection} sizes={new Set(state.selection.sizes ?? state.sizes)} dispatch={dispatch} />
+          <RibbonDetail sel={state.selection} sizes={new Set(state.selection.sizes ?? state.sizes)} allowed={allowed} dispatch={dispatch} />
         )}
         {state.aboutOpen && <AboutPanel dispatch={dispatch} />}
       </main>

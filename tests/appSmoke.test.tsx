@@ -94,4 +94,25 @@ describe('app shell', () => {
     const html = renderToString(<App />)
     expect(html).toContain('Find a color…')
   })
+
+  it('shows the accessibility goggles in wheel, browse, and match', () => {
+    const wheel = renderToString(<App />)
+    expect(wheel).toContain('Accessibility')
+
+    const browse = renderToString(<BrowseView state={{ ...initialState, view: 'browse' }} dispatch={() => {}} />)
+    expect(browse).toContain('Accessibility')
+    expect(browse).toContain('Color-blind safe')
+
+    const match = renderToString(<MatchPage state={{ ...initialState, view: 'match' }} dispatch={() => {}} />)
+    expect(match).toContain('Accessibility')
+  })
+
+  it('browse filters to fewer combos when a lens is active', () => {
+    const all = renderToString(<BrowseView state={initialState} dispatch={() => {}} />)
+    expect(all).toContain('338 combinations')
+    const filtered = renderToString(
+      <BrowseView state={{ ...initialState, access: ['print-bw'] }} dispatch={() => {}} />,
+    )
+    expect(filtered).toContain('57 combinations')
+  })
 })

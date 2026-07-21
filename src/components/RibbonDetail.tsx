@@ -4,11 +4,11 @@ import { Panel } from './Panel'
 import { PlateCard } from './PlateCard'
 import { dataset } from '../data'
 
-export function RibbonDetail({ sel, sizes, dispatch }:
-  { sel: Extract<Selection, { kind: 'ribbon' }>; sizes: Set<2 | 3 | 4>; dispatch: (a: Action) => void }) {
+export function RibbonDetail({ sel, sizes, allowed, dispatch }:
+  { sel: Extract<Selection, { kind: 'ribbon' }>; sizes: Set<2 | 3 | 4>; allowed?: ReadonlySet<number>; dispatch: (a: Action) => void }) {
   const nodes = wheelNodes(dataset, sel.level)
   const labelOf = (key: string) => nodes.find((n) => n.key === key)?.label ?? key
-  const combos = combosForPair(dataset, sel.level, sel.keyA, sel.keyB, sizes)
+  const combos = combosForPair(dataset, sel.level, sel.keyA, sel.keyB, sizes, allowed)
   const title = sel.keyA === sel.keyB
     ? `Within ${labelOf(sel.keyA)}`
     : `${labelOf(sel.keyA)} × ${labelOf(sel.keyB)}`

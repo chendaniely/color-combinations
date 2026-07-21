@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { combosForSet, remapKeysToLevel, suggestPartners } from '../core/matching'
 import type { Action, AppState, MatchLevel } from '../core/state'
-import { dataset } from '../data'
+import { allowedFor, dataset } from '../data'
+import { AccessibilityGoggles } from './AccessibilityGoggles'
 import { PaletteTray } from './PaletteTray'
 import { PlateCard } from './PlateCard'
 import { ShadePicker } from './ShadePicker'
@@ -24,8 +25,9 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
       : null)
     dispatch({ type: 'setMatchLevel', level: to, keys: remapped })
   }
-  const suggestions = keys.length ? suggestPartners(dataset, level, keys, MATCH_SIZES) : []
-  const combos = keys.length ? combosForSet(dataset, level, keys, MATCH_SIZES) : []
+  const allowed = allowedFor(state.access)
+  const suggestions = keys.length ? suggestPartners(dataset, level, keys, MATCH_SIZES, allowed) : []
+  const combos = keys.length ? combosForSet(dataset, level, keys, MATCH_SIZES, allowed) : []
   return (
     <div className="match-view">
       <div className="match-head">
@@ -35,6 +37,7 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
             <button key={lv} role="radio" aria-checked={level === lv} onClick={() => switchLevel(lv)}>{label}</button>
           ))}
         </div>
+        <AccessibilityGoggles state={state} dispatch={dispatch} />
       </div>
       <p className="lede">Start from a shade you have and see what it goes with; add more shades to build an
         outfit of three, four, or more. Colors don't have to match exactly.</p>
@@ -53,7 +56,9 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
               <h2 className="seclabel">Add a shade <span className="q">— goes with everything above</span></h2>
               <SuggestionList suggestions={suggestions} dispatch={dispatch} />
               {suggestions.length === 0 &&
-                <p className="empty-note">Nothing in the book pairs with all of these — try removing a shade.</p>}
+                <p className="empty-note">{state.access.length
+                  ? 'No accessible pairings for this palette — loosen the goggles.'
+                  : 'Nothing in the book pairs with all of these — try removing a shade.'}</p>}
             </section>
             <section>
               <h2 className="seclabel">The book pairs these <span className="q">— {combos.length} palette{combos.length === 1 ? '' : 's'}</span></h2>
