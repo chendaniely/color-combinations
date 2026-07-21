@@ -85,6 +85,7 @@ export function renderChord(
     .attr('class', 'ribbon')
     .attr('d', ribbonGen as never)
     .attr('fill', (d) => nodeColor(d.source.index))
+    .attr('stroke', (d) => nodeColor(d.source.index))
   const ribbonNodes = ribbons.nodes() as Element[]
 
   // Arcs: one group per node; group nodes render member-colored segments.
@@ -167,7 +168,7 @@ export function renderChord(
     return best
   }
 
-  interface Resolved { key: string; hot: Element[]; label: string; onClick: () => void }
+  interface Resolved { key: string; kind: 'arc' | 'ribbon'; hot: Element[]; label: string; onClick: () => void }
 
   function resolveAt(x: number, y: number): Resolved | null {
     const r = Math.hypot(x, y)
@@ -176,9 +177,13 @@ export function renderChord(
       if (i < 0) return null
       const hot: Element[] = [arcNodes[i]]
       layout.forEach((d, k) => {
-        if (d.source.index === i || d.target.index === i) hot.push(ribbonNodes[k])
+        if (d.source.index === i || d.target.index === i) {
+          hot.push(ribbonNodes[k])
+          const partner = d.source.index === i ? d.target.index : d.source.index
+          if (partner !== i) hot.push(arcNodes[partner])
+        }
       })
-      return { key: `a${i}`, hot, label: nodes[i].label, onClick: () => cb.onArcClick(nodes[i].key) }
+      return { key: `a${i}`, kind: 'arc', hot, label: nodes[i].label, onClick: () => cb.onArcClick(nodes[i].key) }
     }
     if (!delaunay) return null
     findHint = delaunay.find(x, y, findHint)
@@ -187,6 +192,7 @@ export function renderChord(
     const hot: Element[] = [ribbonNodes[k], arcNodes[d.source.index], arcNodes[d.target.index]]
     return {
       key: `r${d.source.index}-${d.target.index}`,
+      kind: 'ribbon',
       hot,
       label: `${nodes[d.source.index].label} × ${nodes[d.target.index].label}`,
       onClick: () => cb.onRibbonClick(nodes[d.source.index].key, nodes[d.target.index].key),
@@ -205,7 +211,7 @@ export function renderChord(
 
   function clearHover(): void {
     hoverKey = null
-    gNode.classList.remove('dimming')
+    gNode.classList.remove('dimming', 'hover-arc', 'hover-ribbon')
     setHot([])
     centerLabel.text('')
   }
@@ -220,6 +226,8 @@ export function renderChord(
     if (!res || res.key === hoverKey) return // no object → keep current, never flash
     hoverKey = res.key
     gNode.classList.add('dimming')
+    gNode.classList.toggle('hover-arc', res.kind === 'arc')
+    gNode.classList.toggle('hover-ribbon', res.kind === 'ribbon')
     setHot(res.hot)
     centerLabel.text(res.label)
   }

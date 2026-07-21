@@ -53,7 +53,7 @@ main { flex: 1; min-height: 0; position: relative; }
      here, so pointer-to-angle math stays exact. */
 }
 .chord-wheel .wheel-hit { fill: transparent; }
-.chord-wheel .ribbon { opacity: 0.55; transition: opacity var(--dur-hover) var(--ease); pointer-events: none; }
+.chord-wheel .ribbon { opacity: 0.55; transition: opacity var(--dur-hover) var(--ease); pointer-events: none; stroke-width: 0; stroke-linejoin: round; }
 /* Blend mode is painterly but expensive — chordRender enables it (g.wheel.blend)
    only at group levels, where ribbons number dozens, not ~1000. */
 .chord-wheel g.wheel.blend .ribbon { mix-blend-mode: multiply; }
@@ -63,6 +63,13 @@ main { flex: 1; min-height: 0; position: relative; }
    class + a small .hot set — never per-element sweeps; see chordRender.ts). */
 .chord-wheel g.wheel.dimming .ribbon:not(.hot) { opacity: 0.06; }
 .chord-wheel g.wheel.dimming .arc:not(.hot) { opacity: 0.25; }
+/* Ribbon width encodes co-occurrence frequency, so rare-pair ribbons are
+   hairlines and opacity alone can't make them visible. A stroke (fill color)
+   floors the highlighted width without touching the resting wheel — 0 at
+   rest, only applied under .hot while hovering. Color-hover (arc) gets a
+   bolder floor than single-link (ribbon) hover. */
+.chord-wheel g.wheel.hover-ribbon .ribbon.hot { stroke-width: 2.5; }
+.chord-wheel g.wheel.hover-arc .ribbon.hot { stroke-width: 5; }
 .chord-wheel .arc-label {
   font-family: var(--font-ui); font-size: 12px; letter-spacing: var(--tracking-label);
   fill: var(--ink-muted); text-transform: uppercase;
