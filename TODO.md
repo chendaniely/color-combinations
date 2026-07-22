@@ -2,20 +2,15 @@
 
 Move finished items to TODO-completed.md with the commit hash.
 
-- [ ] Nearest-color search: paste any hex (brand color, paint chip) → find
-      the closest of the 157 colors and its combinations — still open (a
-      *text* hex input wasn't built; the camera is the input for now), but
-      the perceptual matching engine it would call already exists
-      (`nearestColors` in `src/color/nearestColor.ts`, OKLab distance) — this
-      is now mostly a small UI task (a text field + the existing engine)
 - [ ] PWA: installable web app with camera access — the **camera capture
       shipped** (photo → perceptual color match → Match/Browse; see README);
       only the **PWA / installable** part (manifest, service worker,
       home-screen install) remains
 - [ ] Camera doorways on the Match and Browse tabs — the reusable capture
-      boundary (`ColorCapture` / `nearestColors` / `CaptureResult`) is
-      already built for this; wiring a camera icon into those two tabs is a
-      fast follow, just a different result-callback
+      boundary (`ColorCapture` / `nearestColors` / `ColorMatches`) is already
+      built for this (unified entry point `ColorSampler` launched from
+      SearchBox); wiring a camera icon into those two tabs is a fast follow,
+      just a different result-callback
 - [ ] Better camera-capture UX (v1.1.1 shipped explicit 2-step text as a
       stopgap): the freeze-then-tap flow isn't self-evident — people expect the
       center to be auto-selected and read the frozen photo as "stuck." Options
@@ -111,16 +106,16 @@ Move finished items to TODO-completed.md with the commit hash.
       regex is JSX-shaped only (a programmatic `a.download=…;a.click()` would
       evade it — mitigated because producing image bytes still needs
       toDataURL/toBlob/createObjectURL, all caught).
-- [ ] `src/components/camera/CaptureResult.tsx`: `useMemo`d `nearestColors`
-      keys only on `rgb`; the Color/Shade/Family `role=radiogroup` lacks
+- [ ] `src/components/sample/ColorMatches.tsx`: the Color/Shade/Family
+      `role=radiogroup` and the nearest-colors `role=listbox` grid lack
       arrow-key roving-tabindex (matches the pre-existing MatchPage `.level`
       radiogroup gap).
 - [ ] `src/components/MatchPage.tsx`: the always-on lede "Start from a shade
       you have…" and the "Add a shade" section heading read wrong when the
       Colors (level 0) tab is active — generalize the copy.
-- [ ] Camera overlay (`ColorCapture`/`CameraSearch` `.cam-overlay`,
-      `role="dialog"`): no `aria-modal`, no Escape-to-close, no focus trap —
-      add for a later a11y pass.
+- [ ] Overlay a11y (`ColorCapture`/`ColorSampler`/`ImagePicker`/`HexPicker`
+      `.cam-overlay`, `role="dialog"`): no `aria-modal`, no Escape-to-close,
+      no focus trap — add for a later a11y pass.
 - [ ] Accessibility goggles — APCA / WCAG-3 perceptual-contrast lens (v1 uses
       WCAG 2 luminance contrast + OKLab-under-CVD).
 - [ ] Accessibility goggles — a separate tritan (blue-yellow) color-blind

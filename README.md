@@ -46,6 +46,12 @@ Run these from the project folder. `make help` lists them all.
   or family, see what the book pairs it with, and add more to make a 3-, 4-,
   or more-color set. Also reachable from any Shade or Family group on the
   wheel via "Build a palette from this →".
+- **Theme a website or deck** — find a combination you love, then copy its hex
+  codes, CSS variables, or JSON straight into your project.
+- **Learn from the master** — set the wheel to Families or Groups and read the
+  ribbons: their thickness is how often Wada combined those families. The
+  coarse wheel is a lesson in what harmonizes.
+
 ### Sample a color
 
 Next to the search box, **Sample a color** opens a small picker with three ways
@@ -59,11 +65,6 @@ You then see the **12 nearest book colors** (with a "very close / close /
 roughly" label), pick one, choose Color / Shade / Family, and jump into **Match**
 or **Browse**. Uploaded photos and camera frames stay on your device — nothing
 is uploaded or saved.
-- **Theme a website or deck** — find a combination you love, then copy its hex
-  codes, CSS variables, or JSON straight into your project.
-- **Learn from the master** — set the wheel to Families or Groups and read the
-  ribbons: their thickness is how often Wada combined those families. The
-  coarse wheel is a lesson in what harmonizes.
 
 ### Accessibility goggles
 

@@ -147,4 +147,9 @@ Design + plan: `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.m
       nearest colors with closeness labels). Three sources (camera/upload/hex)
       → one "Sample a color" picker entry point. Executed subagent-driven in
       5 tasks (Tasks 1–5), each task-reviewed. Code: fc9d8ff..932c687; docs
-      (Task 6): 4d56e56 (2026-07-22)
+      (Task 6): 4d56e56..1f95a28 (2026-07-22)
+- [x] Nearest-color search: paste any hex (brand color, paint chip) → find
+      the closest of the 157 colors and its combinations — HexPicker + pure
+      `parseHex` in core kernel enable text hex input alongside camera/upload,
+      feeding the same `nearestColors` + `ColorMatches` result grid. Done in
+      fc9d8ff..932c687 + 4d56e56 (2026-07-22)
