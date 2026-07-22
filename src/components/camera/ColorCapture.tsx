@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RGB } from '../../core/colorMath'
-import { averagePatch } from '../../core/sampling'
 import { cameraSupported, stopStream } from './cameraStream'
-
-const PATCH_RADIUS = 6
+import { sampleCanvasAt } from './sampleCanvas'
 
 function toHex([r, g, b]: RGB): string {
   return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
@@ -51,21 +49,11 @@ export function ColorCapture({ onSample, onClose }: {
   function sampleAt(e: React.PointerEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const rgb = sampleCanvasAt(canvas, e.clientX, e.clientY)
+    if (!rgb) return
     const rect = canvas.getBoundingClientRect()
-    // canvas.width/height are the source (video) pixels; rect is the displayed box.
-    // The element is object-fit: cover, so invert the uniform cover scale + centered
-    // crop to map a tap to a source pixel (NOT an independent x/y stretch = fill).
-    const k = Math.max(rect.width / canvas.width, rect.height / canvas.height)
-    const cx = (e.clientX - rect.left - rect.width / 2) / k + canvas.width / 2
-    const cy = (e.clientY - rect.top - rect.height / 2) / k + canvas.height / 2
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    const rgb = averagePatch(img.data, canvas.width, canvas.height, cx, cy, PATCH_RADIUS)
-    // cx/cy are source-image space (needed for averagePatch above). The .cam-tap
-    // marker is positioned inside .cam-stage — display/box space — so its percentages
-    // must come from the raw box-relative tap position, not the cover-inverted source
-    // coords (those would misplace the marker under any non-3:4 camera aspect).
+    // xPct/yPct place the .cam-tap marker in display/box space (not the
+    // cover-inverted source coords, which would misplace it under any aspect).
     setTap({
       xPct: ((e.clientX - rect.left) / rect.width) * 100,
       yPct: ((e.clientY - rect.top) / rect.height) * 100,
