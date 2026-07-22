@@ -146,5 +146,5 @@ Design + plan: `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.m
       flow via a unified `ColorSampler` and `ColorMatches` result grid (12
       nearest colors with closeness labels). Three sources (camera/upload/hex)
       → one "Sample a color" picker entry point. Executed subagent-driven in
-      5 tasks (Tasks 1–5), each task-reviewed. Full range: fc9d8ff..932c687
-      (2026-07-22)
+      5 tasks (Tasks 1–5), each task-reviewed. Code: fc9d8ff..932c687; docs
+      (Task 6): 4d56e56 (2026-07-22)
