@@ -136,6 +136,12 @@ Move finished items to TODO-completed.md with the commit hash.
       while `webTextReady` uses `.some()` (false); unreachable via
       `accessibilityProfile` (displayable/size≥2 only) but a latent footgun
       for any future direct caller.
+- [ ] Color sampler — image-upload picker cover-crops non-portrait photos to
+      3:4 aspect-ratio (`.cam-canvas { object-fit: cover }`), so left/right edge
+      regions can't be eyedroppable. A fix would give `ImagePicker` an
+      `object-fit: contain` display and a `fit` param on `sampleCanvasAt`
+      (`Math.min` for contain vs the current `Math.max` cover) — deferred from
+      the hex-photo-explorer final review.
 - [ ] Color sampler — a color-wheel / RGB-slider source alongside camera /
       upload / hex (deferred from the hex-photo-explorer brainstorm; the hex
       text field covers v1).
