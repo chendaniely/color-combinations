@@ -393,6 +393,18 @@ main { flex: 1; min-height: 0; position: relative; }
 .cap-retake { align-self: center; background: none; border: 0; color: var(--ink-muted);
   font: inherit; font-size: 0.85rem; cursor: pointer; margin-top: var(--s2); }
 
+/* Color-sampler explore grid */
+.match-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); }
+.match-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center;
+  background: none; border: 1.5px solid transparent; border-radius: var(--radius);
+  padding: 4px 2px 6px; cursor: pointer;
+}
+.match-cell.on { border-color: var(--link); background: var(--paper-2); }
+.match-tile { width: 100%; height: 40px; border-radius: var(--radius); border: 1px solid var(--hairline); }
+.match-nm { font-family: var(--font-display); font-size: 0.72rem; line-height: 1.1; color: var(--ink); }
+.match-lab { font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
+
 /* Accessibility goggles — multi-select filter. Floats in the top-right corner
    of the content area (just below the header), in the same spot on every view.
    It's the positioning context for its own drop-down menu. */
