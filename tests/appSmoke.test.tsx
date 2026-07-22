@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import App from '../src/App'
 import { AboutPanel } from '../src/components/AboutPanel'
 import { BrowseView } from '../src/components/BrowseView'
-import { CaptureResult } from '../src/components/camera/CaptureResult'
 import { ChordWheel } from '../src/components/ChordWheel'
 import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
@@ -11,6 +10,8 @@ import { GroupDetail } from '../src/components/GroupDetail'
 import { Header } from '../src/components/Header'
 import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
+import { ColorMatches } from '../src/components/sample/ColorMatches'
+import { ColorSampler } from '../src/components/sample/ColorSampler'
 import { hexToRgb } from '../src/core/colorMath'
 import { initialState } from '../src/core/state'
 import { dataset } from '../src/data'
@@ -83,13 +84,18 @@ describe('app shell', () => {
     expect(html).toContain('Clear shade')
   })
 
-  it('capture result heroes the closest color and offers all three levels + destinations', () => {
-    const html = renderToString(
-      <CaptureResult rgb={hexToRgb('#7e8743')} onMatch={() => {}} onBrowse={() => {}} />,
-    )
+  it('color matches grid shows the nearest color and offers all three levels + destinations', () => {
+    const html = renderToString(<ColorMatches rgb={hexToRgb('#7e8743')} onMatch={() => {}} onBrowse={() => {}} />)
     expect(html).toContain('Dark Citrine') // closest book color
     expect(html).toContain('Color'); expect(html).toContain('Shade'); expect(html).toContain('Family')
     expect(html).toContain('Match'); expect(html).toContain('Browse')
+  })
+
+  it('color sampler offers camera-agnostic sources (upload + hex) and renders', () => {
+    const html = renderToString(<ColorSampler dispatch={() => {}} onClose={() => {}} />)
+    expect(html).toContain('Sample a color')
+    expect(html).toContain('Upload a photo')
+    expect(html).toContain('Paste a hex')
   })
 
   it('search box uses the new placeholder copy', () => {
