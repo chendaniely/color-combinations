@@ -46,14 +46,19 @@ Run these from the project folder. `make help` lists them all.
   or family, see what the book pairs it with, and add more to make a 3-, 4-,
   or more-color set. Also reachable from any Shade or Family group on the
   wheel via "Build a palette from this →".
-- **Find a color by camera** — on a phone or webcam, tap the camera icon in
-  search, freeze a photo of a garment, and tap its color. The site matches it
-  to the closest book colors and lets you Match or Browse at color, shade, or
-  family level. **Your photo never leaves your device and is never saved** —
-  it needs a secure (HTTPS) connection and browser camera support; without
-  those the camera icon simply doesn't appear. If you deny the camera
-  permission prompt after tapping it, you'll see a short message in its
-  place instead of a live view.
+### Sample a color
+
+Next to the search box, **Sample a color** opens a small picker with three ways
+to feed in a color — all landing on the same result:
+
+- **Camera** (on devices that have one) — point at something and tap the color.
+- **Upload a photo** — pick an image and tap/eyedrop a region.
+- **Paste a hex** — type `#F26522`, `#236192`, or any 3-/6-digit hex.
+
+You then see the **12 nearest book colors** (with a "very close / close /
+roughly" label), pick one, choose Color / Shade / Family, and jump into **Match**
+or **Browse**. Uploaded photos and camera frames stay on your device — nothing
+is uploaded or saved.
 - **Theme a website or deck** — find a combination you love, then copy its hex
   codes, CSS variables, or JSON straight into your project.
 - **Learn from the master** — set the wheel to Families or Groups and read the

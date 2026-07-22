@@ -654,3 +654,55 @@ plain uppercase "Color Combinations" — owner wanted it quieter/more wabi-sabi.
 > not his is good let's push this verison
 
 Released as **v1.2.1**.
+
+## 2026-07-22 — Session 9: hex/photo color explorer
+
+**Owner prompt (feature request):**
+
+> a new feature i'd like: is to provide a hex for a color and then explore similar colors. this should be similar to how the camer/picture color matchign works. but i'd like the ability for the user to provide a photo or a direct hex color code.
+>
+> user story, i wanted to pass in NYC orange or NYC blue, and wanted to see what colors are similar enough to the orange and blues when i'm picking pallets
+
+**Owner prompt (upload should eyedrop, mid-brainstorm):**
+
+> the image upload shold behave like the photo being taken where the use should also be able to eye drop a region of the photo
+
+**Owner prompt (asked to see a prototype of the two result layouts):**
+
+> can i see a prototype of the 2 versions before final decisoin?
+
+**Owner prompt (chose the explore grid + unification):**
+
+> let's just go with the explore grid and go from there. we can iterate on that instead i rather have a single unified interface. makes things simplier overall
+
+**Owner prompt (design pass-1 approval):**
+
+> sure this seems good. let's go
+
+**Owner prompt (design pass-2 approval, defers the color wheel):**
+
+> the color wheel / rgb sliders is nice but we can do that next time. let's go with this
+
+**Owner prompt (approve spec + execute):**
+
+> go go go! do it in subagent mode
+
+**Decisions reached:**
+
+- Three color SOURCES converge on ONE result: existing live **camera**, new
+  **uploaded photo** (tap/eyedrop a region, like the frozen camera frame), and a
+  pasted **hex** — all launched from one always-visible "Sample a color" picker
+  (chosen over hex-in-the-search-bar).
+- Result is an **explore-first grid** of the **12 nearest** book colors with
+  closeness labels (chosen over reusing the camera's single-hero screen), decided
+  after seeing a browser mockup of both against real NYC-blue neighbors.
+- **Unified interface:** the camera adopts the grid too — one result component
+  (`ColorMatches`, refactor of `CaptureResult`), not two. `CameraSearch` became
+  `ColorSampler`.
+- Pure `parseHex` added to the core kernel; the new browser components live in a
+  new `src/components/sample/` dir (so the upload path's `URL.createObjectURL`
+  doesn't trip `tests/camera-privacy.test.ts`, which scans `camera/`); a sibling
+  `tests/sample-privacy.test.ts` guards the new dir against network/storage.
+- Zero new dependencies (reuses `nearestColors`, `averagePatch`, `closenessLabel`,
+  and the existing Match/Browse dispatch wiring).
+- **Deferred to next time:** a color-wheel / RGB-slider source (logged in TODO).

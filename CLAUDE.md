@@ -33,6 +33,10 @@ docs in the SAME commit:
   `src/styles/tokens.css`. No hard-coded colors in components — Sanzo
   Wada's data colors excepted.
 - All D3 code stays in `src/viz/`.
+- Pure `parseHex` (color string parsing) lives in `src/core/colorMath.ts`;
+  browser components that sample colors live in `src/components/sample/`
+  (camera-only pieces stay in `src/components/camera/`), guarded by
+  `tests/sample-privacy.test.ts` against network/storage APIs.
 
 ## Dependency budget
 

@@ -137,3 +137,14 @@ Design + plan: `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.m
       done in 3fd2fe5 (2026-07-21)
 - [x] Goggles wired across wheel, browse, and match + docs — done in
       ff0af04 (2026-07-21)
+
+## Session 9 — hex/photo color explorer (2026-07-22)
+
+- [x] Hex / photo color explorer — user can provide a color directly (paste
+      a hex like NYC orange `#F26522` or blue `#236192`) OR upload a photo,
+      then see the nearest/similar book colors, mirroring the camera-capture
+      flow via a unified `ColorSampler` and `ColorMatches` result grid (12
+      nearest colors with closeness labels). Three sources (camera/upload/hex)
+      → one "Sample a color" picker entry point. Executed subagent-driven in
+      5 tasks (Tasks 1–5), each task-reviewed. Full range: fc9d8ff..932c687
+      (2026-07-22)
