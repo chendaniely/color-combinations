@@ -706,3 +706,28 @@ Released as **v1.2.1**.
 - Zero new dependencies (reuses `nearestColors`, `averagePatch`, `closenessLabel`,
   and the existing Match/Browse dispatch wiring).
 - **Deferred to next time:** a color-wheel / RGB-slider source (logged in TODO).
+
+## Session 10 — mobile wheel highlighting (touch scrub)
+
+**Owner prompt (verbatim):**
+
+> i want to improve the front page wheel mobile experience. when i finger over the figure it doesn't really do a good job highlighting the pairs.
+
+**Root cause found:** the chord wheel's highlight was driven only by
+`pointermove` + `click`, and `.chord-wheel` had no `touch-action` rule — so on a
+touchscreen the browser claimed a finger-drag as a page scroll and starved the
+pointer stream, and the live dim/bold/center-label highlight barely fired. Same
+class of bug the camera canvas had already solved with `touch-action: none`.
+
+**Decisions reached:**
+
+- Add `touch-action: none` to `.chord-wheel` (mirrors `.cam-canvas`) so a finger
+  dragged over the wheel scrubs the highlight live instead of scrolling the page.
+- Make touch a first-class "hover": **press or drag scrubs** the nearest-object
+  preview (center-label name + dim others + bold the pair); a **tap opens**; a
+  **drag only explores** (no accidental navigation to wherever the finger lifts).
+  Desktop hover+click is unchanged. Implemented in `src/viz/chordRender.ts` via
+  `pointerdown`/`pointerup` tap-vs-drag (10px slop) with the synthetic click
+  gated to mouse only; `pointercancel` handled alongside `pointerleave`.
+- No new dependencies; D3/DOM interaction stays covered by the owner browser
+  checklist (added a mobile touch-scrub line to `TODO.md`).

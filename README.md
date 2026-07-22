@@ -54,6 +54,11 @@ Run these from the project folder. `make help` lists them all.
   ribbons: their thickness is how often Wada combined those families. The
   coarse wheel is a lesson in what harmonizes.
 
+On a desktop you hover the wheel to preview a color or pair (its name shows in
+the center) and click to open it. **On a touchscreen, press or drag a finger
+over the wheel** to scrub that same preview live, and **tap** to open — a drag
+only explores, so you can finger over the ribbons without being navigated away.
+
 ### Sample a color
 
 Next to the search box, **Sample a color** opens a small picker with three ways

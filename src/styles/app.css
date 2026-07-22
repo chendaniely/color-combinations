@@ -49,6 +49,10 @@ main { flex: 1; min-height: 0; position: relative; }
 .wheel-view { height: 100%; display: flex; flex-direction: column; align-items: center; }
 .chord-wheel {
   flex: 1; min-height: 0; width: 100%; max-width: 78vh; cursor: pointer;
+  /* touch-action:none so a finger dragged over the wheel scrubs the highlight
+     live (like desktop hover) instead of the browser claiming the gesture as a
+     page scroll and starving the pointer stream — same reason as .cam-canvas. */
+  touch-action: none;
   /* Tilt (wabi-sabi off-axis) lives on the SVG group in chordRender.ts, not
      here, so pointer-to-angle math stays exact. */
 }

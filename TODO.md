@@ -68,6 +68,11 @@ Move finished items to TODO-completed.md with the commit hash.
       combo No. 331 (longest name string — check it doesn't overflow the
       canvas); layout at 375px width (bottom sheets for detail panels);
       `prefers-reduced-motion` actually suppresses the crossfade/animations;
+      the mobile touch-scrub on the wheel (2026-07-22 — press/drag a finger
+      to preview a color/pair with its center-label name, a tap opens, a
+      drag does NOT navigate; confirm the page doesn't scroll under the
+      drag now that `.chord-wheel` is `touch-action:none`, and that a real
+      tap still opens the detail on the first try at all 4 granularities);
       and a product call on whether colors with zero combinations reading
       as zero-width arcs at the Colors granularity level is acceptable or
       needs a minimum-width/placeholder treatment

@@ -10,6 +10,11 @@
 // relying on the cursor landing exactly on a path. State is keyed so the
 // highlight only changes when the nearest object changes — it glides, never
 // strobes.
+//
+// Touch: the same nearest-object snap is the mobile "hover" — a finger pressed
+// or dragged over the wheel scrubs the highlight live (see the pointer-handler
+// block at the bottom and touch-action:none in app.css). A tap commits; a drag
+// only explores.
 import * as d3 from 'd3'
 import type { AngleGroup, WheelNode } from '../core/chord'
 
@@ -232,16 +237,59 @@ export function renderChord(
     centerLabel.text(res.label)
   }
 
-  g.on('pointermove', (event: PointerEvent) => {
+  // Pointer interaction, unified across mouse and touch:
+  //   Mouse — hover (pointermove) previews the nearest object; click commits.
+  //   Touch/pen — press or drag scrubs that same preview live (touch-action:none
+  //     in app.css keeps the gesture from being claimed as a page scroll). A tap
+  //     commits; a drag only explores (so you can finger over the wheel to read
+  //     the pairs without being navigated away). Touch never commits via the
+  //     synthetic click — pointerup decides tap-vs-drag — so a drag can't
+  //     accidentally open wherever the finger happened to lift.
+  const TAP_SLOP = 10 // CSS px of travel between down and up that still reads as a tap
+  let downClient: [number, number] | null = null
+  let downType = 'mouse'
+  let movedFar = false
+
+  function preview(event: PointerEvent): void {
     lastXY = d3.pointer(event, gNode)
     if (!raf) raf = requestAnimationFrame(process)
+  }
+
+  g.on('pointerdown', (event: PointerEvent) => {
+    downClient = [event.clientX, event.clientY]
+    downType = event.pointerType
+    movedFar = false
+    if (event.pointerType !== 'mouse') preview(event) // press-to-preview on touch
+  })
+  g.on('pointermove', (event: PointerEvent) => {
+    if (downClient
+      && Math.hypot(event.clientX - downClient[0], event.clientY - downClient[1]) > TAP_SLOP) {
+      movedFar = true
+    }
+    preview(event)
+  })
+  g.on('pointerup', (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') return // desktop commits via click
+    if (downClient && !movedFar) {
+      const [x, y] = d3.pointer(event, gNode)
+      resolveAt(x, y)?.onClick() // a tap commits
+    }
+    downClient = null // a drag only explored; leaving/cancel resets the view
   })
   g.on('pointerleave', () => {
     if (raf) { cancelAnimationFrame(raf); raf = 0 }
     lastXY = null
+    downClient = null
+    clearHover()
+  })
+  g.on('pointercancel', () => {
+    if (raf) { cancelAnimationFrame(raf); raf = 0 }
+    lastXY = null
+    downClient = null
     clearHover()
   })
   g.on('click', (event: PointerEvent) => {
+    if (downType !== 'mouse') return // touch already committed (or didn't) in pointerup
     const [x, y] = d3.pointer(event, gNode)
     resolveAt(x, y)?.onClick()
   })
