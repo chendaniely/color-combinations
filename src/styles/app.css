@@ -446,3 +446,13 @@ main { flex: 1; min-height: 0; position: relative; }
 .a11y-option[aria-pressed='true'] .a11y-option-desc { color: var(--paper-2); }
 .wheel-wrap { position: relative; flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
 .wheel-empty { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; max-width: 260px; }
+
+/* Hex picker field + swatch */
+.hex-field { display: flex; align-items: center; gap: var(--s2); }
+.hex-swatch { width: 34px; height: 34px; border-radius: var(--radius); border: 1px solid var(--hairline); }
+.hex-input {
+  font-family: var(--font-mono); font-size: 1rem; color: var(--ink);
+  background: none; border: none; border-bottom: 1px solid var(--ink-faint);
+  padding: var(--s2); width: 180px;
+}
+.hex-input:focus { outline: none; border-bottom-color: var(--link); }
