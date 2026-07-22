@@ -11,6 +11,20 @@ export function hexToRgb(hex: string): RGB {
   ]
 }
 
+// Parse a user-entered hex color into RGB, or null if it isn't a valid 3- or
+// 6-digit hex. Accepts an optional leading '#', any case, surrounding
+// whitespace; expands 3-digit shorthand. Pure — no browser globals.
+export function parseHex(input: string): RGB | null {
+  const h = input.trim().replace(/^#/, '').toLowerCase()
+  if (!/^[0-9a-f]{3}$/.test(h) && !/^[0-9a-f]{6}$/.test(h)) return null
+  const full = h.length === 3 ? h[0] + h[0] + h[1] + h[1] + h[2] + h[2] : h
+  return [
+    parseInt(full.slice(0, 2), 16),
+    parseInt(full.slice(2, 4), 16),
+    parseInt(full.slice(4, 6), 16),
+  ]
+}
+
 export function rgbToHsl([r, g, b]: RGB): { h: number; s: number; l: number } {
   const rn = r / 255
   const gn = g / 255
