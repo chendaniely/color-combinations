@@ -5,7 +5,9 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.1 shipped (2026-07-21) — adds camera color capture. Live at
+> **Status:** v1.3.0 shipped (2026-07-22) — adds the hex/photo color sampler
+> (paste a hex or upload a photo, plus the camera, → nearest book colors), on
+> top of the accessibility goggles (v1.2). Live at
 > https://chendaniely.github.io/color-combinations/ — this README always
 > reflects the current state of the project.
 
