@@ -19,6 +19,11 @@ docs in the SAME commit:
 - `TODO.md` — ideas/items deliberately deferred. Add anything skipped.
 - `TODO-completed.md` — move items here when done, WITH the commit hash
   that completed them.
+- `CHANGELOG.md` — user-facing release history. **On every release, add a
+  top entry that pairs what changed with the owner's guiding prompt(s),
+  quoted verbatim from `PROMPTS.md`.** The point of this file is to show
+  that the project is human-guided, not blindly vibe-coded — keep that
+  framing; don't reduce it to a bare list of changes.
 - The spec (`docs/superpowers/specs/`) — update if the design changes.
 
 ## Architecture rules (see spec for rationale)

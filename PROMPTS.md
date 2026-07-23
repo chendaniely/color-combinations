@@ -731,3 +731,41 @@ class of bug the camera canvas had already solved with `touch-action: none`.
   gated to mouse only; `pointercancel` handled alongside `pointerleave`.
 - No new dependencies; D3/DOM interaction stays covered by the owner browser
   checklist (added a mobile touch-scrub line to `TODO.md`).
+
+## 2026-07-22 — Session 11: CHANGELOG for the classroom
+
+**Owner prompt (verbatim):**
+
+> also i want you to keep a CHANGELOG file in here. we've alrady done a lot of
+> releases already so we can populate that. but i also want you go through the
+> history (commit history / chat history) and try to summarize all the major
+> changes i've been asking for.
+>
+> the goal is to track how i'm prompting and using it to show students that the
+> output of these things are still heavily guided by me. and not somethign that
+> is vibe coded from the beginning. I want to document that improvements are
+> incremental and guided by me.
+>
+> the CHANGELOG entries before we started versioning tags could be what we have
+> in the superpowers plans and then use the between superpower plan commits to
+> figure out what I was trying to do or prompted. again, i want to try to show
+> how improvements were made and what i was trying to fix
+
+**What happened:** created `CHANGELOG.md` covering all seven tagged releases
+(v1.0.0 → v1.3.1) plus the three batches of work that shipped continuously to
+the live site between v1.0.0 and v1.1.0 without their own tags (hover-perf +
+browse sections, the Match/outfit builder, and wheel legibility/orientation) —
+reconstructed from the superpowers specs/plans and the commits between them.
+
+**Decisions / framing:**
+
+- Every entry pairs **what changed** with **the owner prompt that drove it**,
+  quoted verbatim (typos preserved) from `PROMPTS.md` — so the file doubles as a
+  teaching record that an AI-built site is still steered release-by-release by a
+  human. Explicitly called out the two-way guidance (owner asking Claude to push
+  back against non-standard choices) and course-reversals (the `{color
+  combinations}` pun, the accessibility-control placement iteration).
+- Wired into the docs contract: `README.md` project-structure list gains a
+  `CHANGELOG.md` bullet; `CLAUDE.md` now requires a paired entry on every release
+  and says to keep the human-guided framing (not reduce it to a bare list).
+- No version bump — this is documentation, not a shippable feature.

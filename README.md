@@ -106,6 +106,8 @@ see — they never change or hide the underlying book data.
 - `docs/superpowers/` — the design spec and implementation plans.
 - `CLAUDE.md` — working rules for the AI sessions that maintain this repo.
 - `PROMPTS.md` — the owner's prompts & decisions that shaped this project.
+- `CHANGELOG.md` — release history, each entry paired with the owner prompt
+  that drove it (a record of how a human steered this AI-built project).
 - `TODO.md` / `TODO-completed.md` — idea backlog and completed items.
 
 ## Renaming the site
