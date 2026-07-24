@@ -45,7 +45,7 @@ those are grouped under dated headings in the right chronological place.
   the owner decided lifting *should* commit, and chose the drag-off-to-cancel
   escape hatch over relying on the Back button. Desktop hover+click is unchanged.
 
-_Commit pending._
+_Commit `38376eb`._
 
 ## [1.3.1] — 2026-07-22 — Mobile wheel touch-scrub highlighting
 
