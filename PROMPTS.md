@@ -769,3 +769,39 @@ reconstructed from the superpowers specs/plans and the commits between them.
   `CHANGELOG.md` bullet; `CLAUDE.md` now requires a paired entry on every release
   and says to keep the human-guided framing (not reduce it to a bare list).
 - No version bump — this is documentation, not a shippable feature.
+
+## 2026-07-23 — Session 12: Lift-to-commit on the mobile wheel
+
+**Owner prompt (verbatim):**
+
+> i want to make an improvement on the mobile user experience. i can now use my fingerts to explor the colors of the wheel. however, when i lift my finger i would like that to actually register as a click, so the selected color combination would behaive as if i clicked on it in the computer. it only works if i do a quick tap on the screen, i would like to explore by holding and draging my finger, and then the lift would trigger the click when i find something i like
+
+**Background:** v1.3.1 made touch a first-class "hover" — press/drag scrubs the
+highlight — but deliberately made a *drag* explore-only (only a quick tap
+committed), so a finger could roam the ribbons without navigating away. The
+owner now wants the opposite: hold-and-drag to explore, and let the **lift**
+commit whatever's highlighted, exactly like a desktop click.
+
+**Decision reached (one product call, offered as multiple choice):** keep a
+cancel gesture. Lifting a finger *on* the wheel opens the highlighted combo;
+dragging *off* past the wheel's edge and lifting in the empty margin cancels —
+the common mobile "drag off the button to back out" pattern. Chosen over "always
+commit on lift (use Back to undo)". The highlight clears while the finger is out
+in the margin, so the cancel is visible before the lift.
+
+**Implementation (`src/viz/chordRender.ts` only):**
+
+- `pointerup` (touch) now commits `resolveAt(x,y).onClick()` whenever the lift is
+  within the interactive disc (`hypot(x,y) <= HIT_R`); beyond it, `clearHover()`
+  and commit nothing. The old tap-only gate (`!movedFar`) is gone, so the
+  `movedFar`/`TAP_SLOP` tap-vs-drag bookkeeping was removed (a net
+  simplification; `downClient` became a plain `downActive` flag).
+- `process()` clears the highlight when the finger is out past `HIT_R`, so the
+  cancel margin is visible feedback (harmless for mouse, which gets
+  `pointerleave` at that edge anyway).
+- Desktop mouse hover+click unchanged; touch still commits via `pointerup`, never
+  the synthetic click.
+
+**No new dependencies.** D3/DOM interaction stays owner-browser-verified (the
+TODO browser-checklist line was updated to the new lift-to-open behavior).
+Shipped as **v1.3.2**.

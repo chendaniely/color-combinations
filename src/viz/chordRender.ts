@@ -13,8 +13,10 @@
 //
 // Touch: the same nearest-object snap is the mobile "hover" — a finger pressed
 // or dragged over the wheel scrubs the highlight live (see the pointer-handler
-// block at the bottom and touch-action:none in app.css). A tap commits; a drag
-// only explores.
+// block at the bottom and touch-action:none in app.css). Lifting the finger
+// commits the highlighted object — tap or drag alike — unless it lifts in the
+// empty margin beyond the wheel, which cancels (drag off the wheel to change
+// your mind).
 import * as d3 from 'd3'
 import type { AngleGroup, WheelNode } from '../core/chord'
 
@@ -227,6 +229,7 @@ export function renderChord(
   function process(): void {
     raf = 0
     if (!lastXY) return
+    if (Math.hypot(lastXY[0], lastXY[1]) > HIT_R) { clearHover(); return } // in the cancel margin: show nothing selected
     const res = resolveAt(lastXY[0], lastXY[1])
     if (!res || res.key === hoverKey) return // no object → keep current, never flash
     hoverKey = res.key
@@ -240,15 +243,15 @@ export function renderChord(
   // Pointer interaction, unified across mouse and touch:
   //   Mouse — hover (pointermove) previews the nearest object; click commits.
   //   Touch/pen — press or drag scrubs that same preview live (touch-action:none
-  //     in app.css keeps the gesture from being claimed as a page scroll). A tap
-  //     commits; a drag only explores (so you can finger over the wheel to read
-  //     the pairs without being navigated away). Touch never commits via the
-  //     synthetic click — pointerup decides tap-vs-drag — so a drag can't
-  //     accidentally open wherever the finger happened to lift.
-  const TAP_SLOP = 10 // CSS px of travel between down and up that still reads as a tap
-  let downClient: [number, number] | null = null
+  //     in app.css keeps the gesture from being claimed as a page scroll).
+  //     Lifting the finger commits the highlighted object — you can hold and
+  //     drag to explore, then let go on the one you want. Dragging out past the
+  //     wheel's edge and lifting in the empty margin cancels instead (the
+  //     highlight clears while you're out there, so the cancel is visible).
+  //     Touch commits via pointerup, never the synthetic click, so the mouse
+  //     path stays separate.
   let downType = 'mouse'
-  let movedFar = false
+  let downActive = false
 
   function preview(event: PointerEvent): void {
     lastXY = d3.pointer(event, gNode)
@@ -256,36 +259,35 @@ export function renderChord(
   }
 
   g.on('pointerdown', (event: PointerEvent) => {
-    downClient = [event.clientX, event.clientY]
+    downActive = true
     downType = event.pointerType
-    movedFar = false
     if (event.pointerType !== 'mouse') preview(event) // press-to-preview on touch
   })
   g.on('pointermove', (event: PointerEvent) => {
-    if (downClient
-      && Math.hypot(event.clientX - downClient[0], event.clientY - downClient[1]) > TAP_SLOP) {
-      movedFar = true
-    }
     preview(event)
   })
   g.on('pointerup', (event: PointerEvent) => {
     if (event.pointerType === 'mouse') return // desktop commits via click
-    if (downClient && !movedFar) {
+    if (downActive) {
       const [x, y] = d3.pointer(event, gNode)
-      resolveAt(x, y)?.onClick() // a tap commits
+      // Lift commits the highlighted object — tap or drag alike — UNLESS the
+      // finger lifted in the empty margin beyond the interactive disc, which is
+      // the "drag off the wheel to change your mind" cancel gesture.
+      if (Math.hypot(x, y) <= HIT_R) resolveAt(x, y)?.onClick()
+      else clearHover()
     }
-    downClient = null // a drag only explored; leaving/cancel resets the view
+    downActive = false // leaving/cancel also resets this
   })
   g.on('pointerleave', () => {
     if (raf) { cancelAnimationFrame(raf); raf = 0 }
     lastXY = null
-    downClient = null
+    downActive = false
     clearHover()
   })
   g.on('pointercancel', () => {
     if (raf) { cancelAnimationFrame(raf); raf = 0 }
     lastXY = null
-    downClient = null
+    downActive = false
     clearHover()
   })
   g.on('click', (event: PointerEvent) => {

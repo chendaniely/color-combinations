@@ -28,6 +28,25 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## [1.3.2] — 2026-07-23 — Lift your finger to open on the mobile wheel
+
+> **Owner asked for:** "i can now use my fingerts to explor the colors of the
+> wheel. however, when i lift my finger i would like that to actually register
+> as a click… i would like to explore by holding and draging my finger, and then
+> the lift would trigger the click when i find something i like"
+
+- On a touchscreen you can now **hold and drag a finger** around the wheel to
+  explore, then **lift to open** whatever's highlighted — no more needing a
+  precise quick tap. It behaves like a desktop click, just at the end of a drag.
+- **Changed your mind mid-drag?** Slide your finger off past the edge of the
+  wheel and lift in the empty margin — nothing opens. The highlight clears while
+  you're out there so you can see it won't select.
+- This reverses the v1.3.1 rule where a drag only explored and never navigated;
+  the owner decided lifting *should* commit, and chose the drag-off-to-cancel
+  escape hatch over relying on the Back button. Desktop hover+click is unchanged.
+
+_Commit pending._
+
 ## [1.3.1] — 2026-07-22 — Mobile wheel touch-scrub highlighting
 
 > **Owner asked for:** "i want to improve the front page wheel mobile

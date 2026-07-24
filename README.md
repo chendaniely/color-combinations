@@ -5,8 +5,9 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.3.1 shipped (2026-07-22) — the color wheel now highlights
-> pairs under a finger on touchscreens (press/drag to scrub, tap to open),
+> **Status:** v1.3.2 shipped (2026-07-23) — the color wheel now highlights
+> pairs under a finger on touchscreens (press/drag to scrub, lift to open the
+> highlighted one, drag off the wheel to cancel),
 > on top of the hex/photo color sampler (v1.3) and accessibility goggles
 > (v1.2). Live at https://chendaniely.github.io/color-combinations/ — this
 > README always reflects the current state of the project.
@@ -56,8 +57,10 @@ Run these from the project folder. `make help` lists them all.
 
 On a desktop you hover the wheel to preview a color or pair (its name shows in
 the center) and click to open it. **On a touchscreen, press or drag a finger
-over the wheel** to scrub that same preview live, and **tap** to open — a drag
-only explores, so you can finger over the ribbons without being navigated away.
+over the wheel** to scrub that same preview live, then **lift your finger** to
+open the one you've landed on — so you can hold and drag to explore and let go
+when you find something you like. Changed your mind? Drag your finger off past
+the edge of the wheel before lifting, and nothing opens.
 
 ### Sample a color
 
