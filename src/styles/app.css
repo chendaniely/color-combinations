@@ -473,3 +473,29 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 .pick-input:focus { outline: none; border-bottom-color: var(--link); }
 .pick-input[aria-invalid='true'] { border-bottom-color: var(--accent); }
+
+/* Color picker — the HSV disc.
+   The hue stops and the white saturation wash below are the COLOR SPACE, not
+   design tokens — the same exemption CLAUDE.md grants Sanzo Wada's data colors.
+   Every other value here comes from tokens.css.
+   The 236px size must stay in sync with RADIUS in ColorDisc.tsx. */
+.pick-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--s3); }
+.pick-disc {
+  position: relative; width: 236px; height: 236px; border-radius: 50%;
+  touch-action: none; cursor: crosshair;
+}
+.pick-disc:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.pick-face {
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle closest-side, #fff 0%, rgba(255, 255, 255, 0) 78%),
+    conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.pick-pin {
+  position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+  border: 2px solid var(--paper-hi); box-shadow: 0 0 0 1.5px var(--ink);
+  pointer-events: none;
+}
+.pick-bright { display: flex; align-items: center; gap: var(--s2); width: 236px; }
+.pick-bright input { flex: 1; min-width: 0; accent-color: var(--link); }
