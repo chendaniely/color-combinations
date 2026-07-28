@@ -10,6 +10,7 @@ import { Header } from './components/Header'
 import { MatchPage } from './components/MatchPage'
 import { RibbonDetail } from './components/RibbonDetail'
 import { WheelControls } from './components/WheelControls'
+import { YouView } from './components/you/YouView'
 import { initialState, reducer } from './core/state'
 import { allowedFor } from './data'
 
@@ -28,6 +29,8 @@ export default function App() {
           </div>
         ) : state.view === 'browse' ? (
           <BrowseView state={state} dispatch={dispatch} />
+        ) : state.view === 'you' ? (
+          <YouView state={state} dispatch={dispatch} />
         ) : (
           <MatchPage state={state} dispatch={dispatch} />
         )}

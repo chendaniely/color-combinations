@@ -8,6 +8,7 @@ import { ColorDetail } from '../src/components/ColorDetail'
 import { CombinationDetail } from '../src/components/CombinationDetail'
 import { GroupDetail } from '../src/components/GroupDetail'
 import { Header } from '../src/components/Header'
+import { YouView } from '../src/components/you/YouView'
 import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
 import { ColorMatches } from '../src/components/sample/ColorMatches'
@@ -133,5 +134,16 @@ describe('app shell', () => {
     const state = { ...initialState, sizes: [4] as (2 | 3 | 4)[], access: ['print-bw' as const] }
     const html = renderToString(<ChordWheel state={state} dispatch={() => {}} />)
     expect(html).toContain('No combinations match these goggles')
+  })
+
+  it('offers the You tab in the header', () => {
+    expect(renderToString(<App />)).toContain('>You<')
+  })
+
+  it('the You tab renders its intro without a reading', () => {
+    const state = { ...initialState, view: 'you' as const }
+    const html = renderToString(<YouView state={state} dispatch={() => {}} />)
+    expect(html).toContain('Your colours')
+    expect(html).toContain('never leaves your device')
   })
 })
