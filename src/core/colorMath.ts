@@ -118,3 +118,23 @@ export function cmykToRgb([c, m, y, k]: CMYK): RGB {
   return [(1 - c / 100) * kf, (1 - m / 100) * kf, (1 - y / 100) * kf]
     .map((n) => Math.round(n * 255)) as RGB
 }
+
+// Shared shape for parseRgb/parseCmyk: strip an optional `name(...)` wrapper,
+// split on commas / whitespace / slashes, then bounds-check. Returns null
+// rather than throwing, matching parseHex's contract.
+function parseTuple(input: string, arity: number, max: number): number[] | null {
+  const body = input.trim().replace(/^[a-z]+\s*\(/i, '').replace(/\)$/, '')
+  const parts = body.split(/[\s,/]+/).filter((p) => p.length > 0)
+  if (parts.length !== arity) return null
+  const values = parts.map(Number)
+  if (values.some((n) => !Number.isFinite(n) || n < 0 || n > max)) return null
+  return values.map((n) => Math.round(n))
+}
+
+export function parseRgb(input: string): RGB | null {
+  return parseTuple(input, 3, 255) as RGB | null
+}
+
+export function parseCmyk(input: string): CMYK | null {
+  return parseTuple(input, 4, 100) as CMYK | null
+}

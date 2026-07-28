@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
-  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, readableTextOn, rgbToCmyk, rgbToHsl, rgbToHsv,
+  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, parseCmyk, parseRgb, readableTextOn, rgbToCmyk, rgbToHsl, rgbToHsv,
 } from '../src/core/colorMath'
 
 describe('colorMath', () => {
@@ -82,5 +82,32 @@ describe('cmyk matches the book', () => {
     // Exactly one known-malformed source record (M = 106%). If this count
     // changes, the upstream data changed — investigate before touching this test.
     expect(off.map((c) => c.name)).toEqual(['Dull Violet Black'])
+  })
+})
+
+describe('color text parsers', () => {
+  it('parses rgb in the shapes people paste', () => {
+    expect(parseRgb('35, 97, 146')).toEqual([35, 97, 146])
+    expect(parseRgb('35 97 146')).toEqual([35, 97, 146])
+    expect(parseRgb('  rgb(35,97,146)  ')).toEqual([35, 97, 146])
+    expect(parseRgb('35/97/146')).toEqual([35, 97, 146])
+    expect(parseRgb('34.6, 97.2, 146')).toEqual([35, 97, 146])
+  })
+  it('rejects bad rgb', () => {
+    expect(parseRgb('')).toBe(null)
+    expect(parseRgb('35, 97')).toBe(null)
+    expect(parseRgb('35, 97, 146, 2')).toBe(null)
+    expect(parseRgb('35, 97, 256')).toBe(null)
+    expect(parseRgb('35, -1, 146')).toBe(null)
+    expect(parseRgb('red, green, blue')).toBe(null)
+  })
+  it('parses cmyk', () => {
+    expect(parseCmyk('76, 34, 0, 43')).toEqual([76, 34, 0, 43])
+    expect(parseCmyk('cmyk(0 30 6 0)')).toEqual([0, 30, 6, 0])
+  })
+  it('rejects bad cmyk, including the out-of-range value in the source data', () => {
+    expect(parseCmyk('76, 34, 0')).toBe(null)
+    expect(parseCmyk('95, 106, 38, 50')).toBe(null) // Dull Violet Black's malformed M
+    expect(parseCmyk('nope')).toBe(null)
   })
 })
