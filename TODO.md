@@ -171,12 +171,19 @@ Move finished items to TODO-completed.md with the commit hash.
       .pick-input`. Any FUTURE overlay input will hit the same trap. The real
       fix is to stop nesting the overlay inside `.search-box` — it is a
       full-screen `position: fixed` layer and has no reason to live there.
-- [ ] No test covers CSS cascade or layout — jsdom implements neither. Three
-      real defects shipped past a green 199-test suite and seven task reviews
-      (the disc's 78% saturation stop, the unreachable Explore button on short
-      viewports, and the `.search-box` specificity leak above), all caught only
-      by opening a browser. Worth considering whether the owner browser
-      checklist should become a written, repeatable script.
+- [ ] No test covers CSS cascade, fonts, or layout — jsdom implements none of
+      them. FIVE user-visible defects shipped past a green 199-test suite, a
+      review after every task, and a whole-branch review: the disc's 78%
+      saturation stop (colors didn't match the numbers below them), the
+      unreachable Explore button on short viewports, color codes in the UI font
+      instead of the mono one, a focused field turning the same orange as an
+      invalid one, and the "BRIGHT" label running under its own slider. Every
+      one was found by opening a browser, and none were logic bugs — the logic
+      was right throughout. Worth deciding whether the owner browser checklist
+      should become a written, repeatable script, and whether anything can
+      assert cascade/layout automatically (a real-browser smoke test is the
+      only thing that would; note it would add a dependency, so it needs an
+      explicit decision against the dependency budget).
 - [ ] Color sampler — image-upload picker cover-crops non-portrait photos to
       3:4 aspect-ratio (`.cam-canvas { object-fit: cover }`), so left/right edge
       regions can't be eyedroppable. A fix would give `ImagePicker` an
@@ -195,3 +202,49 @@ Move finished items to TODO-completed.md with the commit hash.
       was mocked up live against all 157 colors and rejected: on a control whose
       job is aiming at a color, the dots compete with the target. The plot
       belongs on Browse (above), not here.
+- [ ] UNDIAGNOSED: one test failed once (1 of 199) during the v1.4.0 session,
+      on the `61a5317` docs commit. The failing test's NAME was lost — the
+      command piped `make test` through `tail -6`, which truncated the failure
+      and masked the non-zero exit, so a commit went through on a red suite.
+      Never reproduced since: ~20 full-suite runs including 3 concurrent with a
+      build, 10 focused runs of every jsdom file, and a clean run on merged
+      main. The failing run took 13.2s vs a normal 4.5s, so CPU contention is
+      the likely cause — but it is NOT proven benign, just unreproduced. If it
+      recurs, capture the full output; never pipe a test run through `tail`.
+- [ ] Color picker — the disc's size lives in two places: `RADIUS = 118` in
+      `ColorDisc.tsx` and `.pick-disc { width: 236px }` in `app.css`. Both sides
+      carry sync comments and it is safe today only because the disc is a fixed
+      size (RADIUS places the pin's initial position; the drag path measures the
+      real element). The moment anyone makes the disc responsive — which is the
+      natural follow-up to the short-viewport overflow fix — the pin will
+      desync from the wheel. A `--pick-disc-size` token consumed by both, or
+      measuring on mount, would close it. Fix this BEFORE making the disc
+      responsive, not after.
+- [ ] Color picker a11y and naming polish, none blocking:
+      • The wheel's arrow-key changes are silent to a screen reader — it is a
+        `role="group"` with `tabIndex=0` and no `aria-valuenow`, so nothing is
+        announced as hue/saturation move. The three text fields are the
+        accepted accessible path (per the spec), but a proper slider role with
+        announced values would be better.
+      • The picker labels its field `Hex` while the color detail page labels
+        the same concept `HEX`; CSS uppercases both, so it only differs for
+        screen readers. Pick one.
+      • One control has three names — `ColorDisc` in code, `.pick-*` in CSS,
+        "the wheel" in the copy.
+      • `ColorDisc` never explicitly releases pointer capture, relying on the
+        Pointer Events spec releasing it on pointerup. Standards-correct and
+        works, but an explicit `onPointerUp`/`onLostPointerCapture` would be
+        more defensive.
+- [ ] Small code cleanups in the v1.4.0 work, all deliberately left:
+      • `ColorFields` uses `if (next) onChange(next)` where `next !== null`
+        would say what it means (RGB tuples are always truthy, so it is correct
+        today).
+      • `rgbToHsv` duplicates the hue-sector logic already in `rgbToHsl` in the
+        same file (~5 lines). Judged not worth a shared helper for two callers,
+        since the surrounding saturation math differs — revisit only if a third
+        HSx variant ever appears.
+- [ ] Process: git tags do NOT travel with `git push` unless pushed explicitly.
+      `v1.3.2` was tagged locally and sat unpushed for weeks without anyone
+      noticing, and `v1.3.3` was never tagged at all; both were repaired on
+      2026-07-28. Consider `git config --global push.followTags true` so
+      annotated tags ride along with the branch push automatically.
