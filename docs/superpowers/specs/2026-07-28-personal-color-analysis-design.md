@@ -190,16 +190,64 @@ to ship both:
 > i actually liked how you showed both side by side. this lets everyone explore
 > different views
 
-Each of the twelve seasons owns a target region — a hue range, an L\* range and
-a chroma range — and the book's colors falling inside it form that season's
-list.
-
-**These twelve regions have no published source. They are our invention.** That
+**These twelve palettes have no published source. They are our invention.** That
 is a real cost of shipping this palette, and it is not to be papered over. The
 About text and the result page must both state plainly that the measured palette
 comes from the visitor's face while the season palette comes from a table we
 wrote. Precedent: the accessibility goggles ship *Print & B&W safe* rather than
 claiming true CMYK proofing.
+
+### The mapping is data, not code
+
+> maybe we create a separate dataset that maps color to season. this way i can
+> easily change it or have another agent analyze it. and it'll update in the
+> website.
+
+The season→color mapping lives in **`data/curated/seasons.json`**, hand-editable
+and read directly by the app. Editing the file and refreshing the page changes
+the palettes; no code change, no regeneration step.
+
+This is the right shape for the honesty problem. The one part of this feature we
+admit is invented becomes the part that is easiest to inspect, diff, review and
+correct — a reviewer can audit twelve lists of color names against published
+sources without reading a line of TypeScript.
+
+```json
+{
+  "schemaVersion": 1,
+  "note": "Hand-curated. No published source — see the spec.",
+  "seasons": [
+    {
+      "id": "deep-autumn",
+      "name": "Deep Autumn",
+      "undertone": "warm", "depth": "deep", "chroma": "clear",
+      "colorIds": [12, 44, 91]
+    }
+  ]
+}
+```
+
+- **`colorIds`** are ids from `colors-data.json`. Membership is many-to-many —
+  a color may appear in several seasons, as it does in practice.
+- **The `undertone` / `depth` / `chroma` triple** is how a measured reading finds
+  its season. Classification stays in code because it is derived from
+  measurement; *membership* is data because it is curated.
+- **Seeded once, then owned by hand.** `scripts/seed-seasons.ts` generates the
+  first version from the hue/L\*/chroma regions used in the mockups, and the
+  output is committed as data. The script stays in `scripts/` for regeneration
+  but is not part of the build — after seeding, the file is edited, not
+  regenerated.
+- **Validated like the main dataset.** A schema check plus: every `colorId`
+  exists, all twelve seasons are present with unique ids, every
+  undertone/depth/chroma combination the classifier can produce maps to exactly
+  one season, and no season is empty.
+
+**This amends an architecture rule.** `CLAUDE.md` currently says the app reads
+ONLY `data/processed/colors-data.json`. It now reads two files: that one, plus
+`data/curated/seasons.json`. The distinction the rule protects is preserved and
+worth restating in `CLAUDE.md` — `data/processed/` is *generated* from a vendored
+source and must never be hand-edited; `data/curated/` is *authored* by us and
+never generated. Source-format knowledge still lives only in `scripts/ingest/`.
 
 ### Season override
 
@@ -297,7 +345,7 @@ MediaPipe reachable from exactly one file.
 | `src/core/robustSample.ts` | Pure statistics. Many samples in, one trustworthy color out: outlier rejection then median. Extends `sampling.ts`. | nothing |
 | `src/color/skinMetrics.ts` | White-balance correction, then Lab / OKLCh / ITA° → the three axes. | culori |
 | `src/color/personalPalette.ts` | The four rules. Scores all 157 colors, returns keeps with reason sentences. | culori |
-| `src/color/seasons.ts` | The twelve regions, the classifier, the per-season filter. | culori |
+| `src/core/seasons.ts` | Loads and validates `seasons.json`; classifies a reading's undertone/depth/chroma triple to a season id; returns a season's colour ids. Pure — the palettes are data, so no colour science is needed here. | nothing |
 | `src/core/combinationMatch.ts` | Fraction-of-combination-that-is-yours; ranking and the floor. Pure set arithmetic, no color science, so it belongs in the kernel. | nothing |
 | `src/components/sample/FaceCapture.tsx` | Camera/upload, guide overlay, capture. Inside the privacy guard. | — |
 | `src/components/sample/ProbeReview.tsx` | Show the patches; tap to correct. | — |
@@ -377,6 +425,12 @@ Guarantees, all enforced by test rather than asserted in prose:
   rejection and median; white-balance correction; the three axes from known
   skin/hair pairs; the four rules against fixture colors; season classification;
   combination ranking and each floor stop.
+- **`seasons.json` validated by its own test**, in the manner of
+  `tests/validate.test.ts`: schema, every `colorId` resolves, twelve unique
+  seasons, no empty palette, and every undertone/depth/chroma triple the
+  classifier can emit maps to exactly one season. This is the test that catches
+  a bad hand-edit — the file is meant to be edited, so the guard matters more
+  here than for generated data.
 - **Fixtures across the tonal range.** Skin readings spanning light to deep and
   warm to cool, so a regression that degrades deeper tones fails the suite.
   Given the reason we rejected chroma-threshold segmentation, this is a
@@ -394,10 +448,13 @@ Guarantees, all enforced by test rather than asserted in prose:
 
 ## Documentation (the CLAUDE.md contract)
 
-- `README.md` — a **You** entry under Features, the new **Privacy** section, and
-  the `public/mediapipe/` copy step in setup.
+- `README.md` — a **You** entry under Features, the new **Privacy** section, the
+  `public/mediapipe/` copy step in setup, and a short note on how to edit
+  `data/curated/seasons.json` (written for a non-JS reader, since editing it is
+  the one maintenance task this feature hands the owner).
 - `CLAUDE.md` — the dependency budget replaced by the four properties above;
-  `src/face/` added to the architecture rules.
+  `src/face/` added to the architecture rules; the data rule amended to name
+  `data/curated/` alongside `data/processed/`.
 - `Makefile` — the asset-copy step, working.
 - `PROMPTS.md` — this session's prompts verbatim and the decisions made.
 - `CHANGELOG.md` — release entry paired with the owner's guiding prompts.
@@ -414,7 +471,13 @@ Guarantees, all enforced by test rather than asserted in prose:
 - **A site-wide "Suits me" lens** in the accessibility goggles menu. The owner
   chose a self-contained result page first; the goggles filter combinations
   while this filters colors, so it is not a drop-in.
-- **Tuning the four rule constants through UI.** They ship as constants.
+- **Tuning the four rule constants through UI.** They ship as constants. Note
+  the asymmetry this creates and accept it: the *season* palettes are editable
+  data, the *measured* rules are code. That is deliberate — the rules are
+  derived from the reading and are meant to be defended, while the season lists
+  are curated and are meant to be revised.
+- **An in-app editor for `seasons.json`.** It is a file in the repo; editing it
+  is a git operation, not a site feature.
 - **Researching Wada's true plate area ratios** — already logged; would unlock a
   genuine "dominant color" rule.
 
