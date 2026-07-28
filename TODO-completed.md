@@ -163,4 +163,5 @@ Design + plan: `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.m
       `rgbToCmyk`/`cmykToRgb`, `parseRgb`/`parseCmyk`) and a new pure
       `src/core/discGeometry.ts` so the wheel's geometry is unit-testable
       without a DOM. The book-color overlay was mocked up and rejected — see
-      TODO.md. Code: d2ff5f6..3b83f17 (2026-07-28)
+      TODO.md. Code: d2ff5f6..3b83f17, plus final-review fixes in 6e38543
+      (2026-07-28)

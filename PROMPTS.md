@@ -936,7 +936,15 @@ subagent-driven in 8 tasks (`d2ff5f6..3b83f17`), each task-reviewed: pure
 `parseRgb`/`parseCmyk` alongside the existing `parseHex`, a new pure
 `src/core/discGeometry.ts`, `ColorFields` (synced HEX/RGB/CMYK entry) and
 `ColorDisc` (the HSV wheel with keyboard control), and `ColorPicker` wired in
-to replace the old `HexPicker`. Shipped as **v1.4.0**.
+to replace the old `HexPicker`.
+
+A final whole-branch review then caught two things no single-task review could
+see, both fixed in `6e38543`: the wheel's white saturation wash faded out at
+78% of the radius while the maths spread saturation across the whole radius —
+so the disc was showing a *different* color than the numbers underneath it —
+and the overlay had no way to scroll, which put "Explore this color" off the
+bottom of the screen on a phone in landscape. The same pass folded six copies
+of the same hex-formatting helper into one. Shipped as **v1.4.0**.
 
 **Spec:** `docs/superpowers/specs/2026-07-27-color-picker-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-27-color-picker.md`
