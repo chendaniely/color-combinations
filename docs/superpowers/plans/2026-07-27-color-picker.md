@@ -32,7 +32,7 @@
 - `src/components/sample/ColorSampler.tsx` (modify) — third tile becomes "Pick a color".
 - `src/components/sample/HexPicker.tsx` (delete, Task 7).
 - `src/styles/app.css` (modify) — add `.pick-*`; delete `.hex-field` / `.hex-swatch` / `.hex-input`.
-- Tests: `tests/discGeometry.test.ts`, `tests/colorFields.test.tsx`, `tests/colorPicker.test.tsx` (create); `tests/colorMath.test.ts`, `tests/appSmoke.test.tsx` (modify); `tests/hexPicker.test.tsx` (delete, Task 7).
+- Tests: `tests/discGeometry.test.ts`, `tests/colorFields.test.tsx`, `tests/colorDisc.test.tsx`, `tests/colorPicker.test.tsx` (create); `tests/colorMath.test.ts`, `tests/appSmoke.test.tsx` (modify); `tests/hexPicker.test.tsx` (delete, Task 7).
 - Docs: `README.md`, `PROMPTS.md`, `TODO.md`, `TODO-completed.md`, `CHANGELOG.md`.
 
 ---
@@ -633,14 +633,80 @@ git commit -m "feat(sample): ColorFields — HEX/RGB/CMYK entry kept in sync"
 **Files:**
 - Create: `src/components/sample/ColorDisc.tsx`
 - Modify: `src/styles/app.css`
+- Test: `tests/colorDisc.test.tsx`
 
 **Interfaces:**
 - Consumes: `discPointToHueSat`, `hueSatToDiscPoint` from `src/core/discGeometry`; `hsvToRgb`, `HSV` from `src/core/colorMath`.
-- Produces: `<ColorDisc hsv={HSV} onChange={(hsv: HSV) => void} />`. The brightness input is labelled `Brightness`; the disc itself is labelled `Color wheel`.
+- Produces: `<ColorDisc hsv={HSV} onChange={(hsv: HSV) => void} />`. The brightness input is labelled `Brightness`; the disc itself is labelled `Color wheel — arrow keys adjust hue and saturation`.
 
-No dedicated jsdom test: jsdom reports zeroes from `getBoundingClientRect`, so pointer math cannot be exercised there — that is exactly why Task 4 extracted the geometry, which *is* fully tested. Task 7's tests cover this component's rendered output through `ColorPicker`.
+**On coverage:** the *pointer* path is genuinely untestable in jsdom — `getBoundingClientRect` returns zeroes there, which is exactly why Task 4 extracted the geometry into pure functions that *are* fully tested. The keyboard path, the slider, and the rendered output need no layout, so they are tested here. Only the pointer drag falls to the manual checklist.
 
-- [ ] **Step 1: Implement the component**
+- [ ] **Step 1: Write the failing test**
+
+Create `tests/colorDisc.test.tsx`:
+
+```tsx
+// @vitest-environment jsdom
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ColorDisc } from '../src/components/sample/ColorDisc'
+
+afterEach(cleanup)
+
+const HSV = { h: 206, s: 0.76, v: 0.57 }
+
+describe('ColorDisc (jsdom)', () => {
+  it('shows the brightness slider at the current value', () => {
+    render(<ColorDisc hsv={HSV} onChange={() => {}} />)
+    expect((screen.getByLabelText('Brightness') as HTMLInputElement).value).toBe('57')
+  })
+
+  it('moves hue with left and right arrows', () => {
+    const onChange = vi.fn()
+    render(<ColorDisc hsv={HSV} onChange={onChange} />)
+    const disc = screen.getByLabelText(/Color wheel/)
+    fireEvent.keyDown(disc, { key: 'ArrowRight' })
+    expect(onChange).toHaveBeenCalledWith({ h: 208, s: 0.76, v: 0.57 })
+    fireEvent.keyDown(disc, { key: 'ArrowLeft' })
+    expect(onChange).toHaveBeenLastCalledWith({ h: 204, s: 0.76, v: 0.57 })
+  })
+
+  it('takes bigger steps with shift held', () => {
+    const onChange = vi.fn()
+    render(<ColorDisc hsv={HSV} onChange={onChange} />)
+    fireEvent.keyDown(screen.getByLabelText(/Color wheel/), { key: 'ArrowRight', shiftKey: true })
+    expect(onChange).toHaveBeenCalledWith({ h: 216, s: 0.76, v: 0.57 })
+  })
+
+  it('clamps saturation at the rim', () => {
+    const onChange = vi.fn()
+    render(<ColorDisc hsv={{ h: 0, s: 1, v: 1 }} onChange={onChange} />)
+    fireEvent.keyDown(screen.getByLabelText(/Color wheel/), { key: 'ArrowUp' })
+    expect(onChange).toHaveBeenCalledWith({ h: 0, s: 1, v: 1 })
+  })
+
+  it('ignores keys it does not handle', () => {
+    const onChange = vi.fn()
+    render(<ColorDisc hsv={HSV} onChange={onChange} />)
+    fireEvent.keyDown(screen.getByLabelText(/Color wheel/), { key: 'a' })
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('emits a new value from the brightness slider', () => {
+    const onChange = vi.fn()
+    render(<ColorDisc hsv={HSV} onChange={onChange} />)
+    fireEvent.change(screen.getByLabelText('Brightness'), { target: { value: '100' } })
+    expect(onChange).toHaveBeenCalledWith({ h: 206, s: 0.76, v: 1 })
+  })
+})
+```
+
+- [ ] **Step 2: Run the test to verify it fails**
+
+Run: `npx vitest run tests/colorDisc.test.tsx`
+Expected: FAIL — cannot find module `../src/components/sample/ColorDisc`.
+
+- [ ] **Step 3: Implement the component**
 
 Create `src/components/sample/ColorDisc.tsx`:
 
@@ -713,7 +779,7 @@ export function ColorDisc({ hsv, onChange }: {
 }
 ```
 
-- [ ] **Step 2: Add the disc styles**
+- [ ] **Step 4: Add the disc styles**
 
 Append to `src/styles/app.css`:
 
@@ -745,20 +811,20 @@ Append to `src/styles/app.css`:
 .pick-bright input { flex: 1; min-width: 0; accent-color: var(--link); }
 ```
 
-- [ ] **Step 3: Typecheck**
+- [ ] **Step 5: Run the test to verify it passes**
 
-Run: `npx tsc --noEmit`
-Expected: PASS, no errors.
+Run: `npx vitest run tests/colorDisc.test.tsx && npx tsc --noEmit`
+Expected: PASS, all 6 cases; no type errors.
 
-- [ ] **Step 4: Confirm the existing suite is still green**
+- [ ] **Step 6: Confirm the existing suite is still green**
 
 Run: `make test`
-Expected: PASS — nothing imports `ColorDisc` yet, so this is a no-regression check.
+Expected: PASS — nothing imports `ColorDisc` in the app yet, so this is a no-regression check.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/components/sample/ColorDisc.tsx src/styles/app.css
+git add src/components/sample/ColorDisc.tsx src/styles/app.css tests/colorDisc.test.tsx
 git commit -m "feat(sample): ColorDisc — HSV wheel with brightness and keyboard control"
 ```
 
