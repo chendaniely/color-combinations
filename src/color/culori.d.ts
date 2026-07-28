@@ -8,4 +8,5 @@ declare module 'culori' {
   export function wcagContrast(a: string | CuloriColor, b: string | CuloriColor): number
   export function filterDeficiencyProt(severity?: number): (color: string | CuloriColor) => CuloriColor
   export function filterDeficiencyDeuter(severity?: number): (color: string | CuloriColor) => CuloriColor
+  export function converter(mode: 'lab'): (color: string | CuloriColor) => { l: number; a: number; b: number }
 }

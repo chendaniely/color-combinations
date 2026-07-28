@@ -46,6 +46,25 @@ export interface FaceGeometry {
   rightEar: Point
 }
 
+export type Undertone = 'warm' | 'neutral' | 'cool'
+export type Depth = 'light' | 'medium' | 'deep'
+export type ContrastBand = 'high' | 'medium' | 'low'
+
+// Everything the analysis keeps. Numbers and short strings only — the
+// photograph itself is discarded, never stored (see README Privacy).
+export interface SkinReading {
+  skin: string             // #rrggbb, white-balanced if we had a reference
+  hair: string | null      // null when no hair was visible
+  undertone: Undertone
+  depth: Depth
+  contrast: ContrastBand
+  skinL: number
+  skinHue: number
+  ita: number
+  contrastGap: number | null
+  whiteBalanced: boolean
+}
+
 export type GranularityLevel = 0 | 1 | 2 | 3   // colors/fine/broad/super
 export type SizeBucket = 2 | 3 | 4             // 4 includes 5-color combos
 export type AccessLensId = 'web-text' | 'print-bw' | 'colorblind'
