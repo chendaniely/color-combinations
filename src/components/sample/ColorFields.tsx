@@ -1,0 +1,62 @@
+import { useState } from 'react'
+import {
+  cmykToRgb, hsvToRgb, parseCmyk, parseHex, parseRgb, rgbToCmyk,
+  type HSV, type RGB,
+} from '../../core/colorMath'
+
+type FieldName = 'hex' | 'rgb' | 'cmyk'
+
+function toHex([r, g, b]: RGB): string {
+  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
+}
+
+// The three notations of one color, all editable. A field shows its own draft
+// only while it is the one being edited; every other field renders from state,
+// so dragging the disc updates them live without stomping on typing.
+export function ColorFields({ hsv, onChange }: {
+  hsv: HSV
+  onChange: (rgb: RGB) => void
+}) {
+  const [editing, setEditing] = useState<FieldName | null>(null)
+  const [draft, setDraft] = useState('')
+  const [bad, setBad] = useState(false)
+
+  const rgb = hsvToRgb(hsv)
+  const shown: Record<FieldName, string> = {
+    hex: toHex(rgb),
+    rgb: rgb.join(', '),
+    cmyk: rgbToCmyk(rgb).join(', '),
+  }
+
+  function field(name: FieldName, label: string, parse: (t: string) => RGB | null) {
+    const invalid = editing === name && bad
+    return (
+      <div className="pick-field">
+        <label className="pick-label" htmlFor={`pick-${name}`}>{label}</label>
+        <input id={`pick-${name}`} className="pick-input" spellCheck={false}
+          value={editing === name ? draft : shown[name]}
+          aria-invalid={invalid}
+          onChange={(e) => {
+            const text = e.target.value
+            setEditing(name)
+            setDraft(text)
+            const next = parse(text)
+            setBad(next === null)
+            if (next) onChange(next)
+          }}
+          onBlur={() => { setEditing(null); setBad(false) }} />
+      </div>
+    )
+  }
+
+  return (
+    <div className="pick-fields">
+      {field('hex', 'Hex', parseHex)}
+      {field('rgb', 'RGB', parseRgb)}
+      {field('cmyk', 'CMYK', (t) => {
+        const v = parseCmyk(t)
+        return v === null ? null : cmykToRgb(v)
+      })}
+    </div>
+  )
+}
