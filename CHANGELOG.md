@@ -67,6 +67,23 @@ those are grouped under dated headings in the right chronological place.
   This is the part worth noticing: the round trip from "sounds right" to
   "actually wrong" took one mockup and one look, and it happened *before* any
   of it was built.
+- **Then the owner asked for the browser to be opened, and that caught five
+  more things.** The feature had 199 passing tests and had been through a
+  review after every step. It still shipped a wheel whose colors did not match
+  the numbers printed underneath it (the white center faded out too early, so
+  the outer fifth of the disc was one flat band), an "Explore this color"
+  button that scrolled off the bottom of a phone in landscape and could not be
+  reached at all, color codes set in the wrong typeface, a "BRIGHT" label
+  running underneath its own slider, and — the worst of them — a focused text
+  field that turned the same orange as an *invalid* one, so while you were
+  typing there was no way to tell a good value from a bad one.
+
+  None of that was catchable by the tests, because the tools that run them
+  have no idea what a page looks like: no fonts, no layout, no notion that one
+  style rule can quietly outrank another. They can only check that the logic is
+  right, and the logic *was* right. Asking someone to go and look was the only
+  thing that would have found it — which is why the checklist at the end of the
+  plan is not a formality.
 
 ## [1.3.3] — 2026-07-28 — Counting visits, without counting the owner
 
