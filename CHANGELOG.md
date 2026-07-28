@@ -28,6 +28,46 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## [1.4.0] — 2026-07-28 — Pick a color, in whatever language you have it
+
+> **Owner asked for:** "i like that ability to pick hex. but now i like the
+> idea you gave before about using the color wheel selector where users can
+> find a color, provide a hex, RGB, or CYMK color. this all makes it easier to
+> use for the end user to explore a color"
+
+- **"Paste a hex" became "Pick a color".** The sampler's third source is now a
+  color wheel with a brightness slider, alongside **HEX, RGB and CMYK** fields
+  that all stay in sync — turn the wheel and all three update; type into any
+  one and the wheel follows. Pasting a hex still works exactly as it did; it is
+  simply no longer the only way in. Everything downstream is untouched: you
+  still land on the 12 nearest book colors and jump into Match or Browse.
+- **The CMYK numbers are exact, not approximate.** Converting the book's own
+  stored CMYK back to color reproduces its RGB on every channel for 156 of the
+  157 colors (the odd one out, *Dull Violet Black*, has a malformed value in
+  the source data). So typing a CMYK build from the book lands dead-on that
+  color rather than merely near it — and a test now pins that, so the day the
+  upstream data changes, we hear about it.
+- **A design the owner reversed after seeing it running.** The first plan was
+  to plot all 157 book colors as dots on the wheel. It sounded good described
+  in words and was chosen that way. Built as a live mockup against the real
+  colors, it was wrong — on a control whose whole job is aiming at a color, the
+  dots compete with the target:
+
+  > "i like A - no overlay"
+
+  The plot itself was worth keeping, just not there:
+
+  > "fwiw i did like seeing the colors pointed on the circle. i liked how you
+  > can plot all the points and then also points in same brightness. that would
+  > be a cool thing to add to the color explorer page when you're looking at
+  > all the raw individual colors"
+
+  So it moves to the Browse page as its own feature, and all four mockup
+  variants are kept in `docs/superpowers/specs/` as that work's starting point.
+  This is the part worth noticing: the round trip from "sounds right" to
+  "actually wrong" took one mockup and one look, and it happened *before* any
+  of it was built.
+
 ## [1.3.3] — 2026-07-28 — Counting visits, without counting the owner
 
 > **Owner asked for:** "i want to add a google analytics tracker for the site:

@@ -5,12 +5,13 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.3.3 shipped (2026-07-28) — the published site now reports
-> visits to Google Analytics (see [Analytics](#analytics)); nothing a visitor
-> sees changed. On top of the touchscreen wheel (v1.3.2), the hex/photo color
-> sampler (v1.3), and accessibility goggles (v1.2). Live at
-> https://chendaniely.github.io/color-combinations/ — this README always
-> reflects the current state of the project.
+> **Status:** v1.4.0 shipped (2026-07-28) — Sample a color's third source is
+> now **Pick a color**: a color wheel with a brightness slider plus synced
+> HEX/RGB/CMYK fields (see [Sample a color](#sample-a-color)), replacing the
+> hex-only picker. On top of analytics (v1.3.3), the touchscreen wheel
+> (v1.3.2), the hex/photo color sampler (v1.3), and accessibility goggles
+> (v1.2). Live at https://chendaniely.github.io/color-combinations/ — this
+> README always reflects the current state of the project.
 
 ## What you need installed (one-time setup)
 
@@ -69,7 +70,7 @@ to feed in a color — all landing on the same result:
 
 - **Camera** (on devices that have one) — point at something and tap the color.
 - **Upload a photo** — pick an image and tap/eyedrop a region.
-- **Paste a hex** — type `#F26522`, `#236192`, or any 3-/6-digit hex.
+- **Pick a color** — turn a color wheel, or type a hex, RGB, or CMYK value.
 
 You then see the **12 nearest book colors** (with a "very close / close /
 roughly" label), pick one, choose Color / Shade / Family, and jump into **Match**

@@ -153,3 +153,14 @@ Design + plan: `docs/superpowers/specs/2026-07-21-accessibility-goggles-design.m
       `parseHex` in core kernel enable text hex input alongside camera/upload,
       feeding the same `nearestColors` + `ColorMatches` result grid. Done in
       fc9d8ff..932c687 + 4d56e56 (2026-07-22)
+
+## Session 14 — color picker (2026-07-28)
+
+- [x] Color sampler — a color-wheel / RGB-slider source alongside camera /
+      upload / hex. Shipped as "Pick a color": an HSV wheel with a brightness
+      slider plus synced HEX/RGB/CMYK fields, replacing the hex-only picker.
+      Pure math in `src/core/colorMath.ts` (`rgbToHsv`/`hsvToRgb`,
+      `rgbToCmyk`/`cmykToRgb`, `parseRgb`/`parseCmyk`) and a new pure
+      `src/core/discGeometry.ts` so the wheel's geometry is unit-testable
+      without a DOM. The book-color overlay was mocked up and rejected — see
+      TODO.md. Code: d2ff5f6..3b83f17 (2026-07-28)

@@ -132,7 +132,7 @@ Move finished items to TODO-completed.md with the commit hash.
 - [ ] `src/components/MatchPage.tsx`: the always-on lede "Start from a shade
       you have…" and the "Add a shade" section heading read wrong when the
       Colors (level 0) tab is active — generalize the copy.
-- [ ] Overlay a11y (`ColorCapture`/`ColorSampler`/`ImagePicker`/`HexPicker`
+- [ ] Overlay a11y (`ColorCapture`/`ColorSampler`/`ImagePicker`/`ColorPicker`
       `.cam-overlay`, `role="dialog"`): no `aria-modal`, no Escape-to-close,
       no focus trap — add for a later a11y pass.
 - [ ] Accessibility goggles — APCA / WCAG-3 perceptual-contrast lens (v1 uses
@@ -161,6 +161,15 @@ Move finished items to TODO-completed.md with the commit hash.
       `object-fit: contain` display and a `fit` param on `sampleCanvasAt`
       (`Math.min` for contain vs the current `Math.max` cover) — deferred from
       the hex-photo-explorer final review.
-- [ ] Color sampler — a color-wheel / RGB-slider source alongside camera /
-      upload / hex (deferred from the hex-photo-explorer brainstorm; the hex
-      text field covers v1).
+- [ ] Browse page — plot all 157 colors on a hue/saturation disc with a
+      brightness slider that slices to the colors at that lightness (owner:
+      "i liked how you can plot all the points and then also points in same
+      brightness"). Deferred from the color-picker session as its own feature;
+      open questions: does clicking a dot filter Browse, how does it interact
+      with the accessibility goggles, what does it do on a phone. Starting
+      point: discs B and D in
+      `docs/superpowers/specs/2026-07-27-color-picker-disc-mockup.html`.
+- [ ] Color picker — do NOT add the book-color overlay to the picker disc. It
+      was mocked up live against all 157 colors and rejected: on a control whose
+      job is aiming at a color, the dots compete with the target. The plot
+      belongs on Browse (above), not here.

@@ -867,3 +867,76 @@ contains the tag, and the running dev server's HTML contains zero occurrences of
 
 **No new dependencies** (`transformIndexHtml` is core Vite). Shipped as
 **v1.3.3** — a patch, since nothing a visitor sees or interacts with changed.
+
+## 2026-07-28 — Session 14: color picker (wheel + HEX/RGB/CMYK)
+
+**Owner prompt (verbatim — typos preserved):**
+
+> i like that ability to pick hex. but now i like the idea you gave before
+> about using the color wheel selector where users can find a color, provide
+> a hex, RGB, or CYMK color. this all makes it easier to use for the end user
+> to explore a color
+
+**Owner prompt (asked what else needed deciding):**
+
+> what other questions do you ahve?
+
+**Owner prompt (asked to see it running before deciding):**
+
+> yes mock up
+
+**Owner prompt (rejected the book-color overlay on sight):**
+
+> i like A - no overlay
+
+**Owner prompt (the plot idea kept, just moved):**
+
+> fwiw i did like seeing the colors pointed on the circle. i liked how you can
+> plot all the points and then also points in same brightness. that would be a
+> cool thing to add to the color explorer page when you're looking at all the
+> raw individual colors
+
+**Owner prompt (approved the spec):**
+
+> ok this looks fine. let' sjust go for it!
+
+**Owner prompt (kickoff):**
+
+> lets goooo!!!!!
+
+**Decisions reached:**
+
+- The wheel **absorbs** the hex source rather than becoming a fourth tile —
+  "Paste a hex" becomes "Pick a color", so the menu stays at three sources and
+  there's one place to name a color you already have.
+- **HSV disc** (hue around, saturation outward) plus a brightness slider, over
+  an HSL disc or a hue-ring-and-square. Familiar from every design tool, and
+  the whole gamut is two gestures away.
+- **All three notations visible and editable**, over a single field with a
+  HEX/RGB/CMYK toggle — it matches the stack already on every color's detail
+  page, and watching all three move together quietly shows how they relate.
+- **The book-color overlay was chosen, then rejected.** Picked in the abstract;
+  built as a live mockup against the real 157 colors; rejected on sight, because
+  on a control for aiming at a color the dots compete with the target. The plot
+  moves to the Browse page as its own feature (see TODO.md).
+- **CMYK here is exact, not approximate.** The plain formula reproduces the
+  book's stored RGB from its stored CMYK for 156/157 colors, so it is the
+  dataset's own convention — no soft-proofing caveat needed. (True CMYK
+  soft-proofing stays ruled out for the print accessibility lens; that is a
+  different problem.)
+- **Brightness runs the full 0–100, not floored** — the book contains a literal
+  Black at V=0, and any floor would make one of the 157 colors unreachable.
+- Zero new dependencies: CSS gradients plus pure math, no D3, nothing in
+  `src/viz/`.
+
+**What happened:** designed and planned across two docs commits (`a7e3392`
+spec, `8a170ad` plan, `7f2ddce` a keyboard-testing note), then executed
+subagent-driven in 8 tasks (`d2ff5f6..3b83f17`), each task-reviewed: pure
+`rgbToHsv`/`hsvToRgb` and `rgbToCmyk`/`cmykToRgb` in `src/core/colorMath.ts`,
+`parseRgb`/`parseCmyk` alongside the existing `parseHex`, a new pure
+`src/core/discGeometry.ts`, `ColorFields` (synced HEX/RGB/CMYK entry) and
+`ColorDisc` (the HSV wheel with keyboard control), and `ColorPicker` wired in
+to replace the old `HexPicker`. Shipped as **v1.4.0**.
+
+**Spec:** `docs/superpowers/specs/2026-07-27-color-picker-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-27-color-picker.md`
