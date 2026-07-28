@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ColorFields } from '../src/components/sample/ColorFields'
 import { rgbToHsv } from '../src/core/colorMath'
@@ -77,13 +77,16 @@ describe('ColorFields (jsdom)', () => {
     const hex = screen.getByLabelText('Hex') as HTMLInputElement
     const rgb = screen.getByLabelText('RGB') as HTMLInputElement
 
-    // Type an unparseable draft into hex
+    // Focus hex for real, then type an unparseable draft into it.
+    act(() => { hex.focus() })
     fireEvent.change(hex, { target: { value: '#ZZZ' } })
     expect(hex.getAttribute('aria-invalid')).toBe('true')
 
-    // Interact with another field (blur fires when we blur the hex)
-    fireEvent.blur(hex)
-    fireEvent.focus(rgb)
+    // Move focus to the RGB field, the way a real click would. jsdom fires a
+    // genuine blur on hex synchronously as part of this focus transfer, which
+    // is what should discard the bad draft. Wrapping in act() flushes the
+    // resulting state update before we assert on it.
+    act(() => { rgb.focus() })
 
     // Hex should revert to the committed color and no longer be marked invalid
     expect(hex.value).toBe('#236192')
