@@ -1,6 +1,6 @@
 // The single serializable app-state object and its reducer.
 // Core kernel: no imports outside src/core.
-import type { AccessLensId, GranularityLevel, SizeBucket } from './types'
+import type { AccessLensId, GranularityLevel, SizeBucket, SkinReading } from './types'
 
 export type Selection =
   | { kind: 'color'; id: number }
@@ -10,8 +10,12 @@ export type Selection =
 
 export type MatchLevel = 0 | 1 | 2
 
+// How much of a combination must be the visitor's for it to be listed.
+// 0 every colour · 1 all but one · 2 half or more (default) · 3 any match
+export type FloorStop = 0 | 1 | 2 | 3
+
 export interface AppState {
-  view: 'wheel' | 'browse' | 'match'
+  view: 'wheel' | 'browse' | 'match' | 'you'
   granularity: GranularityLevel
   sizes: SizeBucket[]
   selection: Selection | null
@@ -19,6 +23,9 @@ export interface AppState {
   palette: { level: MatchLevel; keys: string[] }
   browse: { family: string; shade: string; colorId: string }
   access: AccessLensId[]
+  // The personal-colour reading. Numbers and short strings only — the
+  // photograph is discarded after the capture and never lands here.
+  you: { reading: SkinReading | null; season: string | null; floor: FloorStop }
 }
 
 export type Action =
@@ -35,6 +42,10 @@ export type Action =
   | { type: 'clearPalette' }
   | { type: 'setBrowseFilter'; browse: { family: string; shade: string; colorId: string } }
   | { type: 'toggleAccess'; id: AccessLensId }
+  | { type: 'setReading'; reading: SkinReading }
+  | { type: 'setSeason'; season: string | null }
+  | { type: 'setFloor'; floor: FloorStop }
+  | { type: 'clearReading' }
 
 export const initialState: AppState = {
   view: 'wheel',
@@ -45,6 +56,7 @@ export const initialState: AppState = {
   palette: { level: 1, keys: [] },
   browse: { family: '', shade: '', colorId: '' },
   access: [],
+  you: { reading: null, season: null, floor: 2 },
 }
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -94,5 +106,15 @@ export function reducer(state: AppState, action: Action): AppState {
         : [...state.access, action.id]
       return { ...state, access }
     }
+    case 'setReading':
+      // A fresh reading invalidates any season the visitor had picked for the
+      // previous one.
+      return { ...state, you: { ...state.you, reading: action.reading, season: null } }
+    case 'setSeason':
+      return { ...state, you: { ...state.you, season: action.season } }
+    case 'setFloor':
+      return { ...state, you: { ...state.you, floor: action.floor } }
+    case 'clearReading':
+      return { ...state, you: { reading: null, season: null, floor: state.you.floor } }
   }
 }
