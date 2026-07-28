@@ -59,3 +59,40 @@ export function readableTextOn(hex: string): 'dark' | 'light' {
   const luma = 0.299 * r + 0.587 * g + 0.114 * b
   return luma > 150 ? 'dark' : 'light'
 }
+
+export type HSV = { h: number; s: number; v: number }
+
+// Hue-saturation-value. Hue is undefined for grays and reported as 0 — callers
+// that need to preserve a user's hue through a gray must hold HSV themselves
+// rather than round-tripping through RGB.
+export function rgbToHsv([r, g, b]: RGB): HSV {
+  const rn = r / 255
+  const gn = g / 255
+  const bn = b / 255
+  const max = Math.max(rn, gn, bn)
+  const min = Math.min(rn, gn, bn)
+  const d = max - min
+  let h = 0
+  if (d !== 0) {
+    if (max === rn) h = 60 * (((gn - bn) / d) % 6)
+    else if (max === gn) h = 60 * ((bn - rn) / d + 2)
+    else h = 60 * ((rn - gn) / d + 4)
+    if (h < 0) h += 360
+  }
+  return { h, s: max === 0 ? 0 : d / max, v: max }
+}
+
+export function hsvToRgb({ h, s, v }: HSV): RGB {
+  const c = v * s
+  const hp = ((((h % 360) + 360) % 360)) / 60
+  const x = c * (1 - Math.abs((hp % 2) - 1))
+  let base: [number, number, number]
+  if (hp < 1) base = [c, x, 0]
+  else if (hp < 2) base = [x, c, 0]
+  else if (hp < 3) base = [0, c, x]
+  else if (hp < 4) base = [0, x, c]
+  else if (hp < 5) base = [x, 0, c]
+  else base = [c, 0, x]
+  const m = v - c
+  return base.map((n) => Math.round((n + m) * 255)) as RGB
+}

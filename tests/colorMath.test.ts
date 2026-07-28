@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
-  hexToRgb, hueOf, isNeutral, readableTextOn, rgbToHsl,
+  hexToRgb, hsvToRgb, hueOf, isNeutral, readableTextOn, rgbToHsl, rgbToHsv,
 } from '../src/core/colorMath'
 
 describe('colorMath', () => {
@@ -25,5 +26,39 @@ describe('colorMath', () => {
   it('picks readable text color', () => {
     expect(readableTextOn('#1b3644')).toBe('light') // dark slate → light text
     expect(readableTextOn('#ffcfc4')).toBe('dark')
+  })
+  it('converts to hsv', () => {
+    expect(rgbToHsv([255, 0, 0]).h).toBeCloseTo(0)
+    expect(rgbToHsv([255, 0, 0]).s).toBeCloseTo(1)
+    expect(rgbToHsv([255, 0, 0]).v).toBeCloseTo(1)
+    expect(rgbToHsv([0, 255, 0]).h).toBeCloseTo(120)
+    expect(rgbToHsv([0, 0, 255]).h).toBeCloseTo(240)
+  })
+  it('reports zero saturation for grays and black', () => {
+    expect(rgbToHsv([128, 128, 128]).s).toBe(0)
+    expect(rgbToHsv([128, 128, 128]).v).toBeCloseTo(128 / 255)
+    expect(rgbToHsv([0, 0, 0]).s).toBe(0)
+    expect(rgbToHsv([0, 0, 0]).v).toBe(0)
+  })
+  it('hsvToRgb inverts rgbToHsv', () => {
+    expect(hsvToRgb({ h: 0, s: 1, v: 1 })).toEqual([255, 0, 0])
+    expect(hsvToRgb({ h: 0, s: 0, v: 0 })).toEqual([0, 0, 0])
+    expect(hsvToRgb(rgbToHsv([35, 97, 146]))).toEqual([35, 97, 146])
+  })
+  it('hsvToRgb wraps hue outside 0-360', () => {
+    expect(hsvToRgb({ h: 360, s: 1, v: 1 })).toEqual(hsvToRgb({ h: 0, s: 1, v: 1 }))
+    expect(hsvToRgb({ h: -120, s: 1, v: 1 })).toEqual(hsvToRgb({ h: 240, s: 1, v: 1 }))
+  })
+  it('round-trips every book color through HSV without drift', () => {
+    // The picker holds HSV and derives RGB for display on every render, so any
+    // drift here would show up as the hex silently changing while the user
+    // drags the brightness slider.
+    const book = JSON.parse(readFileSync('data/processed/colors-data.json', 'utf8')) as {
+      colors: { name: string; rgb: [number, number, number] }[]
+    }
+    const drifted = book.colors.filter(
+      (c) => hsvToRgb(rgbToHsv(c.rgb)).some((n, i) => n !== c.rgb[i]),
+    )
+    expect(drifted.map((c) => c.name)).toEqual([])
   })
 })
