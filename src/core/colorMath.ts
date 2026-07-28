@@ -119,22 +119,35 @@ export function cmykToRgb([c, m, y, k]: CMYK): RGB {
     .map((n) => Math.round(n * 255)) as RGB
 }
 
-// Shared shape for parseRgb/parseCmyk: strip an optional `name(...)` wrapper,
-// split on commas / whitespace / slashes, then bounds-check. Returns null
-// rather than throwing, matching parseHex's contract.
-function parseTuple(input: string, arity: number, max: number): number[] | null {
-  const body = input.trim().replace(/^[a-z]+\s*\(/i, '').replace(/\)$/, '')
+// Shared shape for parseRgb/parseCmyk: strip an optional `label(...)` wrapper
+// — the wrapper name must match `label` exactly (case-insensitively), so
+// pasting the wrong notation's wrapper (e.g. `rgb(...)` into the CMYK field)
+// is rejected rather than silently accepted — then split on commas /
+// whitespace / slashes, then bounds-check. Never throws; returns null rather
+// than an exception, matching parseHex's contract.
+function parseTuple(input: string, arity: number, max: number, label: string): number[] | null {
+  const trimmed = input.trim()
+  const wrapperRe = new RegExp(`^${label}\\s*\\(`, 'i')
+  const hasWrapper = wrapperRe.test(trimmed)
+  const hasTrailingParen = trimmed.endsWith(')')
+  // Parens must balance: a consumed opening wrapper requires its closing
+  // paren, and a bare (unwrapped) tuple must not have a stray trailing one.
+  if (hasWrapper !== hasTrailingParen) return null
+  const body = hasWrapper ? trimmed.replace(wrapperRe, '').slice(0, -1) : trimmed
   const parts = body.split(/[\s,/]+/).filter((p) => p.length > 0)
   if (parts.length !== arity) return null
-  const values = parts.map(Number)
+  // Plain decimal only (digits with an optional fractional part) — reject
+  // hex (0x10) and exponential (1e2) literals that Number() would otherwise
+  // happily parse. Infinity/NaN fail this match too, so they stay rejected.
+  const values = parts.map((p) => (/^\d+(\.\d+)?$/.test(p) ? Number(p) : NaN))
   if (values.some((n) => !Number.isFinite(n) || n < 0 || n > max)) return null
   return values.map((n) => Math.round(n))
 }
 
 export function parseRgb(input: string): RGB | null {
-  return parseTuple(input, 3, 255) as RGB | null
+  return parseTuple(input, 3, 255, 'rgb') as RGB | null
 }
 
 export function parseCmyk(input: string): CMYK | null {
-  return parseTuple(input, 4, 100) as CMYK | null
+  return parseTuple(input, 4, 100, 'cmyk') as CMYK | null
 }

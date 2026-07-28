@@ -110,4 +110,25 @@ describe('color text parsers', () => {
     expect(parseCmyk('95, 106, 38, 50')).toBe(null) // Dull Violet Black's malformed M
     expect(parseCmyk('nope')).toBe(null)
   })
+  it('rejects a wrapper meant for the other notation (finding 1)', () => {
+    // The picker has one field per notation; pasting rgb(...) into the CMYK
+    // field must not be silently accepted as CMYK, and vice versa.
+    expect(parseCmyk('rgb(76,34,0,43)')).toBe(null)
+    expect(parseRgb('foo(35,97,146')).toBe(null)
+  })
+  it('still accepts a correctly wrapped value for each parser', () => {
+    expect(parseRgb('rgb(35, 97, 146)')).toEqual([35, 97, 146])
+    expect(parseCmyk('cmyk(76, 34, 0, 43)')).toEqual([76, 34, 0, 43])
+  })
+  it('rejects unbalanced parentheses (finding 2)', () => {
+    expect(parseRgb('35, 97, 146)')).toBe(null) // stray trailing paren, no wrapper
+    expect(parseRgb('rgb(35,97,146')).toBe(null) // wrapper opened but never closed
+  })
+  it('rejects non-decimal numeric literals (finding 3)', () => {
+    expect(parseRgb('0x10,0x10,0x10')).toBe(null) // hex literals
+    expect(parseRgb('1e2,1e2,1e2')).toBe(null) // exponential literals
+    // Infinity/NaN must stay rejected too.
+    expect(parseRgb('Infinity, Infinity, Infinity')).toBe(null)
+    expect(parseRgb('NaN, NaN, NaN')).toBe(null)
+  })
 })
