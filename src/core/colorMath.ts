@@ -96,3 +96,25 @@ export function hsvToRgb({ h, s, v }: HSV): RGB {
   const m = v - c
   return base.map((n) => Math.round((n + m) * 255)) as RGB
 }
+
+export type CMYK = [number, number, number, number]
+
+// Plain (uncalibrated) CMYK. This is not an approximation for this dataset —
+// it is the exact convention the book's own stored CMYK values use, so a typed
+// CMYK lands dead-on a book color. Not color management; see the spec.
+export function rgbToCmyk([r, g, b]: RGB): CMYK {
+  const k = 1 - Math.max(r, g, b) / 255
+  if (k === 1) return [0, 0, 0, 100]
+  return [
+    (1 - r / 255 - k) / (1 - k),
+    (1 - g / 255 - k) / (1 - k),
+    (1 - b / 255 - k) / (1 - k),
+    k,
+  ].map((n) => Math.round(n * 100)) as CMYK
+}
+
+export function cmykToRgb([c, m, y, k]: CMYK): RGB {
+  const kf = 1 - k / 100
+  return [(1 - c / 100) * kf, (1 - m / 100) * kf, (1 - y / 100) * kf]
+    .map((n) => Math.round(n * 255)) as RGB
+}

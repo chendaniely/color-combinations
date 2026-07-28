@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
-  hexToRgb, hsvToRgb, hueOf, isNeutral, readableTextOn, rgbToHsl, rgbToHsv,
+  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, readableTextOn, rgbToCmyk, rgbToHsl, rgbToHsv,
 } from '../src/core/colorMath'
 
 describe('colorMath', () => {
@@ -60,5 +60,27 @@ describe('colorMath', () => {
       (c) => hsvToRgb(rgbToHsv(c.rgb)).some((n, i) => n !== c.rgb[i]),
     )
     expect(drifted.map((c) => c.name)).toEqual([])
+  })
+})
+
+describe('cmyk matches the book', () => {
+  const book = JSON.parse(readFileSync('data/processed/colors-data.json', 'utf8')) as {
+    colors: { name: string; rgb: [number, number, number]; cmyk: [number, number, number, number] }[]
+  }
+
+  it('round-trips rgb through cmyk', () => {
+    expect(rgbToCmyk([255, 255, 255])).toEqual([0, 0, 0, 0])
+    expect(rgbToCmyk([0, 0, 0])).toEqual([0, 0, 0, 100])
+    expect(cmykToRgb([0, 0, 0, 100])).toEqual([0, 0, 0])
+    expect(cmykToRgb([0, 30, 6, 0])).toEqual([255, 179, 240]) // Hermosa Pink
+  })
+
+  it("reproduces every book color's stored RGB from its stored CMYK", () => {
+    const off = book.colors.filter(
+      (c) => cmykToRgb(c.cmyk).some((n, i) => n !== c.rgb[i]),
+    )
+    // Exactly one known-malformed source record (M = 106%). If this count
+    // changes, the upstream data changed — investigate before touching this test.
+    expect(off.map((c) => c.name)).toEqual(['Dull Violet Black'])
   })
 })
