@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Color picker — disc mockups (2026-07-27)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=EB+Garamond:ital@0;1&display=swap">
+<style>
+  :root{
+    --paper-1:#f8f6f2;--paper-2:#f0ebe2;--ink:#2f2a26;--muted:#7e7468;--faint:#b8aea2;
+    --hairline:#e8ddd2;--accent:#f26522;--link:#236192;
+    --serif:'EB Garamond',Georgia,serif;--ui:'Atkinson Hyperlegible',system-ui,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:linear-gradient(165deg,var(--paper-1),var(--paper-2));color:var(--ink);
+    font-family:var(--ui);line-height:1.5;min-height:100vh}
+  .topbar{display:flex;align-items:baseline;justify-content:space-between;gap:20px;
+    padding:16px 30px;border-bottom:1px solid var(--hairline)}
+  .brand{font-family:var(--serif);font-size:1.3rem;letter-spacing:.1em}
+  .brand .seal{color:var(--accent)}
+  .nav{font-size:.82rem;letter-spacing:.08em;color:var(--muted)}
+  main{max-width:1000px;margin:0 auto;padding:34px 30px 80px}
+  h1{font-family:var(--serif);font-weight:500;font-size:1.9rem;margin-bottom:6px}
+  h2{font-family:var(--serif);font-weight:500;font-size:1.35rem;margin:44px 0 4px}
+  .lede{color:var(--muted);font-size:.92rem;max-width:64ch}
+  .label{font-family:var(--mono);font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+  .verdict{border-left:2px solid var(--accent);padding:10px 0 10px 16px;margin:18px 0 0;
+    font-size:.9rem;max-width:70ch}
+  .verdict b{color:var(--accent)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:24px;margin-top:22px}
+  .panel{background:rgba(255,255,255,.5);border:1px solid var(--hairline);border-radius:8px;padding:16px}
+  .panel > .label{display:block;margin-bottom:12px}
+  .panel .label em{font-style:normal;color:var(--ink);font-weight:700}
+  .chosen{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+
+  .stage{position:relative;width:226px;height:226px;margin:0 auto;touch-action:none;cursor:crosshair}
+  .face{position:absolute;inset:0;border-radius:50%;
+    background:
+      radial-gradient(circle closest-side,#fff 0%,rgba(255,255,255,0) 78%),
+      conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
+    box-shadow:0 0 0 1px rgba(0,0,0,.14) inset}
+  .layer{position:absolute;inset:0;pointer-events:none}
+  .layer i{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;
+    transition:opacity .18s ease}
+  .layer.fill i{border:1px solid rgba(0,0,0,.5)}
+  .layer.ring i{border:1px solid rgba(0,0,0,.6);box-shadow:0 0 0 1px rgba(255,255,255,.55)}
+  .pin{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;
+    border:2px solid #fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.35);
+    pointer-events:none;left:50%;top:50%}
+  .bright{display:flex;align-items:center;gap:10px;margin:16px 0 0}
+  .bright input{flex:1;accent-color:var(--link)}
+  .bright output{font-family:var(--mono);font-size:.72rem;color:var(--muted);min-width:3.2em;text-align:right}
+  .read{margin-top:10px;text-align:center;font-family:var(--mono);font-size:.76rem;color:var(--muted)}
+  .read span{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;
+    margin-right:6px;border:1px solid var(--hairline)}
+
+  .fields{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .field{display:flex;align-items:center;gap:10px}
+  .field .label{width:3.6em;flex:none}
+  .field input{flex:1;font-family:var(--mono);font-size:.82rem;color:var(--ink);background:none;
+    border:0;border-bottom:1px solid var(--hairline);padding:4px 2px}
+  .field input:focus{outline:none;border-bottom-color:var(--link)}
+  .field input[aria-invalid="true"]{border-bottom-color:var(--accent)}
+  .swatch-row{display:flex;align-items:center;gap:12px;margin-top:18px}
+  .swatch{width:40px;height:40px;border-radius:6px;border:1px solid var(--hairline);flex:none}
+  .cta{font-family:var(--ui);font-size:.86rem;background:var(--link);color:#fff;border:0;
+    border-radius:6px;padding:10px 16px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="seal">✦</span> SANZO WADA</div>
+  <div class="nav">Mockup · color picker · 2026-07-27</div>
+</div>
+<main>
+  <h1>Pick a color — disc mockups</h1>
+  <p class="lede">Round run during the Session 11 brainstorm to settle one question: should the
+  picker's disc plot the book's 157 colors on top of the hue/saturation field? All four discs below
+  are live — drag them, and the brightness slider drives each panel independently.</p>
+
+  <div class="verdict">
+    <b>Outcome:</b> the picker ships as <b>A, a plain disc</b>. Seeing the overlay live is what
+    settled it — on a control whose whole job is aiming at a color, the dots compete with the
+    target instead of helping you hit it. <b>B and D were not thrown away:</b> the owner liked the
+    plot itself, so it moves to the Browse page as a separate "map of the book" feature, where
+    reading the collection <em>is</em> the job. Kept here as that feature's starting point.
+  </div>
+
+  <h2>The four options</h2>
+  <div class="grid" id="grid">
+    <div class="panel chosen">
+      <span class="label"><em>A</em> — no overlay · chosen</span>
+      <div class="stage" data-mode="none"><div class="face"></div><div class="layer"></div><div class="pin"></div></div>
+      <div class="bright"><span class="label">Bright</span><input type="range" min="12" max="100" value="100"><output>100%</output></div>
+      <p class="read"><span></span><em>—</em></p>
+    </div>
+    <div class="panel">
+      <span class="label"><em>B</em> — dots in their own color</span>
+      <div class="stage" data-mode="fill"><div class="face"></div><div class="layer fill"></div><div class="pin"></div></div>
+      <div class="bright"><span class="label">Bright</span><input type="range" min="12" max="100" value="100"><output>100%</output></div>
+      <p class="read"><span></span><em>—</em></p>
+    </div>
+    <div class="panel">
+      <span class="label"><em>C</em> — hairline rings</span>
+      <div class="stage" data-mode="ring"><div class="face"></div><div class="layer ring"></div><div class="pin"></div></div>
+      <div class="bright"><span class="label">Bright</span><input type="range" min="12" max="100" value="100"><output>100%</output></div>
+      <p class="read"><span></span><em>—</em></p>
+    </div>
+    <div class="panel">
+      <span class="label"><em>D</em> — brightness slice</span>
+      <div class="stage" data-mode="near"><div class="face"></div><div class="layer fill"></div><div class="pin"></div></div>
+      <div class="bright"><span class="label">Bright</span><input type="range" min="12" max="100" value="100"><output>100%</output></div>
+      <p class="read"><span></span><em>—</em></p>
+    </div>
+  </div>
+
+  <h2>The screen we're building</h2>
+  <p class="lede">Plain disc, brightness slider, and all three notations stacked and editable in the
+  order the color detail page already uses. Type into any field and the disc and the other two
+  follow; drag the disc and all three update. This panel is fully working — it is the reference
+  implementation the spec describes.</p>
+  <div class="grid">
+    <div class="panel chosen" style="max-width:300px">
+      <span class="label">Pick a color</span>
+      <div class="stage" id="pick" data-mode="none"><div class="face"></div><div class="layer"></div><div class="pin"></div></div>
+      <div class="bright"><span class="label">Bright</span><input id="pv" type="range" min="0" max="100" value="57"><output id="pvo">57%</output></div>
+      <div class="fields">
+        <div class="field"><span class="label">Hex</span><input id="fHex" spellcheck="false"></div>
+        <div class="field"><span class="label">RGB</span><input id="fRgb" spellcheck="false"></div>
+        <div class="field"><span class="label">CMYK</span><input id="fCmyk" spellcheck="false"></div>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch" id="pswatch"></div>
+        <button class="cta">Explore this color</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const DOTS = [["Hermosa Pink","#ffb3f0",311.8,0.298,1],["Corinthian Pink","#ffa6d9",325.6,0.349,1],["Cameo Pink","#e6adcf",324.2,0.248,0.902],["Fawn","#d1b0b3",354.5,0.158,0.82],["Light Brown Drab","#b08699",332.9,0.239,0.69],["Coral Red","#ff7399",343.7,0.549,1],["Fresh Color","#ff788c",351.1,0.529,1],["Grenadine Pink","#ff616b",356.2,0.62,1],["Eosine Pink","#ff5ec4",322,0.631,1],["Spinel Red","#ff4dc9",318.2,0.698,1],["Old Rose","#d94d99",327.4,0.645,0.851],["Eugenia Red | A","#ed3d66",346,0.743,0.929],["Eugenia Red | B","#e62e73",337.5,0.8,0.902],["Raw Sienna","#b85e00",30.7,1,0.722],["Vinaceous Tawny","#c74300",20.2,1,0.78],["Jasper Red","#fa2b00",10.3,1,0.98],["Spectrum Red","#f20000",0,1,0.949],["Red Orange","#e81900",6.5,1,0.91],["Etruscan Red","#c9303e",354.5,0.761,0.788],["Burnt Sienna","#a93400",18.5,1,0.663],["Ochre Red","#a7374b",349.3,0.671,0.655],["Scarlet","#d50c42",343.9,0.944,0.835],["Carmine","#d60036",344.9,1,0.839],["Indian Lake","#cc1a97",317.9,0.873,0.8],["Rosolanc Purple","#b319ab",303.1,0.86,0.702],["Pomegranite Purple","#b90078",321.1,1,0.725],["Hydrangea Red","#9e194d",336.5,0.842,0.62],["Brick Red","#a32100",12.1,1,0.639],["Carmine Red","#a10b2b",347.2,0.932,0.631],["Pompeian Red","#a90636",342.3,0.964,0.663],["Red","#a10045",334.3,1,0.631],["Brown","#6c2b11",17.1,0.843,0.424],["Hay's Russet","#681916",2.2,0.788,0.408],["Vandyke Red","#740909",0,0.922,0.455],["Pansy Purple","#6f0043",323.8,1,0.435],["Pale Burnt Lake","#730f1f",350.4,0.87,0.451],["Violet Red","#3d0079",270.2,1,0.475],["Vistoris Lake","#5c2c45",328.8,0.522,0.361],["Sulpher Yellow","#f5f5b8",60,0.249,0.961],["Pale Lemon Yellow","#fff59e",53.8,0.38,1],["Naples Yellow","#faed8f",52.7,0.428,0.98],["Ivory Buff","#ebd999",46.8,0.349,0.922],["Seashell Pink","#ffcfc4",11.2,0.231,1],["Light Pinkish Cinnamon","#ffbf99",22.4,0.4,1],["Pinkish Cinnamon","#f2ad78",26.1,0.504,0.949],["Cinnamon Buff","#ffbf6e",33.5,0.569,1],["Cream Yellow","#ffb852",35.4,0.678,1],["Golden Yellow","#fa9442",26.7,0.736,0.98],["Vinaceous Cinnamon","#f59994",3.1,0.396,0.961],["Ochraceous Salmon","#d99e73",25.3,0.47,0.851],["Isabella Color","#c3a55c",42.5,0.528,0.765],["Maple","#c2975a",35.2,0.536,0.761],["Olive Buff","#bcd382",77,0.384,0.827],["Ecru","#c0b490",45,0.25,0.753],["Yellow","#ffff00",60,1,1],["Lemon Yellow","#f2ff26",63.6,0.851,1],["Apricot Yellow","#ffe600",54.1,1,1],["Pyrite Yellow","#c4bf33",57.9,0.74,0.769],["Olive Ocher","#d1bd19",53.5,0.88,0.82],["Yellow Ocher","#e0b81f",47.6,0.862,0.878],["Orange Yellow","#ffab00",40.2,1,1],["Yellow Orange","#ff8c00",32.9,1,1],["Apricot Orange","#ff7340",16,0.749,1],["Orange","#ff5200",19.3,1,1],["Peach Red","#ff3319",6.8,0.902,1],["English Red","#de4500",18.6,1,0.871],["Cinnamon Rufous","#c2612c",21.2,0.773,0.761],["Orange Rufous","#c05200",25.6,1,0.753],["Sulphine Yellow","#baa600",53.5,1,0.729],["Khaki","#b68400",43.5,1,0.714],["Citron Yellow","#a6d40d",73.9,0.939,0.831],["Buffy Citrine","#888d2a",63,0.702,0.553],["Dark Citrine","#7e8743",67.9,0.504,0.529],["Light Grayish Olive","#76844e",75.6,0.409,0.518],["Krongbergs Green","#759243",82,0.541,0.573],["Olive","#718600",69.4,1,0.525],["Orange Citrine","#8c6510",41.1,0.886,0.549],["Sudan Brown","#9b5348",8,0.535,0.608],["Olive Green","#58771e",80.9,0.748,0.467],["Light Brownish Olive","#706934",53,0.536,0.439],["Deep Grayish Olive","#505423",64.9,0.583,0.329],["Pale Raw Umber","#5e4017",34.6,0.755,0.369],["Sepia","#503d00",45.8,1,0.314],["Madder Brown","#651300",11.3,1,0.396],["Mars Brown / Tobacco","#522000",23.4,1,0.322],["Vandyke Brown","#362304",37.2,0.926,0.212],["Turquoise Green","#b5ffc2",130.5,0.29,1],["Glaucous Green","#b3e8c2",137,0.228,0.91],["Dark Greenish Glaucous","#b3d9a3",102.2,0.249,0.851],["Yellow Green","#a6ff47",89,0.722,1],["Light Green Yellow","#bdf226",75.6,0.843,0.949],["Night Green","#7aff00",91.3,1,1],["Olive Yellow","#99b333",72.2,0.715,0.702],["Artemesia Green","#65a98f",157.1,0.402,0.663],["Andover Green","#5c8a73",150,0.333,0.541],["Rainette Green","#85b857",91.5,0.527,0.722],["Pistachio Green","#56aa69",133.6,0.494,0.667],["Sea Green","#33ff7d",141.8,0.8,1],["Benzol Green","#00d973",151.8,1,0.851],["Light Porcelain Green","#23c17c",153.8,0.819,0.757],["Green","#40c945",122.2,0.682,0.788],["Dull Viridian Green","#19cc33",128.7,0.877,0.8],["Oil Green","#6ea900",80.9,1,0.663],["Diamine Green","#1b8e13",116.1,0.866,0.557],["Cossack Green","#328e13",104.9,0.866,0.557],["Lincoln Green","#405416",79.4,0.738,0.329],["Blackish Olive","#324e2a",106.7,0.462,0.306],["Deep Slate Olive","#172713",108,0.513,0.153],["Nile Blue","#bfffe6",156.6,0.251,1],["Pale King's Blue","#abf5ed",173.5,0.302,0.961],["Light Glaucous Blue","#a6e6db",169.7,0.278,0.902],["Salvia Blue","#96bfe6",209.3,0.348,0.902],["Cobalt Green","#94ff94",120,0.42,1],["Calamine BLue","#80ffcc",155.9,0.498,1],["Venice Green","#6bffb3",149.2,0.58,1],["Cerulian Blue","#29bdad",173.5,0.783,0.741],["Peacock Blue","#00cf91",162,1,0.812],["Green Blue","#2dbc94",163.2,0.761,0.737],["Olympic Blue","#4f8fe6",214.6,0.657,0.902],["Blue","#0d75ff",214.2,0.949,1],["Antwarp Blue","#008aa1",188.6,1,0.631],["Helvetia Blue","#0057ba",211.9,1,0.729],["Dark Medici Blue","#417777",180,0.454,0.467],["Dusky Green","#00592e",151,1,0.349],["Deep Lyons Blue","#0024cc",229.4,1,0.8],["Violet Blue","#202d85",232.3,0.759,0.522],["Vandar Poel's Blue","#003e83",211.6,1,0.514],["Dark Tyrian Blue","#0d2b52",213.9,0.841,0.322],["Dull Violet Black","#06004f",244.6,1,0.31],["Deep Indigo","#000831",230.2,1,0.192],["Deep Slate Green","#0f261f",161.7,0.605,0.149],["Grayish Lavender - A","#b8b8ff",240,0.278,1],["Grayish Lavender - B","#bfabcc",276.4,0.162,0.8],["Laelia Pink","#cc85d1",296.1,0.364,0.82],["Lilac","#b875eb",274.1,0.502,0.922],["Eupatorium Purple","#bf36e0",288.4,0.759,0.878],["Light Mauve","#9161f2",259.9,0.599,0.949],["Aconite Violet","#9c52f2",267.8,0.661,0.949],["Dull Blue Violet","#6e66d4",244.4,0.519,0.831],["Dark Soft Violet","#4d52de",237.9,0.653,0.871],["Blue Violet","#4733ff",245.9,0.8,1],["Purple Drab","#754260",324.7,0.436,0.459],["Deep Violet / Plumbeous","#5c7287",209.3,0.319,0.529],["Veronia Purple","#7e3075",306.9,0.619,0.494],["Dark Slate Purple","#53225c",290.7,0.63,0.361],["Taupe Brown","#6b2e63",307.9,0.57,0.42],["Violet Carmine","#531745",314,0.723,0.325],["Violet","#2619d1",244.2,0.88,0.82],["Red Violet","#3400a3",259.1,1,0.639],["Cotinga Purple","#340059",275.1,1,0.349],["Dusky Madder Violet","#2d0060",268.1,1,0.376],["White","#ffffff",0,0,1],["Neutral Gray","#b5d1cc",169.3,0.134,0.82],["Mineral Gray","#9fc2b2",152.6,0.18,0.761],["Warm Gray","#9cb29e",125.5,0.124,0.698],["Slate Color","#1b3644",200.5,0.603,0.267],["Black","#000000",0,0,0]];
+const R = 113, C = 113;
+
+function hsvToRgb(h, s, v) {
+  const c = v * s, hp = ((h % 360) + 360) % 360 / 60, x = c * (1 - Math.abs((hp % 2) - 1));
+  let m;
+  if (hp < 1) m = [c,x,0]; else if (hp < 2) m = [x,c,0]; else if (hp < 3) m = [0,c,x];
+  else if (hp < 4) m = [0,x,c]; else if (hp < 5) m = [x,0,c]; else m = [c,0,x];
+  const o = v - c;
+  return m.map(function (n) { return Math.round((n + o) * 255) });
+}
+function rgbToHsv(r, g, b) {
+  const rn = r/255, gn = g/255, bn = b/255;
+  const max = Math.max(rn,gn,bn), min = Math.min(rn,gn,bn), d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === rn) h = 60 * (((gn-bn)/d) % 6);
+    else if (max === gn) h = 60 * ((bn-rn)/d + 2);
+    else h = 60 * ((rn-gn)/d + 4);
+    if (h < 0) h += 360;
+  }
+  return [h, max === 0 ? 0 : d/max, max];
+}
+function rgbToCmyk(r, g, b) {
+  const k = 1 - Math.max(r,g,b)/255;
+  if (k === 1) return [0,0,0,100];
+  return [ (1 - r/255 - k)/(1-k), (1 - g/255 - k)/(1-k), (1 - b/255 - k)/(1-k), k ]
+    .map(function (n) { return Math.round(n * 100) });
+}
+function cmykToRgb(c, m, y, k) {
+  return [ (1-c/100)*(1-k/100), (1-m/100)*(1-k/100), (1-y/100)*(1-k/100) ]
+    .map(function (n) { return Math.round(n * 255) });
+}
+function hex(rgb) { return '#' + rgb.map(function (n) { return n.toString(16).padStart(2,'0') }).join('') }
+function parseHex(t) {
+  const h = t.trim().replace(/^#/,'').toLowerCase();
+  if (!/^[0-9a-f]{3}$/.test(h) && !/^[0-9a-f]{6}$/.test(h)) return null;
+  const f = h.length === 3 ? h[0]+h[0]+h[1]+h[1]+h[2]+h[2] : h;
+  return [0,2,4].map(function (i) { return parseInt(f.slice(i,i+2),16) });
+}
+function nums(t, n, max) {
+  const p = t.trim().replace(/^[a-z]+\(/i,'').replace(/\)$/,'').split(/[\s,\/]+/).filter(Boolean);
+  if (p.length !== n) return null;
+  const v = p.map(Number);
+  if (v.some(function (x) { return !Number.isFinite(x) || x < 0 || x > max })) return null;
+  return v;
+}
+
+// ---- the four comparison discs ----
+document.querySelectorAll('#grid .stage').forEach(function (stage) {
+  const layer = stage.querySelector('.layer');
+  if (stage.dataset.mode !== 'none') {
+    DOTS.forEach(function (d) {
+      const a = (d[2] - 90) * Math.PI/180, r = d[3] * R;
+      const i = document.createElement('i');
+      i.style.left = (C + Math.cos(a)*r) + 'px';
+      i.style.top = (C + Math.sin(a)*r) + 'px';
+      if (stage.dataset.mode !== 'ring') i.style.background = d[1];
+      i.dataset.v = d[4];
+      i.title = d[0] + '  ' + d[1];
+      layer.appendChild(i);
+    });
+  }
+});
+
+function wire(stage, onPick) {
+  const panel = stage.closest('.panel');
+  const slider = panel.querySelector('.bright input');
+  const out = panel.querySelector('.bright output');
+  let H = 0, S = 0;
+  function paint() {
+    const V = slider.value / 100;
+    stage.querySelector('.face').style.filter = 'brightness(' + V + ')';
+    if (stage.dataset.mode === 'near') {
+      stage.querySelectorAll('.layer i').forEach(function (i) {
+        i.style.opacity = Math.abs(parseFloat(i.dataset.v) - V) < 0.14 ? '1' : '0.08';
+      });
+    }
+    const rgb = hsvToRgb(H, S, V), c = hex(rgb);
+    const pin = stage.querySelector('.pin');
+    const a = (H - 90) * Math.PI/180, r = S * R;
+    pin.style.left = (C + Math.cos(a)*r) + 'px';
+    pin.style.top = (C + Math.sin(a)*r) + 'px';
+    pin.style.background = c;
+    const read = panel.querySelector('.read');
+    if (read) { read.querySelector('span').style.background = c; read.querySelector('em').textContent = c.toUpperCase(); }
+    if (onPick) onPick(H, S, V, rgb, c);
+  }
+  function fromPointer(ev) {
+    const b = stage.getBoundingClientRect();
+    let dx = ev.clientX - b.left - C, dy = ev.clientY - b.top - C;
+    const dist = Math.hypot(dx, dy);
+    let h = Math.atan2(dy, dx) * 180/Math.PI + 90;
+    if (h < 0) h += 360;
+    H = h; S = Math.min(dist, R) / R;
+    paint();
+  }
+  let down = false;
+  stage.addEventListener('pointerdown', function (e) { down = true; stage.setPointerCapture(e.pointerId); fromPointer(e) });
+  stage.addEventListener('pointermove', function (e) { if (down) fromPointer(e) });
+  stage.addEventListener('pointerup', function () { down = false });
+  slider.addEventListener('input', function () { out.textContent = slider.value + '%'; paint() });
+  return { set: function (h, s, v) { H = h; S = s; slider.value = Math.round(v*100); out.textContent = slider.value + '%'; paint() }, paint: paint };
+}
+
+document.querySelectorAll('#grid .stage').forEach(function (s) { wire(s) });
+
+// ---- the chosen picker, with the three synced fields ----
+const fHex = document.getElementById('fHex'), fRgb = document.getElementById('fRgb'), fCmyk = document.getElementById('fCmyk');
+const pswatch = document.getElementById('pswatch');
+document.getElementById('pvo').textContent = '57%';
+const picker = wire(document.getElementById('pick'), function (h, s, v, rgb, c) {
+  // A field shows its own draft while focused; the others re-render from state.
+  if (document.activeElement !== fHex) fHex.value = c.toUpperCase();
+  if (document.activeElement !== fRgb) fRgb.value = rgb.join(', ');
+  if (document.activeElement !== fCmyk) fCmyk.value = rgbToCmyk(rgb[0],rgb[1],rgb[2]).join(', ');
+  pswatch.style.background = c;
+});
+function commit(input, parse) {
+  input.addEventListener('input', function () {
+    const rgb = parse(input.value);
+    input.setAttribute('aria-invalid', rgb ? 'false' : 'true');
+    if (!rgb) return;
+    const hsv = rgbToHsv(rgb[0], rgb[1], rgb[2]);
+    picker.set(hsv[0], hsv[1], hsv[2]);
+  });
+  input.addEventListener('blur', function () { input.setAttribute('aria-invalid','false'); picker.paint() });
+}
+commit(fHex, parseHex);
+commit(fRgb, function (t) { return nums(t, 3, 255) });
+commit(fCmyk, function (t) { const v = nums(t, 4, 100); return v && cmykToRgb(v[0],v[1],v[2],v[3]) });
+// Seed on NYC blue, the owner's brand link color.
+(function () { const hsv = rgbToHsv(35, 97, 146); picker.set(hsv[0], hsv[1], hsv[2]) })();
+</script>
+</body>
+</html>
