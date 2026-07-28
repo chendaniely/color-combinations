@@ -7,6 +7,7 @@ help: ## Show available commands
 
 install: ## Install dependencies (needs Node.js >= 20 — see README)
 	$(NPM) install
+	$(NPM) run copy-mediapipe
 
 dev: ## Run the site locally with live reload
 	$(NPM) run dev
