@@ -346,6 +346,22 @@ main { flex: 1; min-height: 0; position: relative; }
   box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 0 0 6px rgba(242,101,34,0.18);
   pointer-events: none;
 }
+/* The You tab's face guide — an oval rather than .cam-reticle's small circle,
+   because the visitor is framing a whole face, not aiming at one point. */
+.face-oval {
+  position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+  width: 62%; height: 74%; border: 2px dashed var(--paper-hi); border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.25); opacity: 0.75; pointer-events: none;
+}
+.face-sources { display: flex; gap: var(--s2); margin-bottom: var(--s3); }
+.face-sources button {
+  padding: var(--s1) var(--s4); border: 1px solid var(--hairline);
+  border-radius: 999px; background: transparent; color: var(--ink-muted);
+  font: inherit; font-size: 0.85rem; cursor: pointer;
+}
+.face-sources button[aria-selected="true"] {
+  background: var(--link); border-color: var(--link); color: var(--paper-hi); font-weight: 700;
+}
 .cam-tap { position: absolute; transform: translate(-50%, -50%);
   width: 30px; height: 30px; border: 2px solid var(--paper-hi); border-radius: 50%;
   box-shadow: 0 0 0 2px var(--accent); pointer-events: none; }
