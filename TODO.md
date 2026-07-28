@@ -2,6 +2,14 @@
 
 Move finished items to TODO-completed.md with the commit hash.
 
+- [ ] The committed mockup `docs/superpowers/specs/2026-07-27-color-picker-disc-mockup.html`
+      has the same saturation-wash bug fixed in `src/styles/app.css`'s
+      `.pick-face` (final review of feat/color-picker): its radial-gradient
+      white stop fades out at 78% of the radius instead of 100%, so the disc
+      renders saturation wrong relative to the HSV math. The mockup is the
+      designated starting point for a future Browse-page disc feature — fix
+      its gradient stop to `100%` if/when it's reused. Left unchanged for now
+      because it's a historical record of what the owner reviewed.
 - [ ] Visible in-page analytics disclosure — v1.3.3 added Google Analytics and
       documented it in the README's Analytics section only. A small footer line
       ("This site uses Google Analytics") was offered and declined for now;

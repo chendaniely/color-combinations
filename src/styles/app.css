@@ -319,6 +319,16 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--paper-1);
   display: flex; flex-direction: column; align-items: center; gap: var(--s4);
   padding: var(--s6) var(--s4);
+  /* No justify-content is set, so the main axis keeps its default
+     (flex-start) alignment — content packs from the top. That default is
+     deliberate: a `center`d flex/grid container that also scrolls is a
+     well-known trap, because centering clips the START of the content
+     first and a clipped start can't be scrolled back into view. Content
+     shorter than the viewport still reads as centered in practice because
+     of the generous top/bottom padding; content taller than the viewport
+     (the color picker, ~580px) now scrolls from a reachable top instead of
+     clipping unreachably at a fixed centered position. */
+  overflow-y: auto;
 }
 .cam-close {
   position: absolute; top: var(--s3); right: var(--s4);
@@ -478,7 +488,7 @@ main { flex: 1; min-height: 0; position: relative; }
 .pick-face {
   position: absolute; inset: 0; border-radius: 50%;
   background:
-    radial-gradient(circle closest-side, #fff 0%, rgba(255, 255, 255, 0) 78%),
+    radial-gradient(circle closest-side, #fff 0%, rgba(255, 255, 255, 0) 100%),
     conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
   box-shadow: inset 0 0 0 1px var(--hairline);
 }

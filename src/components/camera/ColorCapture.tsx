@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { RGB } from '../../core/colorMath'
+import { rgbToHex, type RGB } from '../../core/colorMath'
 import { cameraSupported, stopStream } from './cameraStream'
 import { sampleCanvasAt } from './sampleCanvas'
-
-function toHex([r, g, b]: RGB): string {
-  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
-}
 
 export function ColorCapture({ onSample, onClose }: {
   onSample: (rgb: RGB) => void
@@ -86,7 +82,7 @@ export function ColorCapture({ onSample, onClose }: {
             {!frozen && <div className="cam-reticle" aria-hidden="true" />}
             {frozen && tap && (
               <div className="cam-tap" style={{ left: `${tap.xPct}%`, top: `${tap.yPct}%` }}>
-                <span className="cam-tap-chip"><i style={{ background: toHex(tap.rgb) }} />{toHex(tap.rgb)}</span>
+                <span className="cam-tap-chip"><i style={{ background: rgbToHex(tap.rgb) }} />{rgbToHex(tap.rgb)}</span>
               </div>
             )}
           </div>

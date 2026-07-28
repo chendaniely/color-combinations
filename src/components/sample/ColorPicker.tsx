@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { hsvToRgb, rgbToHsv, type HSV, type RGB } from '../../core/colorMath'
+import { hsvToRgb, rgbToHex, rgbToHsv, type HSV, type RGB } from '../../core/colorMath'
 import { ColorDisc } from './ColorDisc'
 import { ColorFields } from './ColorFields'
 
@@ -16,7 +16,7 @@ export function ColorPicker({ onSample, onClose }: {
 }) {
   const [hsv, setHsv] = useState<HSV>(SEED)
   const rgb = hsvToRgb(hsv)
-  const hex = '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join('')
+  const hex = rgbToHex(rgb)
 
   return (
     <div className="cam-overlay" role="dialog" aria-label="Pick a color">

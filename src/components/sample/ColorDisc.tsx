@@ -1,5 +1,5 @@
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
-import { hsvToRgb, type HSV } from '../../core/colorMath'
+import { hsvToRgb, rgbToHex, type HSV } from '../../core/colorMath'
 import { discPointToHueSat, hueSatToDiscPoint } from '../../core/discGeometry'
 
 // Must match the .pick-disc size in app.css — the disc is a fixed square so the
@@ -17,8 +17,7 @@ export function ColorDisc({ hsv, onChange }: {
 }) {
   const disc = useRef<HTMLDivElement>(null)
   const { dx, dy } = hueSatToDiscPoint(hsv.h, hsv.s, RADIUS)
-  const [r, g, b] = hsvToRgb(hsv)
-  const hex = '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
+  const hex = rgbToHex(hsvToRgb(hsv))
 
   function pick(e: PointerEvent<HTMLDivElement>) {
     const box = disc.current?.getBoundingClientRect()
@@ -28,7 +27,11 @@ export function ColorDisc({ hsv, onChange }: {
       e.clientY - box.top - box.height / 2,
       box.width / 2,
     )
-    onChange({ ...hsv, h, s })
+    // atan2(0, 0) (the disc's exact center) returns an arbitrary h = 90. s is
+    // 0 there regardless, so the rendered color is unaffected — but the
+    // picker's whole reason for storing HSV instead of RGB is to preserve hue
+    // through zero-saturation states, so a center click must not clobber it.
+    onChange({ ...hsv, h: s === 0 ? hsv.h : h, s })
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {

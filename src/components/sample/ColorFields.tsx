@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import {
-  cmykToRgb, hsvToRgb, parseCmyk, parseHex, parseRgb, rgbToCmyk,
+  cmykToRgb, hsvToRgb, parseCmyk, parseHex, parseRgb, rgbToCmyk, rgbToHex,
   type HSV, type RGB,
 } from '../../core/colorMath'
 
 type FieldName = 'hex' | 'rgb' | 'cmyk'
-
-function toHex([r, g, b]: RGB): string {
-  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
-}
 
 // The three notations of one color, all editable. A field shows its own draft
 // only while it is the one being edited; every other field renders from state,
@@ -29,7 +25,7 @@ export function ColorFields({ hsv, onChange }: {
 
   const rgb = hsvToRgb(hsv)
   const shown: Record<FieldName, string> = {
-    hex: toHex(rgb),
+    hex: rgbToHex(rgb),
     rgb: rgb.join(', '),
     cmyk: rgbToCmyk(rgb).join(', '),
   }

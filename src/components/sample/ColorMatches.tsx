@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { closenessLabel } from '../../color/colorDistance'
 import { nearestColors } from '../../color/nearestColor'
-import type { RGB } from '../../core/colorMath'
+import { rgbToHex, type RGB } from '../../core/colorMath'
 import { ancestorAtLevel, keyName } from '../../core/dataset'
 import type { MatchLevel } from '../../core/state'
 import { dataset } from '../../data'
@@ -15,10 +15,6 @@ const LEVELS: { level: MatchLevel; label: string }[] = [
 function keyAt(colorId: number, level: MatchLevel): string {
   return level === 0 ? `c${colorId}` : ancestorAtLevel(dataset, colorId, level)
 }
-function toHex([r, g, b]: RGB): string {
-  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
-}
-
 // The unified result: the N book colors nearest to a sampled RGB (from camera,
 // upload, or hex). Pick a swatch, choose Color/Shade/Family, then Match/Browse.
 export function ColorMatches({ rgb, onMatch, onBrowse, onBack }: {
@@ -32,7 +28,7 @@ export function ColorMatches({ rgb, onMatch, onBrowse, onBack }: {
   const [level, setLevel] = useState<MatchLevel>(1) // default Shade
   const sel = dataset.colorById.get(selId)!
   const key = keyAt(selId, level)
-  const gaveHex = toHex(rgb)
+  const gaveHex = rgbToHex(rgb)
 
   return (
     <div className="cap-result">

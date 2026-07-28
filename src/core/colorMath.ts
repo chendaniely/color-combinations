@@ -11,6 +11,11 @@ export function hexToRgb(hex: string): RGB {
   ]
 }
 
+// Inverse of hexToRgb. Lowercase, always 2 digits per channel (e.g. '#0057ba').
+export function rgbToHex([r, g, b]: RGB): string {
+  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
+}
+
 // Parse a user-entered hex color into RGB, or null if it isn't a valid 3- or
 // 6-digit hex. Accepts an optional leading '#', any case, surrounding
 // whitespace; expands 3-digit shorthand. Pure — no browser globals.

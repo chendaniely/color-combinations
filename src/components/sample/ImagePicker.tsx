@@ -1,12 +1,8 @@
 import { useRef, useState } from 'react'
-import type { RGB } from '../../core/colorMath'
+import { rgbToHex, type RGB } from '../../core/colorMath'
 import { sampleCanvasAt } from '../camera/sampleCanvas'
 
 const MAX_DIM = 1600
-
-function toHex([r, g, b]: RGB): string {
-  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')
-}
 
 // Upload a photo and eyedrop a region — the still-image sibling of the camera.
 // Everything is local: the file is drawn to a canvas and sampled in-browser.
@@ -74,7 +70,7 @@ export function ImagePicker({ onSample, onClose }: {
         <canvas ref={canvasRef} className="cam-canvas" style={{ display: 'block' }} onPointerDown={sampleAt} />
         {loaded && tap && (
           <div className="cam-tap" style={{ left: `${tap.xPct}%`, top: `${tap.yPct}%` }}>
-            <span className="cam-tap-chip"><i style={{ background: toHex(tap.rgb) }} />{toHex(tap.rgb)}</span>
+            <span className="cam-tap-chip"><i style={{ background: rgbToHex(tap.rgb) }} />{rgbToHex(tap.rgb)}</span>
           </div>
         )}
       </div>

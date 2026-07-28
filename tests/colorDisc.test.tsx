@@ -44,6 +44,24 @@ describe('ColorDisc (jsdom)', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
+  // atan2(0, 0) — the disc's exact center — is a documented artifact of
+  // discPointToHueSat that returns h = 90 rather than "undefined". Saturation
+  // is 0 there either way, so the rendered color doesn't change, but the
+  // picker stores HSV specifically so hue survives zero-saturation states; a
+  // click dead-center must not silently overwrite the hue the user had.
+  it('preserves the existing hue on a click at the disc\'s exact center', () => {
+    const onChange = vi.fn()
+    render(<ColorDisc hsv={HSV} onChange={onChange} />)
+    const disc = screen.getByLabelText(/Color wheel/) as HTMLDivElement
+    disc.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 236, height: 236, right: 236, bottom: 236, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect
+    disc.setPointerCapture = vi.fn()
+    disc.hasPointerCapture = vi.fn(() => true)
+    // Box center: (0 + 236/2, 0 + 236/2) → dx = 0, dy = 0.
+    fireEvent.pointerDown(disc, { clientX: 118, clientY: 118, pointerId: 1 })
+    expect(onChange).toHaveBeenCalledWith({ h: HSV.h, s: 0, v: HSV.v })
+  })
+
   it('emits a new value from the brightness slider', () => {
     const onChange = vi.fn()
     render(<ColorDisc hsv={HSV} onChange={onChange} />)

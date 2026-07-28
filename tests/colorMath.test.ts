@@ -1,13 +1,19 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
-  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, parseCmyk, parseRgb, readableTextOn, rgbToCmyk, rgbToHsl, rgbToHsv,
+  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, parseCmyk, parseRgb, readableTextOn, rgbToCmyk, rgbToHex, rgbToHsl, rgbToHsv,
 } from '../src/core/colorMath'
 
 describe('colorMath', () => {
   it('parses hex', () => {
     expect(hexToRgb('#ffb3f0')).toEqual([255, 179, 240])
     expect(hexToRgb('#000000')).toEqual([0, 0, 0])
+  })
+  it('formats rgb as lowercase hex, inverting hexToRgb', () => {
+    expect(rgbToHex([255, 179, 240])).toBe('#ffb3f0')
+    expect(rgbToHex([0, 0, 0])).toBe('#000000')
+    expect(rgbToHex([35, 97, 146])).toBe('#236192') // pads single-digit channels
+    expect(rgbToHex(hexToRgb('#f26522'))).toBe('#f26522')
   })
   it('converts to hsl', () => {
     expect(rgbToHsl([255, 0, 0]).h).toBeCloseTo(0)
