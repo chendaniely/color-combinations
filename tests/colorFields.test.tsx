@@ -49,4 +49,44 @@ describe('ColorFields (jsdom)', () => {
     expect((hex as HTMLInputElement).value).toBe('#236192')
     expect(hex.getAttribute('aria-invalid')).toBe('false')
   })
+
+  it('keeps hex draft while external hsv changes (wheel driving fields)', () => {
+    const { rerender } = render(<ColorFields hsv={BLUE} onChange={() => {}} />)
+    const hex = screen.getByLabelText('Hex') as HTMLInputElement
+    const rgb = screen.getByLabelText('RGB') as HTMLInputElement
+    const cmyk = screen.getByLabelText('CMYK') as HTMLInputElement
+
+    // Type a draft into hex without blurring
+    fireEvent.change(hex, { target: { value: '#F26522' } })
+    expect(hex.value).toBe('#F26522')
+
+    // Re-render with a different hsv (simulating wheel drag)
+    const ORANGE = rgbToHsv([242, 101, 34])
+    rerender(<ColorFields hsv={ORANGE} onChange={() => {}} />)
+
+    // Hex should still show the draft the user typed
+    expect(hex.value).toBe('#F26522')
+    // But RGB and CMYK should update to the new color
+    expect(rgb.value).toBe('242, 101, 34')
+    expect(cmyk.value).toBe('0, 58, 86, 5')
+  })
+
+  it('reverts invalid draft when switching to another field', () => {
+    const onChange = vi.fn()
+    render(<ColorFields hsv={BLUE} onChange={onChange} />)
+    const hex = screen.getByLabelText('Hex') as HTMLInputElement
+    const rgb = screen.getByLabelText('RGB') as HTMLInputElement
+
+    // Type an unparseable draft into hex
+    fireEvent.change(hex, { target: { value: '#ZZZ' } })
+    expect(hex.getAttribute('aria-invalid')).toBe('true')
+
+    // Interact with another field (blur fires when we blur the hex)
+    fireEvent.blur(hex)
+    fireEvent.focus(rgb)
+
+    // Hex should revert to the committed color and no longer be marked invalid
+    expect(hex.value).toBe('#236192')
+    expect(hex.getAttribute('aria-invalid')).toBe('false')
+  })
 })

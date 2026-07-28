@@ -17,6 +17,12 @@ export function ColorFields({ hsv, onChange }: {
   hsv: HSV
   onChange: (rgb: RGB) => void
 }) {
+  // editing, draft, and bad are deliberately single-slot (not per-field) because
+  // only one text input can hold focus at a time. The editing === name guard
+  // ensures every inactive field renders from props, so external changes (e.g.,
+  // a colour wheel) update them live without stomping on the active field's draft.
+  // If more than one field could ever be active simultaneously, these would need
+  // to become per-field state.
   const [editing, setEditing] = useState<FieldName | null>(null)
   const [draft, setDraft] = useState('')
   const [bad, setBad] = useState(false)
