@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { rgbToHsv } from '../src/core/colorMath'
 import { ColorPicker } from '../src/components/sample/ColorPicker'
 
 afterEach(cleanup)
@@ -46,5 +47,28 @@ describe('ColorPicker (jsdom)', () => {
     expect(explore.disabled).toBe(false)
     fireEvent.click(explore)
     expect(onSample).toHaveBeenCalledWith([35, 97, 146])
+  })
+
+  // The headline invariant: ColorPicker must hold ONE HSV as its state, never
+  // RGB, because hue is undefined at zero saturation. An RGB-backed picker
+  // would re-derive HSV from (0, 0, 0) on the way back up and lose the hue —
+  // the pin (and the fields) would come back gray instead of blue. Driving the
+  // slider through the extreme and back is the only way to observe that loss.
+  it('hue survives a trip through black (brightness round trip does not gray out the color)', () => {
+    render(<ColorPicker onSample={() => {}} onClose={() => {}} />)
+    const brightness = screen.getByLabelText('Brightness')
+    // The starting brightness as a fraction, computed the same way the seed
+    // itself is (rgbToHsv of the NYC blue) — not the rounded percent the
+    // slider displays, so the round trip lands back on the exact seed color.
+    const startPercent = rgbToHsv([35, 97, 146]).v * 100
+
+    fireEvent.change(brightness, { target: { value: '0' } }) // extreme: black
+    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#000000')
+
+    fireEvent.change(brightness, { target: { value: '1' } }) // near the extreme
+    fireEvent.change(brightness, { target: { value: String(startPercent) } }) // back up
+
+    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#236192')
+    expect((screen.getByLabelText('RGB') as HTMLInputElement).value).toBe('35, 97, 146')
   })
 })

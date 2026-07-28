@@ -17,8 +17,9 @@ function browseFor(level: MatchLevel, key: string): { family: string; shade: str
   return { family: key, shade: '', colorId: '' }
 }
 
-// The unified color sampler: pick a source (camera / upload / hex), produce one
-// RGB, then explore the nearest book colors and hand off to Match/Browse.
+// The unified color sampler: pick a source (camera / upload / a full color
+// picker), produce one RGB, then explore the nearest book colors and hand off
+// to Match/Browse.
 export function ColorSampler({ dispatch, onClose }: {
   dispatch: (a: Action) => void
   onClose: () => void
