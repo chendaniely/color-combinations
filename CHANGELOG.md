@@ -56,6 +56,8 @@ those are grouped under dated headings in the right chronological place.
   gate. The two privacy source-scan tests were left exactly as strict as they
   were.
 
+_Design `44a27f7`; commit `e482edf`._
+
 ## [1.3.2] — 2026-07-23 — Lift your finger to open on the mobile wheel
 
 > **Owner asked for:** "i can now use my fingerts to explor the colors of the
