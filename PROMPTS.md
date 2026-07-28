@@ -948,3 +948,121 @@ of the same hex-formatting helper into one. Shipped as **v1.4.0**.
 
 **Spec:** `docs/superpowers/specs/2026-07-27-color-picker-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-27-color-picker.md`
+
+## 2026-07-28 — Session 15: personal color analysis (the You tab)
+
+**Owner prompt (opened with a knowledge question, not a request to build):**
+
+> what do you know about color analysis for personal color analysis that
+> harmonize with skin tone?
+
+**Owner prompt (the feature):**
+
+> yes i do want the ability (probably a new tab) that allows the user to take a
+> photo of their face and then we pick out good matching colors from this
+> pallete to go with their face. it's almost a combination of all the other
+> features of the site that allow you to find a pactifular color, but now we are
+> using the user's face to filter colors by hue, group, color. maybe we prompt
+> the user to hold up a piece of white paper around their face so we can use it
+> as white balance.
+
+**Owner prompt (added the seasonal output):**
+
+> i'd also like the results to reutrn the seasonal anslysis as well.
+
+**Owner prompt (reopened the dependency budget, after being told a
+face-detection library was forbidden by `CLAUDE.md`):**
+
+> let's think about putting in a face detection library. as long as i can deply
+> on github pages.
+
+> let's think about the constraints for this app. we can use external libraries,
+> but it needs to still run on github pages (static site). so let's do a pass of
+> all the tools that the current site sues and if we need packages loaded to run
+> we can allow it. the original constraight was to make it so the app runs and
+> launches easily, but i may have been tto strict in my words.
+
+**Owner prompt (asked for the harmony rule to be explained without jargon):**
+
+> can we talk more about this? i don tknow what it means.
+
+**Owner prompt (asked to judge output rather than method — chose "show me a
+worked example" over both options offered):**
+
+> yes show me. i am leaning towards way 1 because there's provinance on how the
+> values are picked. but i would like it to still try to guage the person's
+> 12-color summary. this way it's still usable with someone who has done an
+> official color analysis. either that or we provide both ways. one that is the
+> mathematical rule-based, then the other is a color-analysis way
+
+**Owner prompt (after seeing both methods run over the real 157 colors):**
+
+> i actually liked how you showed both side by side. this lets everyone explore
+> different views
+
+**Owner prompt (white balance optional; privacy documented):**
+
+> i think the dectector call can be an optional capture moment. we can tell them
+> to take a photo next to something white to use as a white-balance marker. and
+> then we can sample that part of the photo. if it doesn't exist then we can
+> skip it and you do your best. i like the ability you're not capturing the
+> photo for privacy. let's make sure that's documnted in the readme as a privacy
+> statement.
+
+**Owner prompt (caught the mockup understating Layout A):**
+
+> what are the dradeoffs between layout A and B? are you showing fewer colors in
+> A to make space for 2 lists?
+
+**Owner prompt (layout):**
+
+> let's go with layout B where it's a toggle. i can see how it can be a bit
+> overwhelming if there's a lot of colors in the measured for you bit. we can
+> always change it later into the single column view
+
+**Owner prompt (improved the combinations proposal):**
+
+> we should rank but have the abilty to have a slider that sets a filter lower
+> boundry. is that what you mean? or is the rank don't filter just picking any
+> pallet where any 1 of the colors match my face?
+
+**Owner prompt (approved):**
+
+> yeah that looks good
+
+**Decisions:**
+
+- **A result page in a new tab**, not a site-wide "suits me" lens. The lens is
+  logged in `TODO.md`; the goggles filter *combinations* while this filters
+  *colors*, so it is not a drop-in.
+- **The dependency budget was replaced, not bent.** The audit found the real
+  constraint was four properties — static build, `make install` just works,
+  nothing user-derived leaves the device, weight paid by the feature that
+  incurs it — rather than a list of four packages. `@mediapipe/tasks-vision`
+  satisfies all four.
+- **BlazeFace (~3.5 MB lazy) over the 478-point Face Landmarker (~6.9 MB).**
+  The landmarker would allow a true skin mask; it stays a one-file swap behind
+  `src/face/detect.ts` if proportional probe placement disappoints.
+- **Hand-rolled skin-chroma segmentation rejected** despite costing zero bytes:
+  its thresholds under-detect deeper skin tones, which disqualifies it for a
+  feature that judges skin.
+- **Both palettes ship** — measured-by-rules *and* the traditional season list —
+  chosen after seeing them run over the real dataset, where they overlapped on
+  only 9 and 8 colors out of 157. The twelve season regions are **our
+  invention**, and the page must say so.
+- **The season is a dropdown**, our guess pre-selected. It makes the weakest
+  link in the chain a one-click correction.
+- **"Show what we read, tap to fix" is mandatory**, not skippable — it is what
+  keeps the feature from being a black box.
+- **The white reference is any white object**, not a prescribed sheet of paper,
+  and is optional; without it the result is badged a rough reading and undertone
+  is marked unverified. Contrast survives a bad white balance, undertone does
+  not.
+- **"Dominant colour is yours" was proposed by Claude and withdrawn** — the
+  dataset has no area proportions, so it would have meant "lowest colour id".
+  The owner's ranked-list-plus-floor replaced it.
+- **Wada's palette leans warm** (109 of 157 colours warm, 48 cool), so
+  cool-toned visitors get a structurally smaller palette. The page discloses
+  this rather than letting it read as a bug.
+
+**Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
