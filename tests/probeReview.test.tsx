@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProbeReview } from '../src/components/sample/ProbeReview'
 import type { CaptureResult } from '../src/components/sample/FaceCapture'
@@ -28,9 +28,22 @@ function capture(overrides: Partial<CaptureResult> = {}): CaptureResult {
 
 describe('ProbeReview', () => {
   it('shows the colours it read', () => {
-    render(<ProbeReview capture={capture()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
-    expect(screen.getByText(/^skin$/i)).toBeTruthy()
-    expect(screen.getByText(/^hair$/i)).toBeTruthy()
+    const { container } = render(
+      <ProbeReview capture={capture()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    // Scoped to the readings, since the probe dots on the photo are labelled
+    // "skin"/"hair" too.
+    const reads = within(container.querySelector('.probe-reads') as HTMLElement)
+    expect(reads.getByText(/^skin$/i)).toBeTruthy()
+    expect(reads.getByText(/^hair$/i)).toBeTruthy()
+  })
+
+  it('labels each probe dot so a misplaced one is obvious', () => {
+    const { container } = render(
+      <ProbeReview capture={capture()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    const hairDot = container.querySelector('.probe-dot.is-hair')
+    expect(hairDot).toBeTruthy()
+    expect(hairDot!.textContent).toBe('hair')
+    expect(container.querySelectorAll('.probe-dot.is-skin')).toHaveLength(2)
   })
 
   it('confirms a white-balanced reading', () => {

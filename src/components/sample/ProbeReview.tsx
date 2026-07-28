@@ -9,6 +9,14 @@ import type { CaptureResult } from './FaceCapture'
 
 const SKIN_KINDS: ProbeKind[] = ['forehead', 'leftCheek', 'rightCheek', 'jaw']
 
+const PROBE_LABEL: Record<ProbeKind, string> = {
+  forehead: 'skin',
+  leftCheek: 'skin',
+  rightCheek: 'skin',
+  jaw: 'skin',
+  hair: 'hair',
+}
+
 type Correcting = 'skin' | 'hair' | 'white' | null
 
 // The trust step, and it is deliberately not skippable: we show every colour we
@@ -91,11 +99,17 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       <div ref={stageRef} className="probe-stage" onPointerDown={correctAt}
         style={{ aspectRatio: `${capture.canvas.width} / ${capture.canvas.height}` }}>
         {capture.probes.map((p) => (
-          <span key={p.kind} className="probe-dot" aria-hidden="true"
+          <span key={p.kind}
+            className={`probe-dot ${p.kind === 'hair' ? 'is-hair' : 'is-skin'}`}
+            aria-hidden="true"
             style={{
               left: `${(p.cx / capture.canvas.width) * 100}%`,
               top: `${(p.cy / capture.canvas.height) * 100}%`,
-            }} />
+            }}>
+            {/* Labelled so a misplaced probe is obvious on sight — this is how
+                the 2026-07-28 "hair" probe was caught sitting on a forehead. */}
+            <b>{PROBE_LABEL[p.kind]}</b>
+          </span>
         ))}
       </div>
 
