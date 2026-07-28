@@ -459,20 +459,29 @@ main { flex: 1; min-height: 0; position: relative; }
 .sample-src-tx { display: flex; flex-direction: column; }
 .sample-src-tx small { color: var(--ink-muted); font-size: 0.78rem; }
 
-/* Color picker — value fields */
+/* Color picker — value fields.
+   The input rules are scoped under .pick-fields deliberately. The sampler
+   overlay renders INSIDE .search-box, so `.search-box input` (0,1,1) outranks a
+   bare `.pick-input` (0,1,0) and would otherwise impose the UI font on what are
+   color codes, and paint every focused field with the search box's orange —
+   making a valid field look identical to an invalid one. `.pick-fields
+   .pick-input` (0,2,0) wins cleanly. The aria-invalid rule comes last so it
+   still beats :focus at equal specificity. */
 .pick-fields { display: flex; flex-direction: column; gap: var(--s2); width: 100%; max-width: 236px; }
 .pick-field { display: flex; align-items: center; gap: var(--s2); }
+/* Wide enough for the longest label, BRIGHT, which shares this width so the
+   slider lines up with the inputs below it. */
 .pick-label {
-  width: 3.4em; flex: none; font-size: 0.7rem; letter-spacing: var(--tracking-label);
+  width: 4.8em; flex: none; font-size: 0.7rem; letter-spacing: var(--tracking-label);
   text-transform: uppercase; color: var(--ink-muted);
 }
-.pick-input {
+.pick-fields .pick-input {
   flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 0.9rem; color: var(--ink);
   background: none; border: none; border-bottom: 1px solid var(--ink-faint);
   padding: var(--s1) var(--s2);
 }
-.pick-input:focus { outline: none; border-bottom-color: var(--link); }
-.pick-input[aria-invalid='true'] { border-bottom-color: var(--accent); }
+.pick-fields .pick-input:focus { outline: none; border-bottom-color: var(--link); }
+.pick-fields .pick-input[aria-invalid='true'] { border-bottom-color: var(--accent); }
 
 /* Color picker — the HSV disc.
    The hue stops and the white saturation wash below are the COLOR SPACE, not

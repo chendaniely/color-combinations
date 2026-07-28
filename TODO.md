@@ -163,6 +163,20 @@ Move finished items to TODO-completed.md with the commit hash.
       while `webTextReady` uses `.some()` (false); unreachable via
       `accessibilityProfile` (displayable/size≥2 only) but a latent footgun
       for any future direct caller.
+- [ ] Sampler overlays inherit `.search-box input` styling, because
+      `ColorSampler` renders inside `.search-box` — so `.search-box input`
+      (0,1,1) outranks any bare single-class rule on an overlay input. This bit
+      the color picker (wrong font, and an orange focus underline that made
+      valid fields look invalid) and was fixed by scoping to `.pick-fields
+      .pick-input`. Any FUTURE overlay input will hit the same trap. The real
+      fix is to stop nesting the overlay inside `.search-box` — it is a
+      full-screen `position: fixed` layer and has no reason to live there.
+- [ ] No test covers CSS cascade or layout — jsdom implements neither. Three
+      real defects shipped past a green 199-test suite and seven task reviews
+      (the disc's 78% saturation stop, the unreachable Explore button on short
+      viewports, and the `.search-box` specificity leak above), all caught only
+      by opening a browser. Worth considering whether the owner browser
+      checklist should become a written, repeatable script.
 - [ ] Color sampler — image-upload picker cover-crops non-portrait photos to
       3:4 aspect-ratio (`.cam-canvas { object-fit: cover }`), so left/right edge
       regions can't be eyedroppable. A fix would give `ImagePicker` an
