@@ -401,7 +401,18 @@ main { flex: 1; min-height: 0; position: relative; }
   border-left: 2px solid var(--accent); padding-left: var(--s3); margin: var(--s3) 0 0;
 }
 
-/* ProbeReview — the "here's what we measured" step. */
+/* ProbeReview — the "here's what we measured" step.
+   Unlike .cam-stage this takes the photo's own aspect ratio and contains the
+   image rather than cropping it: the visitor has to be able to see the white
+   object they are confirming, and the probe dots have to land on the pixels
+   that were actually sampled. */
+.probe-stage {
+  position: relative; width: 100%; max-width: 420px;
+  background: var(--ink); border-radius: var(--radius); overflow: hidden;
+}
+.probe-canvas {
+  width: 100%; height: 100%; object-fit: contain; touch-action: none; display: block;
+}
 .probe-dot {
   position: absolute; transform: translate(-50%, -50%);
   width: 16px; height: 16px; border-radius: 50%;

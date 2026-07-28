@@ -33,17 +33,26 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
 
   // Show the captured frame. The canvas came from FaceCapture; we mount it
   // rather than copy it, so no second copy of the photograph exists.
+  //
+  // Two things this must undo, both found the hard way: FaceCapture's camera
+  // path leaves `display: none` on the element, which would travel with it and
+  // hide the photo entirely; and .cam-canvas is object-fit: cover, which crops
+  // the frame — often cropping away the very white object the visitor is being
+  // asked to confirm. Here the whole frame is shown, contained.
   useEffect(() => {
     const stage = stageRef.current
     if (!stage) return
-    capture.canvas.className = 'cam-canvas'
+    capture.canvas.className = 'probe-canvas'
+    capture.canvas.style.display = 'block'
     stage.prepend(capture.canvas)
     return () => { capture.canvas.remove() }
   }, [capture.canvas])
 
   function correctAt(e: React.PointerEvent<HTMLDivElement>) {
     if (!correcting) return
-    const rgb = sampleCanvasAt(capture.canvas, e.clientX, e.clientY)
+    // 'contain' to match how the canvas is laid out above — inverting a cover
+    // transform here would sample the wrong pixels.
+    const rgb = sampleCanvasAt(capture.canvas, e.clientX, e.clientY, undefined, 'contain')
     if (!rgb) return
     if (correcting === 'skin') setSkin(rgb)
     else if (correcting === 'hair') setHair(rgb)
@@ -76,7 +85,11 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
             cheek and your hair yourself using the buttons below.</>}
       </p>
 
-      <div ref={stageRef} className="cam-stage" onPointerDown={correctAt}>
+      {/* The stage takes the photo's own aspect ratio, so a probe's source
+          fraction is exactly its percentage position and the dots land on the
+          pixels that were actually sampled. */}
+      <div ref={stageRef} className="probe-stage" onPointerDown={correctAt}
+        style={{ aspectRatio: `${capture.canvas.width} / ${capture.canvas.height}` }}>
         {capture.probes.map((p) => (
           <span key={p.kind} className="probe-dot" aria-hidden="true"
             style={{
