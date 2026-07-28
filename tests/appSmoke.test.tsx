@@ -91,11 +91,11 @@ describe('app shell', () => {
     expect(html).toContain('Match'); expect(html).toContain('Browse')
   })
 
-  it('color sampler offers camera-agnostic sources (upload + hex) and renders', () => {
+  it('color sampler offers camera-agnostic sources (upload + picker) and renders', () => {
     const html = renderToString(<ColorSampler dispatch={() => {}} onClose={() => {}} />)
     expect(html).toContain('Sample a color')
     expect(html).toContain('Upload a photo')
-    expect(html).toContain('Paste a hex')
+    expect(html).toContain('Pick a color')
   })
 
   it('search box uses the new placeholder copy', () => {

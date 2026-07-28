@@ -5,10 +5,10 @@ import type { Action, MatchLevel } from '../../core/state'
 import { cameraSupported } from '../camera/cameraStream'
 import { ColorCapture } from '../camera/ColorCapture'
 import { ColorMatches } from './ColorMatches'
-import { HexPicker } from './HexPicker'
+import { ColorPicker } from './ColorPicker'
 import { ImagePicker } from './ImagePicker'
 
-type Source = 'camera' | 'upload' | 'hex'
+type Source = 'camera' | 'upload' | 'pick'
 
 // Map a chosen (level, key) to a scoped Browse filter — replaces any prior filter.
 function browseFor(level: MatchLevel, key: string): { family: string; shade: string; colorId: string } {
@@ -43,7 +43,7 @@ export function ColorSampler({ dispatch, onClose }: {
   }
   if (source === 'camera') return <ColorCapture onSample={setRgb} onClose={() => setSource(null)} />
   if (source === 'upload') return <ImagePicker onSample={setRgb} onClose={() => setSource(null)} />
-  if (source === 'hex') return <HexPicker onSample={setRgb} onClose={() => setSource(null)} />
+  if (source === 'pick') return <ColorPicker onSample={setRgb} onClose={() => setSource(null)} />
 
   return (
     <div className="cam-overlay" role="dialog" aria-label="Sample a color">
@@ -61,9 +61,9 @@ export function ColorSampler({ dispatch, onClose }: {
           <span className="sample-src-ic" aria-hidden="true">🖼</span>
           <span className="sample-src-tx"><b>Upload a photo</b><small>Tap a color in the picture</small></span>
         </button>
-        <button type="button" className="sample-src" onClick={() => setSource('hex')}>
-          <span className="sample-src-ic" aria-hidden="true">#</span>
-          <span className="sample-src-tx"><b>Paste a hex</b><small>Like #F26522 or #236192</small></span>
+        <button type="button" className="sample-src" onClick={() => setSource('pick')}>
+          <span className="sample-src-ic" aria-hidden="true">🎨</span>
+          <span className="sample-src-tx"><b>Pick a color</b><small>Wheel, or a hex / RGB / CMYK value</small></span>
         </button>
       </div>
     </div>
