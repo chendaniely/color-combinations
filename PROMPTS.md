@@ -805,3 +805,65 @@ in the margin, so the cancel is visible before the lift.
 **No new dependencies.** D3/DOM interaction stays owner-browser-verified (the
 TODO browser-checklist line was updated to the new lift-to-open behavior).
 Shipped as **v1.3.2**.
+
+## 2026-07-28 — Session 13: Google Analytics on the published site
+
+**Owner prompt (verbatim):**
+
+> i want to add a google analytics tracker for the site: <!-- Google tag (gtag.js) -->
+> <script async src="https://www.googletagmanager.com/gtag/js?id=G-CHW8X8EX18"></script>
+> <script>
+>   window.dataLayer = window.dataLayer || [];
+>   function gtag(){dataLayer.push(arguments);}
+>   gtag('js', new Date());
+>
+>   gtag('config', 'G-CHW8X8EX18');
+> </script>
+
+**Background:** the owner wanted to know whether anyone is actually visiting the
+site, and pasted the standard gtag.js snippet Google hands you. Two things about
+this repo made a literal copy-paste into `index.html` the wrong move, so both
+were put to the owner as choices before anything was written.
+
+**Decisions reached (two multiple-choice questions):**
+
+1. **Production build only** — chosen over pasting the snippet into
+   `index.html` as-is. `index.html` is also what `make dev` serves, so a literal
+   paste would have counted every local development session as real traffic in
+   the owner's analytics. The tag is now injected at build time instead.
+2. **README note only** — chosen over a visible in-page disclosure line and over
+   saying nothing at all. The site already promises that uploaded photos and
+   camera frames never leave the device, so shipping a third-party tracker
+   without documenting it would have left that framing misleading. A footer
+   disclosure line and a cookie-consent banner were both offered, declined for
+   now, and logged in `TODO.md` rather than dropped.
+
+**Implementation (`vite.config.ts` only — no `src/` change):**
+
+- A ~10-line inline Vite plugin named `google-analytics` with `apply: 'build'`
+  and a `transformIndexHtml` hook that splices the owner's snippet in above
+  `</head>`. `apply: 'build'` is the whole gate: Vite never registers the plugin
+  for the dev server, so there's no runtime branch that could go wrong.
+- `GA_MEASUREMENT_ID` is an exported constant, not an env var — it's public by
+  nature (it ships in the page source), it never changes, and this repo
+  deliberately has no `.env` story to extend.
+- `index.html` is untouched, which keeps the tag to exactly one source of truth
+  and one place to switch it off.
+
+**Testing:** new `tests/analytics.test.ts` asserts `apply === 'build'` (the
+regression guard — without it, dev traffic silently starts reporting), that the
+tag lands inside `<head>`, and that the emitted ID is exactly `G-CHW8X8EX18` (a
+typo'd property is otherwise invisible until the dashboard stays at zero).
+
+**Privacy guards untouched:** `sample-privacy.test.ts` and
+`camera-privacy.test.ts` scan `src/components/sample/` and
+`src/components/camera/` for network/storage APIs. Nothing in `src/` changed, so
+both stay green and neither was weakened — keeping the analytics tag out of
+`src/` entirely was part of why the HTML seam was chosen.
+
+**Verified:** `make test` (158 passed) and `make build` green; `dist/index.html`
+contains the tag, and the running dev server's HTML contains zero occurrences of
+`gtag`.
+
+**No new dependencies** (`transformIndexHtml` is core Vite). Shipped as
+**v1.3.3** — a patch, since nothing a visitor sees or interacts with changed.

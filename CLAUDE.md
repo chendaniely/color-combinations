@@ -42,6 +42,11 @@ docs in the SAME commit:
   browser components that sample colors live in `src/components/sample/`
   (camera-only pieces stay in `src/components/camera/`), guarded by
   `tests/sample-privacy.test.ts` against network/storage APIs.
+- Analytics lives ONLY in the `google-analytics` plugin in `vite.config.ts`,
+  injected at build time (`apply: 'build'`) so `make dev` never reports as
+  real traffic. Never move the tag into `index.html` (it would fire in dev)
+  or into `src/` (it would sit next to the privacy-guarded sampler).
+  `tests/analytics.test.ts` enforces the build-only gate — don't weaken it.
 
 ## Dependency budget
 

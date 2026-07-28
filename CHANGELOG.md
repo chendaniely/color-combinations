@@ -28,6 +28,34 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## [1.3.3] — 2026-07-28 — Counting visits, without counting the owner
+
+> **Owner asked for:** "i want to add a google analytics tracker for the site:
+> `<!-- Google tag (gtag.js) --> <script async
+> src="https://www.googletagmanager.com/gtag/js?id=G-CHW8X8EX18"></script>…`"
+
+- The published site now reports visits to **Google Analytics**. Nothing a
+  visitor sees or interacts with changed — this is a patch release.
+- **The tag ships only in the deployed site.** The owner pasted the snippet
+  Google gives you, which would normally go straight into `index.html` — but
+  that file is also what `make dev` serves, so every local development session
+  would have shown up as real traffic. Offered the choice, the owner picked
+  build-time injection instead, so the analytics property only ever sees actual
+  visitors.
+- **The privacy promise is unchanged, and now it's written down.** The site
+  already guaranteed that uploaded photos and camera frames never leave your
+  device; that's still true, since the analytics tag and the color sampler never
+  touch each other. But shipping a third-party tracker silently would have left
+  that framing misleading, so the owner chose to document it: the README now has
+  an **Analytics** section saying plainly what's collected and how to switch it
+  off. A visible in-page disclosure line and a cookie-consent banner were both
+  put on the table, declined for now, and written into `TODO.md` — deferred on
+  purpose, not forgotten.
+- Under the hood: one small `apply: 'build'` plugin in `vite.config.ts`, nothing
+  added to `src/`, and a test that fails if anyone ever removes the dev-traffic
+  gate. The two privacy source-scan tests were left exactly as strict as they
+  were.
+
 ## [1.3.2] — 2026-07-23 — Lift your finger to open on the mobile wheel
 
 > **Owner asked for:** "i can now use my fingerts to explor the colors of the

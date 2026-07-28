@@ -2,6 +2,18 @@
 
 Move finished items to TODO-completed.md with the commit hash.
 
+- [ ] Visible in-page analytics disclosure — v1.3.3 added Google Analytics and
+      documented it in the README's Analytics section only. A small footer line
+      ("This site uses Google Analytics") was offered and declined for now;
+      it needs a footer component and a tokens pass, since there's no footer today
+- [ ] Cookie-consent banner for the analytics tag — deliberately skipped in
+      v1.3.3. Only worth building if EU/UK visitors start to matter, since GA
+      sets cookies before any consent is asked. Would also need the tag to load
+      *conditionally*, which the current build-time injection doesn't do
+- [ ] Custom analytics events (wheel clicks, palette builds, exports) — v1.3.3
+      is page views only, on purpose. Add one only when there's a specific
+      question worth answering, not for a dashboard's sake
+
 - [ ] PWA: installable web app with camera access — the **camera capture
       shipped** (photo → perceptual color match → Match/Browse; see README);
       only the **PWA / installable** part (manifest, service worker,

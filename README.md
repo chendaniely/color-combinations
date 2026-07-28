@@ -5,12 +5,12 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.3.2 shipped (2026-07-23) — the color wheel now highlights
-> pairs under a finger on touchscreens (press/drag to scrub, lift to open the
-> highlighted one, drag off the wheel to cancel),
-> on top of the hex/photo color sampler (v1.3) and accessibility goggles
-> (v1.2). Live at https://chendaniely.github.io/color-combinations/ — this
-> README always reflects the current state of the project.
+> **Status:** v1.3.3 shipped (2026-07-28) — the published site now reports
+> visits to Google Analytics (see [Analytics](#analytics)); nothing a visitor
+> sees changed. On top of the touchscreen wheel (v1.3.2), the hex/photo color
+> sampler (v1.3), and accessibility goggles (v1.2). Live at
+> https://chendaniely.github.io/color-combinations/ — this README always
+> reflects the current state of the project.
 
 ## What you need installed (one-time setup)
 
@@ -126,3 +126,24 @@ green, publishes to GitHub Pages automatically. Nothing to do by hand.
 - Live site: https://chendaniely.github.io/color-combinations/
 - Pipeline: `.github/workflows/deploy.yml` (watch runs in the repo's Actions tab)
 - If the repo is ever renamed, update `base` in `vite.config.ts` to match.
+
+## Analytics
+
+The published site loads **Google Analytics** (property `G-CHW8X8EX18`) to count
+visits. It records ordinary web-analytics things — page views, roughly where in
+the world a visit came from, what kind of device — and sets Google's cookies to
+do it.
+
+It never receives your photos or the colors you sample. That part of the site
+still runs entirely on your device, exactly as described under
+[Sample a color](#sample-a-color) — the analytics tag and the color sampler
+don't touch each other.
+
+**The tag is only in the deployed site.** It's injected during `make build`, so
+`make dev` never reports your own local sessions as real traffic. If you want to
+see it, run `make build` and look at the bottom of `<head>` in `dist/index.html`.
+
+To change the property ID or turn analytics off entirely, edit the
+`google-analytics` plugin in `vite.config.ts` — that's the only place it lives.
+Deleting that plugin block removes analytics completely (you'd also delete
+`tests/analytics.test.ts`, which guards it).
