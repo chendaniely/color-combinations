@@ -98,6 +98,16 @@ four true.**
    self-hosted from our own origin. A third-party CDN request is a leak
    even when it carries no payload, because it reveals that the visitor is
    on this page.
+   **The one exception is Google Analytics**, added in v1.3.3 as an
+   explicit owner decision and documented in the README's Analytics
+   section. It is the ONLY third-party origin the site may contact, and
+   the exception does not extend to assets: no CDN fonts, no CDN scripts,
+   no remotely-hosted models. Stated here because the rule above reads as
+   absolute, and a rule that is knowingly broken without saying so teaches
+   the next reader that the rules are decorative.
+   `tests/browser/origins.spec.ts` enforces this by watching every request
+   the real page makes — a static scan cannot see a font pulled in by a
+   stylesheet, or a library that phones home at runtime.
 4. **Weight is paid by the feature that incurs it.** Anything large must
    lazy-load on entering its tab, never in the main bundle.
 

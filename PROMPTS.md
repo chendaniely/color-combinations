@@ -1479,3 +1479,31 @@ rather than testing it.
 **Assessment: the passes have converged.** Passes one through seven each turned
 up multiple real defects; this one turned up one weak test and one curation
 observation. Continuing would be looking for the sake of looking.
+
+**Ninth pass — a rule the project was quietly breaking:**
+
+- **CLAUDE.md's dependency property 3 says "a third-party CDN request is a leak"
+  — and the shipped page requests googletagmanager.com on every load.** The
+  analytics were a deliberate owner decision in v1.3.3 and the README describes
+  them honestly, but the RULE read as absolute with no exception recorded. A
+  rule that is knowingly broken without saying so teaches the next reader that
+  the rules are decorative — and the next reader is another AI session. The
+  exception is now stated precisely: analytics is the ONLY permitted third-party
+  origin, and it does not extend to assets.
+- **Now enforced by observation rather than by grep.** `origins.spec.ts` watches
+  every request the real page makes across every view and the whole face-capture
+  flow, and fails on any origin that is not ours or the declared analytics. A
+  static scan cannot see a CDN font pulled in by a stylesheet or a library that
+  phones home at runtime. It also proves the 3.5 MB MediaPipe model really is
+  served by us, and cannot pass vacuously — it asserts model assets were
+  actually requested.
+- **A privacy sentence that could be read too broadly.** The README said "No
+  third-party request is made at any point while you use the tab" in the
+  face-detection bullet. True of face detection; loose about the page, which has
+  analytics running. On a privacy claim — the highest-stakes kind of claim this
+  project makes — that is worth being exact about. Reworded.
+- **index.html had never been examined.** Six releases with no meta description,
+  so a search result or shared link said nothing. Added, along with a
+  theme-color, plus a test tying it to the `--paper-1` token since HTML cannot
+  read a CSS custom property. Open Graph tags are logged rather than added: a
+  card wants a 1200×630 image, which is a design asset the owner should approve.

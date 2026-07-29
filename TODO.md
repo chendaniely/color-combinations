@@ -69,6 +69,18 @@ a check that needs a person. See `TODO-completed.md` for what went.
       element changes i can fix later on"; those specific tweaks were never
       enumerated. Add them as they come up.
 
+## Sharing
+
+- [ ] **A shared link shows nothing.** `index.html` now has a description, but
+      no Open Graph or Twitter card tags, so pasting the URL into Slack,
+      iMessage or a social post produces a bare link with no preview image —
+      for a site that is entirely about colour. Deliberately not added blind:
+      a card wants a 1200×630 image, which is a design asset the owner should
+      approve rather than something to generate unattended. Cheap once that
+      exists: four meta tags and a file in `public/`. Pairs naturally with the
+      shareable-deep-links item at the top of this file, since a link worth
+      sharing and a preview worth seeing are the same feature.
+
 ## Curated data worth a second opinion
 
 - [ ] **The season palettes are lopsided, and `seasons.json` exists precisely so

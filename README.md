@@ -252,8 +252,10 @@ to it.
   until you close or refresh it, and go no further.
 - **Face detection runs on your own machine.** The site uses Google's open
   BlazeFace model, but it runs *locally in your browser*, and the model file is
-  served by this site from `public/mediapipe/` — not fetched from Google. No
-  third-party request is made at any point while you use the tab.
+  served by this site from `public/mediapipe/` — not fetched from Google. The
+  face detection makes no third-party request at all. (The site as a whole loads
+  analytics on every page, described below; that is the only outside connection
+  it makes, and it never sees anything from this tab.)
 - **The color sampler works the same way**, as it always has (see
   [Sample a color](#sample-a-color)).
 
