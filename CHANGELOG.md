@@ -113,6 +113,48 @@ added weight to replace code that already works and is now tested. The two that
 were added cost the visitor nothing: they are tools for building the site, not
 part of it.
 
+**Then six more passes, because the owner asked for all of it:**
+
+> let's keep looping over and doing passes untill you don't find anything more
+> to fix and test. this is goign to be the big maintence and bug fix release so
+> let's make sure we pay off all our tech debt now
+
+**The site failed the accessibility standard it ships a feature to enforce.**
+This one stings: Iro has an "accessibility goggles" feature that judges Sanzo
+Wada's colours against WCAG AA — and its own small text didn't meet WCAG AA. An
+automated audit caught it on three screens. The three ink shades have been
+re-solved together so all of them pass while staying visibly distinct from one
+another; only their lightness changed, so the soft "Washi & Ink" look is intact.
+
+**The wheel scrolled sideways on a phone.** At 375px the controls under the
+wheel were 28px wider than the screen, so the whole page slid left and right.
+Fixed, and every view is now checked at phone width.
+
+**A blank white page was the worst thing that could happen, and now it can't.**
+Any unexpected error used to leave nothing on screen at all, with the reason
+visible only to someone who knows how to open a developer console. There's now a
+proper "something went wrong" page that explains itself, offers a reload, and
+shows the detail worth reporting.
+
+**The photo flow is finally tested from end to end** — upload, review, tap to
+correct a spot, adjust the white balance, confirm. That's the part of the site
+with the most history of subtle bugs, and until now none of it could be tested
+automatically. The test paints its own synthetic portrait rather than committing
+a photograph, which felt like the right call for a feature whose whole promise
+is that your photo never leaves your device. Chromium also pointed out a genuine
+speed problem in the white-balance preview along the way, which is fixed.
+
+**Also:** copying a colour and downloading a plate are tested for the first
+time; the granularity crossfade could mis-open a colour if you clicked during
+it; reduced-motion is verified rather than assumed; and a handful of quieter
+assumptions now have tests holding them in place.
+
+Two things were deliberately *not* changed after being measured. Splitting the
+charting library apart to shrink the download saved 0.15% — not worth six new
+dependencies. And a stricter type-checking setting produced 175 complaints that
+were almost all noise; adopting it would have made the code less safe, not more.
+Both measurements are written down so nobody repeats the experiment.
+
 ---
 
 ## v1.5.0 — 2026-07-28 — "You"
