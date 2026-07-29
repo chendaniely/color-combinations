@@ -29,19 +29,33 @@ function pairs(hexes: string[]): [string, string][] {
   return out
 }
 
+// Every lens is a claim about telling colours APART, so none of them means
+// anything for fewer than two colours. The three used to disagree there by
+// accident: `some` on an empty list is false, `every` is vacuously true, so
+// webTextReady said no and the other two said yes to the same input.
+// accessibilityProfile only ever passes size >= 2, so nothing was wrong on
+// screen — but any future direct caller would have inherited the muddle.
+// Answering "no" for all three is the honest reading: with nothing to
+// distinguish, the claim is not established.
+function needsAPair(hexes: string[]): boolean {
+  return hexes.length >= 2
+}
+
 // At least one pair reads as text-on-background (max pairwise contrast).
 function webTextReady(hexes: string[]): boolean {
-  return pairs(hexes).some(([a, b]) => wcagContrast(a, b) >= WCAG_AA_TEXT)
+  return needsAPair(hexes) &&
+    pairs(hexes).some(([a, b]) => wcagContrast(a, b) >= WCAG_AA_TEXT)
 }
 
 // Every pair stays apart in grayscale = survives a B&W photocopy (min pair).
 function printBwSafe(hexes: string[]): boolean {
-  return pairs(hexes).every(([a, b]) => wcagContrast(a, b) >= WCAG_NONTEXT)
+  return needsAPair(hexes) &&
+    pairs(hexes).every(([a, b]) => wcagContrast(a, b) >= WCAG_NONTEXT)
 }
 
 // Every pair stays perceptually apart under protanopia AND deuteranopia.
 function colorBlindSafe(hexes: string[]): boolean {
-  return pairs(hexes).every(([a, b]) =>
+  return needsAPair(hexes) && pairs(hexes).every(([a, b]) =>
     oklab(simProt(a), simProt(b)) >= CVD_THRESHOLD &&
     oklab(simDeuter(a), simDeuter(b)) >= CVD_THRESHOLD)
 }

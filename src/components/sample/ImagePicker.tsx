@@ -15,6 +15,9 @@ export function ImagePicker({ onSample, onClose }: {
   const [loaded, setLoaded] = useState(false)
   const [tap, setTap] = useState<{ xPct: number; yPct: number; rgb: RGB } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // The chosen photo's own aspect ratio, so nothing is cropped away. Falls back
+  // to the portrait default until a file is loaded.
+  const [aspect, setAspect] = useState('3 / 4')
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -30,6 +33,7 @@ export function ImagePicker({ onSample, onClose }: {
         canvas.width = Math.round(img.width * scale)
         canvas.height = Math.round(img.height * scale)
         canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
+        setAspect(`${canvas.width} / ${canvas.height}`)
         setLoaded(true); setTap(null)
       }
       URL.revokeObjectURL(url)
@@ -41,7 +45,7 @@ export function ImagePicker({ onSample, onClose }: {
   function sampleAt(e: React.PointerEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current
     if (!canvas) return
-    const rgb = sampleCanvasAt(canvas, e.clientX, e.clientY)
+    const rgb = sampleCanvasAt(canvas, e.clientX, e.clientY, undefined, 'contain')
     if (!rgb) return
     const rect = canvas.getBoundingClientRect()
     setTap({
@@ -66,8 +70,16 @@ export function ImagePicker({ onSample, onClose }: {
           <span>Choose a photo…</span>
         </label>
       )}
-      <div className="cam-stage" style={{ display: loaded ? 'block' : 'none' }}>
-        <canvas ref={canvasRef} className="cam-canvas" style={{ display: 'block' }} onPointerDown={sampleAt} />
+      {/* The stage takes the PHOTO's aspect ratio rather than a fixed 3:4.
+          With a fixed box the canvas had to object-fit: cover, which crops —
+          so on a landscape photo the left and right of the image were not just
+          hidden but un-eyedroppable, and a tap's percentage position did not
+          match the pixel it sampled. Matching the aspect means `contain` shows
+          the whole frame with no letterboxing, and a tap's fraction of the
+          stage is exactly its fraction of the photo. */}
+      <div className="cam-stage" style={{ display: loaded ? 'block' : 'none', aspectRatio: aspect }}>
+        <canvas ref={canvasRef} className="cam-canvas cam-canvas-contain"
+          style={{ display: 'block' }} onPointerDown={sampleAt} />
         {loaded && tap && (
           <div className="cam-tap" style={{ left: `${tap.xPct}%`, top: `${tap.yPct}%` }}>
             <span className="cam-tap-chip"><i style={{ background: rgbToHex(tap.rgb) }} />{rgbToHex(tap.rgb)}</span>

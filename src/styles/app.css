@@ -174,8 +174,9 @@ main { flex: 1; min-height: 0; position: relative; }
 .filter-chip {
   font: inherit; font-size: 0.85rem;
   background: var(--paper-2); color: var(--ink);
-  border: 1px solid var(--hairline); border-radius: 999px;
-  padding: 0.25rem 0.6rem; cursor: pointer;
+  /* Snapped to the 4px scale — 0.6rem was off-grid by 2.4px a side. */
+  border: 1px solid var(--hairline); border-radius: var(--radius-pill);
+  padding: var(--s1) var(--s3); cursor: pointer;
 }
 .filter-chip span { color: var(--ink-muted); margin-left: 0.25rem; }
 .filter-chip:hover { border-color: var(--accent); }
@@ -355,6 +356,11 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--ink); border-radius: var(--radius); overflow: hidden;
 }
 .cam-video, .cam-canvas { width: 100%; height: 100%; object-fit: cover; touch-action: none; }
+/* The upload picker shows the WHOLE photo: its stage takes the photo's own
+   aspect ratio, so `contain` letterboxes nothing and every part of the image
+   stays eyedroppable. `cover` cropped the edges of a landscape photo out of
+   reach entirely. */
+.cam-canvas-contain { object-fit: contain; }
 .cam-reticle {
   position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
   width: 58px; height: 58px; border: 2px solid var(--accent); border-radius: 50%;

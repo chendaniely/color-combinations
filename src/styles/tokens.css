@@ -25,6 +25,7 @@
   /* layout */
   --panel-width: 400px;
   --radius: 3px;
+  --radius-pill: 999px;
   --header-height: 64px;
   /* The colour picker's disc. Width AND height both read this, so the disc is
      square by construction — which is what lets ColorDisc.tsx place the pin in

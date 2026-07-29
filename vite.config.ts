@@ -39,5 +39,21 @@ export default defineConfig({
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
     exclude: ['tests/browser/**'],
     setupFiles: ['tests/setup.ts'],
+    // Vitest's default is 5000ms, tuned for unit tests. Several files here
+    // render the WHOLE book in jsdom on purpose — MatchedCombinations ranks all
+    // 348 combinations, PaletteTabs scores all 157 colours — because asserting
+    // against the real dataset is the point of those tests, and shrinking the
+    // fixture would weaken them.
+    //
+    // This closes the "UNDIAGNOSED: one test failed once" entry that sat in
+    // TODO.md since v1.4.0. It reproduced twice on 2026-07-29, both times as
+    // `matchedCombinations > the floor control > offers all four stops`, and
+    // both times as a TIMEOUT rather than a failed assertion: 7122ms against
+    // the 5000ms limit, in a run where its own siblings took 200-900ms and the
+    // suite spent 60s of test time across workers. It is the first test in a
+    // heavy file, so it also pays module init and first render. Under parallel
+    // worker contention that crosses 5s. Nothing is hung; the work is real.
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
   },
 })

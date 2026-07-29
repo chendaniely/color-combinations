@@ -45,4 +45,23 @@ describe('accessibilityProfile + allowedComboIds over the real book', () => {
     expect(web.size).toBe(150)
     expect([...all3].every((id) => web.has(id))).toBe(true)
   })
+
+  // Every lens is a claim about telling colours apart, so none of them means
+  // anything below two colours. They used to disagree there by accident:
+  // `some` on an empty pair list is false while `every` is vacuously true, so
+  // web-text said no and the other two said yes to the very same input.
+  // Unreachable through accessibilityProfile, which only passes size >= 2 —
+  // but a latent trap for any future direct caller.
+  it('every lens answers the same way when there is nothing to tell apart', () => {
+    for (const lens of LENSES) {
+      expect(lens.passes([]), `${lens.id} on no colours`).toBe(false)
+      expect(lens.passes(['#236192']), `${lens.id} on one colour`).toBe(false)
+    }
+  })
+
+  it('still judges a genuine pair on its merits', () => {
+    const byId = Object.fromEntries(LENSES.map((l) => [l.id, l]))
+    expect(byId['web-text'].passes(['#ffffff', '#000000'])).toBe(true)
+    expect(byId['web-text'].passes(['#fefefe', '#ffffff'])).toBe(false)
+  })
 })
