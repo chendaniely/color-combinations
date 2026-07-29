@@ -28,6 +28,94 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.7.0 — 2026-07-29 — The seasons stop being made up
+
+The twelve season palettes on the You tab were invented. This release replaces
+them with rules from a published colour system — and the system turned out to
+descend from the man who made the book.
+
+The owner started by asking the obvious question:
+
+> for the color analysis. the "seasons" i know it's something you made up, but
+> are there standard colors for the season?
+
+There aren't. Every colour-analysis school sells its own swatch book, they
+disagree with each other, and none publish the recipe. A page titled *"The
+Expanded Winter Colour Season Munsell Matrix"* turned out to contain no numbers
+at all.
+
+Claude's next suggestion — define each season by ten hand-picked example
+swatches — was **wrong, and the owner said so**:
+
+> examples approach might work. but i don't think i will know how to decide
+> between them. maybe it is best to do it rules based? maybe you can go find
+> color swatches from korean color analysis and try to find a ruleset for those?
+> this is like the blind leading the blind here.
+
+That refusal is what made this release work. Ten swatches nobody can evaluate
+are no more auditable than a number nobody can evaluate. Following the owner's
+pointer to Korean colour analysis led to **PCCS**, the Practical Color
+Co-ordinate System — and then to this:
+
+**Sanzo Wada founded the institute that published PCCS.** He established the
+Japan Standard Color Association in 1927; it became the Japan Color Research
+Institute, which published PCCS in 1964. He published *A Dictionary of Color
+Combinations* in 1933. Korean personal colour analysis runs on PCCS today. The
+ruleset and the book share an ancestor.
+
+**What changed**
+
+- **Seasons are computed, not curated.** Membership falls out of a season's
+  temperature half of the PCCS hue circle and its set of PCCS tones. No
+  hand-picked colour ids anywhere.
+- **Two levels, marked differently, because they aren't equally solid.** The
+  four parent seasons follow a published rule and are marked sourced with
+  citations. The twelve sub-seasons are **ours** and say so. The owner was
+  explicit:
+
+  > let's keep the 12 labels snf label what's ours, but when we display it we
+  > also aggregate up to the official 4 seasons … i'm all about the transparancy.
+
+- **The fit is shown, not implied.** Each colour displays how close it actually
+  is to the season's ideal, with the ideal beside it. Clear Winter gets **one**
+  very-close match against twenty-five that aren't. That's not a bug — Wada's
+  book is a 1933 pigment book with only eleven genuinely muted colours among
+  157, and four seasons are *defined* by mutedness. The page says these are the
+  nearest matches in the book, not season colours, on the owner's instruction:
+
+  > we should also be clear that this is doing the closet match to the color
+  > pallets in the book, so things will not map 100% … i think that's fair.
+
+- **Six new datasets, each usable on its own**, because the owner asked for the
+  data to outlive the website:
+
+  > i'd love for this to become a larger resource. personally this has me
+  > wanting to do more research into PCCS and that entire chain of work. really
+  > cool set of breadcrumbs!
+
+  Including `pccs-grid.json` — the PCCS hue/tone grid as 288 hex codes, which is
+  otherwise hard to find.
+
+- **Every source is verified.** `make check-links` checks each cited URL still
+  resolves, on the owner's condition that links must be ones "a human can
+  navigate to". It caught one site answering 200 to `curl` and 403 to `fetch` on
+  the same day, now recorded as such.
+
+- **New: [`docs/color-analysis-sources.md`](docs/color-analysis-sources.md)** —
+  the whole chain with sources, and a plain table of what's sourced and what's
+  ours.
+
+**Also fixed, from mistakes made during this release:** the sub-seasons were at
+first scored against their parent, which made all three siblings identical; the
+tone swatches were drawn at the midpoint of their band, which rendered *bright*
+as a washed-out pink; and the new datasets were bundled into the main chunk,
+growing it 444 kB → 531 kB and timing out an accessibility audit on a screen
+with no seasons on it. All three are now covered by tests. The full list,
+including a verification that couldn't fail and had to be redone, is in
+[`PROMPTS.md`](PROMPTS.md).
+
+---
+
 ## v1.6.0 — 2026-07-29 — Paying down what we owed
 
 **No new feature. On purpose.** This release started with the owner taking

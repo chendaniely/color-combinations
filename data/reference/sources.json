@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "description": "Citation registry for the colour-analysis datasets. Every other dataset in data/ cites these by id rather than repeating a URL, so a source is described once and can be corrected in one place. `supports` states the specific claim the source is cited for — a citation that supports nothing is decoration. `botBlocked` marks pages a human can read in a browser but that reject automated readers; do not waste time re-testing them. Statuses were verified on 2026-07-29 with `make check-links`.",
+  "sources": [
+    {
+      "id": "artplatform-wada",
+      "title": "WADA Sanzō (和田三造) — Dictionary of Artists in Japan",
+      "publisher": "Art Platform Japan, Agency for Cultural Affairs (go.jp)",
+      "url": "https://artplatform.go.jp/artists/A2089",
+      "accessed": "2026-07-29",
+      "supports": "The founding claim this whole design rests on, quoted exactly: 'In 1927 Wada established the Japan Standard Color Association (present-day Japan Color Research Institute)'. Also gives his dates, 1883-1967."
+    },
+    {
+      "id": "wikipedia-wada",
+      "title": "Sanzo Wada",
+      "publisher": "Wikipedia (English)",
+      "url": "https://en.wikipedia.org/wiki/Sanzo_Wada",
+      "accessed": "2026-07-29",
+      "supports": "Wada biography and the 1933-34 publication dates of the colour-combination volumes reprinted as A Dictionary of Color Combinations."
+    },
+    {
+      "id": "jcri",
+      "title": "日本色彩研究所 (Japan Color Research Institute)",
+      "publisher": "Japan Color Research Institute",
+      "url": "https://www.jcri.jp/",
+      "accessed": "2026-07-29",
+      "supports": "The institute Wada founded, still operating. Publisher of PCCS."
+    },
+    {
+      "id": "jcri-history",
+      "title": "沿革 (History) — Japan Color Research Institute",
+      "publisher": "Japan Color Research Institute",
+      "url": "https://www.jcri.jp/history/",
+      "accessed": "2026-07-29",
+      "supports": "The institute's own account of its history. Note: the page renders its content with JavaScript, so an automated reader sees an empty document even though it returns 200 and reads normally in a browser.",
+      "botBlocked": true
+    },
+    {
+      "id": "shikisai101-pccs",
+      "title": "What is PCCS (Hue Circle, Tone Diagram)",
+      "publisher": "Shikisai 101",
+      "url": "https://en.shikisai101.com/color-basic/What-is-PCCS-color-circle-tone-conceptual-diagram/",
+      "accessed": "2026-07-29",
+      "supports": "PCCS was developed by the Japan Color Research Institute in 1964; the hue-tone structure; the twelve chromatic tone names and abbreviations with their impressions; construction of the 24-hue circle from four psychological primaries."
+    },
+    {
+      "id": "wikipedia-ja-pccs",
+      "title": "PCCS",
+      "publisher": "Wikipedia (Japanese)",
+      "url": "https://ja.wikipedia.org/wiki/PCCS",
+      "accessed": "2026-07-29",
+      "supports": "The 24 hues with Japanese and English names; the twelve chromatic and five achromatic tones; lightness running 1.5-9.5 in 0.5 steps and saturation 1s-9s. See the `notes` in pccs-tones.json for where this source is internally inconsistent."
+    },
+    {
+      "id": "whatcolorssuitme-korean",
+      "title": "Korean Color Analysis (퍼스널컬러): Complete Guide for Western Readers",
+      "publisher": "What Colors Suit Me?",
+      "url": "https://whatcolorssuitme.com/guides/korean-color-analysis/",
+      "accessed": "2026-07-29",
+      "supports": "Korean personal-colour analysis reads undertone, depth and chroma, and is built on PCCS tones rather than on Western swatch books."
+    },
+    {
+      "id": "colorme-korean",
+      "title": "Personal Color Analysis: The Korean Movement and the Western 12-Season Grid",
+      "publisher": "ColorMe",
+      "url": "https://colorme.style/personal-color-analysis/",
+      "accessed": "2026-07-29",
+      "supports": "The mapping of the four parent seasons onto sets of PCCS tones, and the distinction between Korean practice and the Western twelve-season grid."
+    },
+    {
+      "id": "personalcolorai-korean-12",
+      "title": "How Korean 12-Season Color Analysis Works",
+      "publisher": "PersonalColorAI",
+      "url": "https://personalcolorai.com/blog/korean-personal-color-analysis-12-seasons",
+      "accessed": "2026-07-29",
+      "supports": "Korean studios subdivide the four seasons into eight or twelve types depending on the studio — evidence that the twelve-way split is not standardised, which is why ours is marked as ours."
+    },
+    {
+      "id": "dbpia-pccs-ks",
+      "title": "PCCS·KS 톤(light, bright, pale, soft)에 대한 색채 인식 비교 연구",
+      "publisher": "한국디자인문화학회지 (Journal of the Korean Society of Design Culture), via DBpia",
+      "url": "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12537491",
+      "accessed": "2026-07-29",
+      "supports": "Peer-reviewed treatment of PCCS tones in a Korean personal-colour context, and evidence that tone boundaries are actively studied rather than settled."
+    },
+    {
+      "id": "rit-munsell",
+      "title": "Munsell Color Science Lab Educational Resources — Munsell Renotation Data",
+      "publisher": "Rochester Institute of Technology, Munsell Color Science Laboratory",
+      "url": "https://www.rit.edu/science/munsell-color-science-lab-educational-resources",
+      "accessed": "2026-07-29",
+      "supports": "The Munsell renotation data (Newhall, Judd and Nickerson, JOSA, 1943), cited for the ancestry of the PCCS lightness scale: PCCS lightness is Munsell value. We do not vendor the data itself."
+    },
+    {
+      "id": "chromology-sciart",
+      "title": "The Sci\\ART™ Personal Colour Analysis System",
+      "publisher": "Chromology",
+      "url": "https://chromology.co.uk/the-sciart-system/",
+      "accessed": "2026-07-29",
+      "supports": "Kathryn Kalisz developed Sci\\ART around 2000 while working at the Munsell Institute, framing the seasons in Munsell hue/value/chroma terms — the origin of the Western twelve-season vocabulary. Its bot detection is inconsistent: 200 to curl, 403 to fetch, on the same day. Reads normally in a browser.",
+      "botBlocked": true
+    },
+    {
+      "id": "stylesyntax-sciart",
+      "title": "Sci\\ART: A Brief Introduction",
+      "publisher": "Style Syntax",
+      "url": "https://stylesyntax.com/blog/color-diy/why-sciartintroduction/",
+      "accessed": "2026-07-29",
+      "supports": "Independent account of the Sci\\ART system and how the twelve-season vocabulary spread to other schools."
+    },
+    {
+      "id": "grokipedia-pccs",
+      "title": "Practical Color Coordinate System",
+      "publisher": "Grokipedia",
+      "url": "https://grokipedia.com/page/practical_color_coordinate_system",
+      "accessed": "2026-07-29",
+      "supports": "PCCS tone groupings and the derivation of tones from the Munsell value and chroma scales. Readable in a browser; rejects automated readers.",
+      "botBlocked": true
+    }
+  ]
+}

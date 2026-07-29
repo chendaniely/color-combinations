@@ -531,6 +531,66 @@ main { flex: 1; min-height: 0; position: relative; }
   border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
 }
 
+/* The two levels of the season, shown differently BECAUSE they are not
+   equally grounded: the parent comes from a published system, the
+   sub-season is ours. Styling them identically would undo the point. */
+.season-levels {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3);
+  margin-bottom: var(--s3);
+}
+.season-parent {
+  font-family: var(--font-display); font-size: 1.5rem; color: var(--ink);
+}
+.season-sub {
+  font-family: var(--font-display); font-size: 1.1rem; color: var(--ink-muted);
+}
+.season-sub::before {
+  content: '└ '; font-family: var(--font-ui); color: var(--ink-faint);
+}
+.season-badge {
+  display: inline-block; margin-left: var(--s2); padding: 0.1em 0.5em;
+  border-radius: var(--radius-pill); font-family: var(--font-ui);
+  font-size: 0.62rem; font-style: normal; letter-spacing: 0.04em;
+  text-transform: uppercase; vertical-align: middle;
+}
+.season-badge.sourced { background: var(--link); color: var(--paper-hi); }
+.season-badge.ours {
+  background: transparent; color: var(--ink-muted);
+  border: 1px solid var(--hairline);
+}
+
+/* Ideal beside nearest-in-the-book. The gap between the two columns IS the
+   information, so the pair must read as a pair at any width. */
+.season-fit { margin-top: var(--s5); }
+.season-fit h4 {
+  font-family: var(--font-display); font-size: 1.05rem; font-weight: 500;
+  margin: 0 0 var(--s3);
+}
+.fit-pairs { list-style: none; margin: 0 0 var(--s3); padding: 0; }
+.fit-pairs li {
+  display: flex; align-items: center; gap: var(--s2);
+  padding: var(--s1) 0; border-bottom: 1px solid var(--hairline);
+}
+.fit-pairs i {
+  width: 26px; height: 26px; flex: 0 0 auto;
+  border-radius: var(--radius); border: 1px solid var(--hairline);
+}
+.fit-arrow { color: var(--ink-faint); font-size: 0.8rem; }
+.fit-name { flex: 1 1 auto; font-size: 0.8rem; }
+.fit-band, .swatch-band {
+  font-family: var(--font-ui); font-size: 0.62rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-muted); white-space: nowrap;
+}
+/* Only the worst band is coloured. Colouring all four would turn an honest
+   scale into a traffic light and imply three of them are problems. */
+.fit-not-close .fit-band, .swatch-band.fit-not-close { color: var(--accent); }
+.fit-caveat {
+  font-size: 0.82rem; color: var(--ink-muted); line-height: 1.55;
+  border-left: 2px solid var(--accent); padding-left: var(--s3);
+  margin: 0; max-width: 46rem;
+}
+.you-swatch .swatch-band { font-size: 0.58rem; }
+
 /* Out of the You tab and into the rest of the site. */
 .you-doorways {
   margin-top: var(--s8); padding-top: var(--s6);

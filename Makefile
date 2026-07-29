@@ -1,6 +1,6 @@
 NPM := npm
 
-.PHONY: help install dev lint test test-browser install-browser coverage build preview update-data clean
+.PHONY: help install dev lint test test-browser install-browser coverage build preview update-data check-links clean
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-16s %s\n", $$1, $$2}'
@@ -37,6 +37,9 @@ update-data: ## Re-download source data and regenerate data/processed/
 	curl -fsSL https://sanzo-wada.dmbk.io/assets/colors.json -o data/raw/colors.json
 	date +%F > data/raw/retrieved-on.txt
 	$(NPM) run ingest
+
+check-links: ## Check every cited source URL still resolves (hits the network)
+	npx tsx scripts/check-links.ts
 
 clean: ## Remove build output, copied assets, and installed dependencies
 	rm -rf dist node_modules public/mediapipe

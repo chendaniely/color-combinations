@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "description": "The PCCS 24-hue circle (PCCS色相環). PCCS — the Practical Color Co-ordinate System — was published by the Japan Color Research Institute in 1964; the institute was founded by Sanzo Wada in 1927 as the Japan Standard Color Association, six years before he published the colour combinations this site is built on. The circle is built from four psychological primaries (red, yellow, green, blue), then their four psychological complements, then intermediates, giving 12 base hues doubled to 24. Usable on its own: `n` is the hue number used in PCCS notation such as `2:R-4.5-9s`.",
+  "sources": ["wikipedia-ja-pccs", "shikisai101-pccs", "jcri"],
+  "notes": "The abbreviations are NOT unique across the 24 steps: 14 and 15 are both BG, and 17 and 18 are both B. That is how the circle is published — it runs 24 perceptual steps but doubles up the short labels in the blue-green and blue regions. `n` is the identity; `abbr` is a label. tests/pccs.test.ts asserts the repetition so that nobody 'corrects' it into 24 unique strings.",
+  "hues": [
+    { "n": 1, "abbr": "pR", "ja": "紫みの赤", "en": "Purplish red" },
+    { "n": 2, "abbr": "R", "ja": "赤", "en": "Red" },
+    { "n": 3, "abbr": "yR", "ja": "黄みの赤", "en": "Yellowish red" },
+    { "n": 4, "abbr": "rO", "ja": "赤みの橙", "en": "Reddish orange" },
+    { "n": 5, "abbr": "O", "ja": "橙", "en": "Orange" },
+    { "n": 6, "abbr": "yO", "ja": "黄みの橙", "en": "Yellowish orange" },
+    { "n": 7, "abbr": "rY", "ja": "赤みの黄", "en": "Reddish yellow" },
+    { "n": 8, "abbr": "Y", "ja": "黄", "en": "Yellow" },
+    { "n": 9, "abbr": "gY", "ja": "緑みの黄", "en": "Greenish yellow" },
+    { "n": 10, "abbr": "YG", "ja": "黄緑", "en": "Yellow green" },
+    { "n": 11, "abbr": "yG", "ja": "黄みの緑", "en": "Yellowish green" },
+    { "n": 12, "abbr": "G", "ja": "緑", "en": "Green" },
+    { "n": 13, "abbr": "bG", "ja": "青みの緑", "en": "Bluish green" },
+    { "n": 14, "abbr": "BG", "ja": "青緑", "en": "Blue green" },
+    { "n": 15, "abbr": "BG", "ja": "青緑", "en": "Blue green" },
+    { "n": 16, "abbr": "gB", "ja": "緑みの青", "en": "Greenish blue" },
+    { "n": 17, "abbr": "B", "ja": "青", "en": "Blue" },
+    { "n": 18, "abbr": "B", "ja": "青", "en": "Blue" },
+    { "n": 19, "abbr": "pB", "ja": "紫みの青", "en": "Purplish blue" },
+    { "n": 20, "abbr": "V", "ja": "青紫", "en": "Violet" },
+    { "n": 21, "abbr": "bP", "ja": "青みの紫", "en": "Bluish purple" },
+    { "n": 22, "abbr": "P", "ja": "紫", "en": "Purple" },
+    { "n": 23, "abbr": "rP", "ja": "赤みの紫", "en": "Reddish purple" },
+    { "n": 24, "abbr": "RP", "ja": "赤紫", "en": "Red purple" }
+  ]
+}

@@ -74,22 +74,53 @@ Never treat a plan as a description of the current code.
 - `src/core/` is a **pure TypeScript kernel**: only relative imports of
   other core files; no React, D3, or browser globals. Enforced by
   `tests/core-purity.test.ts` — never weaken that test.
-- The app reads exactly two data files, both schema-versioned and validated
-  at load by `src/data.ts` — the ONLY module allowed to import a data file.
-  The word *import* is load-bearing: an `import` bundles the file into the
-  app, which is why exactly one module may do it. Tests may read the same
-  files with `readFileSync` (several do, to assert against the real book)
-  because that runs in Node and bundles nothing. Never convert such a read
-  into an import to make a test tidier.
+- The app reads **seven** data files, every one schema-versioned and
+  validated at load by `src/data.ts` — the ONLY module allowed to import a
+  data file. The word *import* is load-bearing: an `import` bundles the file
+  into the app, which is why exactly one module may do it. Tests may read
+  the same files with `readFileSync` (several do, to assert against the real
+  book) because that runs in Node and bundles nothing. Never convert such a
+  read into an import to make a test tidier.
+
+  This said "exactly two" until v1.7.0. The count grew deliberately, on the
+  owner's instruction — *"save whatever color data you have as separate
+  datasets in the data folder … this way the data in the site can be used and
+  worked with independently and there is a citation / reference on what it
+  is. i'd love for this to become a larger resource."* Each file is therefore
+  self-describing (`schemaVersion`, prose `description`, `sources` ids) and
+  usable by someone who does not care about this site. **The count is not the
+  rule; the single importer is.**
+
   - `data/processed/colors-data.json` is **generated** from a vendored
     source and must never be hand-edited. Source-format knowledge lives
     ONLY in `scripts/ingest/`.
-  - `data/curated/seasons.json` is **authored by hand** and never
-    generated. `scripts/seed-seasons.ts` produced the first version and is
-    not part of the build; re-running it overwrites curation. It holds the
-    twelve season→color palettes, which have no published source and are
-    ours — kept as data precisely so they can be audited and corrected
-    without touching TypeScript.
+  - `data/reference/sources.json` is the **citation registry**. Every other
+    dataset cites into it by id, so a source is described once. Every entry
+    names the specific claim it `supports`; a citation that supports nothing
+    is decoration. `make check-links` verifies the URLs and is deliberately
+    NOT in `make test` or CI — whether someone else's server is up is not a
+    fact about this repo.
+  - `data/reference/pccs-*.json` are **transcribed by hand** from published
+    PCCS references, and their `notes` record where we departed from a
+    source and why. `pccs-grid.json` is **generated** from the other two.
+  - `data/curated/season-rules.json` is **authored by hand**. It holds the
+    four parent seasons (`sourced: true`, with citations) and the twelve
+    sub-seasons (`sourced: false`, ours). The validator rejects the file if
+    either flag flips — that line is what the site tells the visitor, and
+    `docs/color-analysis-sources.md` explains it.
+  - `data/processed/season-colors.json` is **generated** from the rules by
+    `scripts/build-season-colors.ts`. `tests/seasonColors.test.ts`
+    regenerates it and fails on any diff, so it cannot drift.
+  - The five colour-analysis files are **lazy-loaded** via `loadSeasonData()`
+    — ~98 kB that only the You tab needs. Importing them statically grew the
+    main bundle 444 kB → 531 kB and timed out the browse accessibility
+    audit, a screen with no seasons on it. The `import()` stays inside
+    `src/data.ts` so the single-importer rule holds.
+    `tests/browser/seasonFit.spec.ts` guards the split.
+
+  Replaced `data/curated/seasons.json`, which held twelve hand-listed
+  palettes it admitted had no published source. Its admission is quoted in
+  `docs/color-analysis-sources.md` rather than deleted with the file.
 - App state is one serializable object (`src/core/state.ts`).
 - Every design token (color/font/spacing/motion) lives in
   `src/styles/tokens.css`. No hard-coded colors in components, with exactly

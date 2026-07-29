@@ -59,13 +59,27 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
         skin look tired. Every colour will tell you why it's there.
       </p>
       <p>
-        <strong>The season palette</strong> — Deep Autumn, Cool Summer and the
-        rest — comes from a table <em>we wrote</em>. The twelve seasons are a
-        long tradition in personal color analysis, but the specific lists here
-        have <strong>no published source</strong>: they are our own curation.
-        They're offered because they're useful if you already know your season,
-        and they live in an editable file rather than buried in code so they can
-        be corrected. Treat them as a second opinion, not a measurement of you.
+        <strong>The season palette</strong> is computed from <strong>PCCS</strong>,
+        the colour system the Japan Color Research Institute published in 1964 —
+        the institute <em>Sanzo Wada founded in 1927</em>, six years before this
+        book. It's what Korean personal colour analysis is built on, which makes
+        it the right system for this book rather than merely an available one.
+      </p>
+      <p>
+        Two levels, and the difference is deliberate. The four seasons — Spring,
+        Summer, Autumn, Winter — follow a <strong>published rule</strong>: a warm
+        or cool half of the PCCS hue circle plus a set of its tones. The twelve
+        sub-seasons are <strong>ours</strong>; no published source defines them
+        consistently, and the site marks them so. Nothing is hand-picked either
+        way — which colours belong to a season falls out of the rules, and you
+        can read the rules in <code>data/curated/season-rules.json</code>.
+      </p>
+      <p>
+        What you see are the <strong>closest matches in Wada's book</strong>, not
+        exact season colours, and each one shows how close it actually is. The
+        book was printed in 1933 for pigments: only eleven of its 157 colours are
+        genuinely muted, so the soft seasons in particular are served by
+        approximations. Showing the gap seemed better than hiding it.
       </p>
       <p>
         Your photograph <strong>never leaves your device</strong>. It isn't
@@ -83,7 +97,10 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
       </p>
       <p className="muted">
         Data: <a href="https://sanzo-wada.dmbk.io" target="_blank" rel="noreferrer">sanzo-wada.dmbk.io</a>.
-        Site by Daniel, vibe-coded with Claude.
+        {' '}Where the season colours come from, with sources:{' '}
+        <a href="https://github.com/chendaniely/color-combinations/blob/main/docs/color-analysis-sources.md"
+          target="_blank" rel="noreferrer">color-analysis-sources.md</a>.
+        {' '}Site by Daniel, vibe-coded with Claude.
       </p>
     </Panel>
   )

@@ -165,19 +165,71 @@ One thing worth knowing: Wada's palette leans warm — 109 of its 157 colors rea
 warm against 48 cool — so cool-toned visitors get a shorter list here. That's
 the book, not you, and the page says so.
 
-#### Editing the season lists
+#### Where the seasons come from
 
-The twelve season palettes live in **`data/curated/seasons.json`**. That file is
-meant to be edited by hand — it's read directly by the site, so changing it and
-refreshing the page changes the palettes. No code involved.
+They used to be made up. As of v1.7.0 they're computed from **PCCS** — the
+Practical Color Co-ordinate System, published in 1964 by the Japan Color
+Research Institute.
 
-Each season lists the `colorIds` that belong to it. The ids match
-`data/processed/colors-data.json`. A color can belong to several seasons.
+Which is the interesting part: **Sanzo Wada founded that institute**, in 1927,
+six years before he published this book. Korean personal colour analysis
+(퍼스널컬러) is built on PCCS to this day. So the rules and the colours share an
+ancestor.
 
-If you break something — a color id that doesn't exist, an empty season, a
-misspelled name — the site will refuse to start and `make test` will tell you
-exactly what's wrong. That guard is deliberate: the file is meant to be edited,
-so it needs to fail loudly rather than quietly show a broken palette.
+There are **two levels**, shown separately because they aren't equally solid:
+
+- **The four seasons** — Spring, Summer, Autumn, Winter — follow a published
+  rule: a warm or cool half of the PCCS hue circle, plus a set of its tones.
+- **The twelve sub-seasons** — Deep Autumn, Cool Summer and the rest — are
+  **ours**. No published source defines them consistently, and the site labels
+  them as ours rather than pretending otherwise.
+
+Nothing is hand-picked either way. Which colours land in a season falls out of
+the rules, and each one shows **how close it actually is** — because what you
+get are the nearest matches in Wada's book, not exact season colours. The book
+was printed in 1933 for pigments: only eleven of its 157 colours are genuinely
+muted, so the soft seasons are served by approximations. Showing that gap
+seemed better than hiding it.
+
+The full story, with sources, is in
+[`docs/color-analysis-sources.md`](docs/color-analysis-sources.md).
+
+#### Editing the season rules
+
+Edit **`data/curated/season-rules.json`** — it's read directly by the site, so
+changing it and refreshing changes the seasons. No code involved.
+
+Then run `npm run build-season-colors` to regenerate the colour lists from your
+edited rules. `make test` fails if you forget.
+
+If you break something — a tone that doesn't exist, a sub-season claiming to be
+sourced, a hue left out of the warm/cool split — the site refuses to start and
+`make test` says exactly what's wrong. That guard is deliberate: the file is
+meant to be edited, so it has to fail loudly rather than quietly show a broken
+palette.
+
+#### The colour datasets
+
+Each of these is self-contained, cited, and usable on its own — you don't need
+this website to get something out of them.
+
+| File | What it is |
+| --- | --- |
+| `data/reference/sources.json` | Every source cited by the others, with what each one supports |
+| `data/reference/pccs-hues.json` | The 24-hue PCCS circle, Japanese and English names |
+| `data/reference/pccs-tones.json` | The 12 tones (vivid, pale, deep…) and their bands |
+| `data/reference/pccs-grid.json` | 288 colours as hex — 24 hues × 12 tones |
+| `data/curated/season-rules.json` | The season rules, marked sourced or ours |
+| `data/processed/season-colors.json` | Season → colour → how well it fits |
+
+`pccs-grid.json` may be the most useful on its own: a PCCS hue/tone grid as hex
+codes is surprisingly hard to find. It's *our rendering* of the published PCCS
+structure, not the institute's own chip values — close to a real PCCS colour
+card, not identical.
+
+Run `make check-links` to check every cited URL still resolves. It's not part of
+`make test` on purpose: whether someone else's website is up isn't a fact about
+this project.
 
 ### Accessibility goggles
 
@@ -210,12 +262,16 @@ see — they never change or hide the underlying book data.
   the generated, validated internal format the site actually reads.
   Regenerate any time with `make update-data`. If the source data ever has
   to change (e.g. licensing), only `scripts/ingest/` needs rewriting.
-  `data/curated/seasons.json` is the opposite: written by hand, never
-  generated — see [Editing the season lists](#editing-the-season-lists).
+  `data/reference/` holds the PCCS colour-system data and the citation
+  registry; `data/curated/season-rules.json` is written by hand and never
+  generated — see [Editing the season rules](#editing-the-season-rules).
 - `tests/` — the fast suite. `tests/browser/` is the separate real-browser
   suite run by `make test-browser` (see [Testing](#testing)); it is deliberately
   excluded from `make test`.
 - `docs/superpowers/` — the design spec and implementation plans.
+- `docs/color-analysis-sources.md` — where the season colours come from:
+  the Wada → Japan Color Research Institute → PCCS → Korean personal-colour
+  chain, with sources, and a plain statement of what's sourced and what's ours.
 - `CLAUDE.md` — working rules for the AI sessions that maintain this repo.
 - `PROMPTS.md` — the owner's prompts & decisions that shaped this project.
 - `CHANGELOG.md` — release history, each entry paired with the owner prompt

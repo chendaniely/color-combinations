@@ -1611,3 +1611,104 @@ handles), so the deep-links item is as cheap as claimed.
   diagnosing a timeout caused by slow tests. One batched `git cat-file
   --batch-check` brought it to 155ms, and it was checked against a deliberately
   fake hash to confirm it still detects one.
+
+## 2026-07-29 — Session 17: the seasons get a real source (v1.7.0)
+
+**Owner prompt (opening):**
+
+> for the color analysis. the "seasons" i know it's something you made up, but
+> are there standard colors for the season? a way we can make a dataset for teh
+> seasons, and then do a similarity mapping from the official season colors to
+> the ones in the dataset
+
+The honest answer was no: every colour-analysis school sells its own swatch
+book, they disagree, and none publish the recipe. Measuring the book first also
+turned up the fact that shaped the whole release — only **11 usable muted
+colours** in 157, shared between the four seasons *defined* by mutedness, and
+two shipped palettes (`soft-autumn`, `light-spring`) labelled "low chroma" while
+measuring median C\* 36.8 and 39.3.
+
+**Owner prompt (scope and the dropdown question):**
+
+> yes i also want you to save the season color as a dataset that gets loaded and
+> we can use to join or do somethign with later on. i do like the idea of
+> showing the fit. we should also be clear that this is doing the closet match
+> to the color pallets in the book, so things will not map 100% and is the
+> closst color for a given season. i think that's fair. in the future i might
+> have more color pallets that we incorporate into the site so things will be
+> good. do you think the munsell-spec dataset itself would be good enough for
+> someone to go through this site? like if i have a drop down on the top that
+> allows you to pick a color combination and the entire site reacts to the new
+> set of colors?
+
+Answer: no — 22 modules read `combinations`, and no other corpus has any. The
+reframe was corpus (don't swap) versus lens (do build), and the owner took it.
+
+**Owner decision (scope):** chose **"Dataset + fit, lens-ready"** over building
+the site-wide dropdown now — schemas designed so a lens can be added later
+without a rewrite.
+
+**Owner prompt (the redirection that made the design work):**
+
+> examples approach might work. but i don't think i will know how to decide
+> between them. maybe it is best to do it rules based? maybe you can go find
+> color swatches from korean color analysis and try to find a ruleset for those?
+> this is like the blind leading the blind here.
+
+This is the most important prompt in the session. Claude had recommended
+defining each season by ~10 hand-picked example swatches; the owner correctly
+refused a judgement they had no way to make, and pointed at Korean colour
+analysis. That led to **PCCS** — and to the discovery that **Sanzo Wada founded
+the institute that published it**, in 1927, six years before the book. The
+"examples" design was abandoned for a rules-based one.
+
+**Owner decision (how many seasons):**
+
+> let's keep the 12 labels snf label what's ours (option 1), but when we display
+> it we also aggregate up to the official 4 seasons. so there's the official
+> full set, and then the micro rules we've made up. this way we can present all
+> the correct information to the user. and cavet some of the less official ways
+> and let them know. i'm all about the transparancy. i also love that you found
+> the korean <> japanese connection. we should document that with sources as
+> well. if you link to websites please make sure they status 200 (or some other
+> status that a human can navigate to).
+
+Three requirements at once: the two-level display, the provenance document, and
+**verified links** — which produced `make check-links` and caught
+`chromology.co.uk` answering 200 to curl and 403 to fetch on the same day.
+
+**Owner prompt (data as a resource):**
+
+> please save whatever color data you have as separate datasets in the data
+> folder that the site uses. this way the data in the site can be used and
+> worked with independently and there is a citation / reference on what is is.
+> i'd love for this to become a larger resource. personally this has me wanting
+> to do more research into PCCS and that entire chain of work. really cool set
+> of breadcrumbs!
+
+This is why the release ships six separate self-describing datasets rather than
+one blob, and why `CLAUDE.md`'s "exactly two data files" rule became seven.
+
+**Owner prompt (ship it):**
+
+> i think that's okay. let's just go, if something is off i'll see it in the
+> website
+
+### What Claude got wrong, recorded because the record is the point
+
+- **Recommended examples over rules.** The owner overruled it and was right.
+  Ten swatches nobody can evaluate is not more auditable than a number nobody
+  can evaluate.
+- **Measured fit against the parent season**, which made all three sub-seasons
+  of a parent identical — the twelve would have been decorative. Caught by
+  writing a test that asserts siblings share a pool but rank it differently.
+- **Rendered tones at the midpoint of their band**, which drew `bright` as a
+  washed-out pink. Fixed by separating a tone's region from its canonical
+  position, now a field, a validator rule and a test.
+- **Bundled 98 kB of season JSON into the main chunk**, growing it 444 kB →
+  531 kB and timing out the browse accessibility audit — a screen with no
+  seasons on it. Caught by the browser suite, fixed with a dynamic import.
+- **Wrote a verification that could not fail.** The first attempt to prove the
+  code-split guard worked left the dynamic imports in place, so the chunk still
+  existed and the test still passed. Redone properly, it fails with "season data
+  was never fetched on the You tab".

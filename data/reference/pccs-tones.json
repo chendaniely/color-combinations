@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "description": "The PCCS tone system (トーン): twelve chromatic tones plus five achromatic. A tone is a region of the lightness x saturation plane — colours sharing a tone read as having the same character regardless of hue, which is what makes 'a deep blue' and 'a deep red' feel related. PCCS lightness (明度) runs 1.5 (black) to 9.5 (white) in 0.5 steps and is Munsell value; saturation (彩度) runs 1s to 9s, with 0s achromatic and 9s the pure colour. Usable on its own: these are the bands behind PCCS notation such as `2:R-4.5-9s`.",
+  "sources": ["wikipedia-ja-pccs", "shikisai101-pccs", "grokipedia-pccs", "jcri"],
+  "notes": "Published bands are given qualitatively (lightness low 1.5-4.0 / mid 4.5-6.5 / high 7.0-9.5; saturation low 1s-3s / mid 4s-6s / high 7s-8s / vivid 9s) and the sources disagree on the exact edges. Two corrections were needed to make this usable. (1) CONFLICT: Japanese Wikipedia gives `d` (dull) and `g` (grayish) identical coordinates — mid lightness, 4-6s — which cannot be right for a system whose premise is that each tone owns a region, and it places `sf` (soft) at 1-3s where the tone diagram puts it between `lt` and `d`. We follow the tone-diagram layout instead. tests/pccs.test.ts fails if any two tones ever collide again. (2) The published bands leave gaps, so a colour could fall into no tone at all. We close them: within each saturation row the lightness bands tile from 1.5 to 9.5 with no gap and no overlap, so assigning a colour to a tone is a total function. Where a band edge here differs from a published figure, that closing is why. Boundaries are half-open [lo, hi) except the topmost band in each row, which includes 9.5. (3) `representative` is the CANONICAL POSITION of the tone, which is not the same thing as the centre of its band and must not be confused with it: `bright` occupies lightness 7.0-9.5 but sits at 7.5, and rendering it at the band centre of 8.25 produced a washed-out swatch nothing like a real PCCS bright chip. Membership uses the band; the rendered grid and the season swatches use `representative`.",
+  "tones": [
+    { "abbr": "v", "ja": "ビビッド", "en": "Vivid", "lightness": [1.5, 9.5], "saturation": [9, 9], "representative": { "lightness": 5.5, "saturation": 9 } },
+
+    { "abbr": "b", "ja": "ブライト", "en": "Bright", "lightness": [7.0, 9.5], "saturation": [7, 8], "representative": { "lightness": 7.5, "saturation": 8 } },
+    { "abbr": "s", "ja": "ストロング", "en": "Strong", "lightness": [4.0, 7.0], "saturation": [7, 8], "representative": { "lightness": 5.5, "saturation": 8 } },
+    { "abbr": "dp", "ja": "ディープ", "en": "Deep", "lightness": [1.5, 4.0], "saturation": [7, 8], "representative": { "lightness": 3.5, "saturation": 8 } },
+
+    { "abbr": "lt", "ja": "ライト", "en": "Light", "lightness": [7.0, 9.5], "saturation": [4, 6], "representative": { "lightness": 8, "saturation": 5.5 } },
+    { "abbr": "sf", "ja": "ソフト", "en": "Soft", "lightness": [5.5, 7.0], "saturation": [4, 6], "representative": { "lightness": 6.5, "saturation": 5 } },
+    { "abbr": "d", "ja": "ダル", "en": "Dull", "lightness": [4.0, 5.5], "saturation": [4, 6], "representative": { "lightness": 5, "saturation": 5 } },
+    { "abbr": "dk", "ja": "ダーク", "en": "Dark", "lightness": [1.5, 4.0], "saturation": [4, 6], "representative": { "lightness": 3, "saturation": 5 } },
+
+    { "abbr": "p", "ja": "ペール", "en": "Pale", "lightness": [8.0, 9.5], "saturation": [1, 3], "representative": { "lightness": 8.5, "saturation": 2 } },
+    { "abbr": "ltg", "ja": "ライトグレイッシュ", "en": "Light grayish", "lightness": [6.5, 8.0], "saturation": [1, 3], "representative": { "lightness": 7, "saturation": 2 } },
+    { "abbr": "g", "ja": "グレイッシュ", "en": "Grayish", "lightness": [4.0, 6.5], "saturation": [1, 3], "representative": { "lightness": 5.5, "saturation": 2 } },
+    { "abbr": "dkg", "ja": "ダークグレイッシュ", "en": "Dark grayish", "lightness": [1.5, 4.0], "saturation": [1, 3], "representative": { "lightness": 3, "saturation": 2 } },
+
+    { "abbr": "W", "ja": "白", "en": "White", "lightness": [9.5, 9.5], "saturation": [0, 0], "achromatic": true },
+    { "abbr": "ltGy", "ja": "明るい灰", "en": "Light gray", "lightness": [7.5, 7.5], "saturation": [0, 0], "achromatic": true },
+    { "abbr": "mGy", "ja": "中位の灰", "en": "Medium gray", "lightness": [5.5, 5.5], "saturation": [0, 0], "achromatic": true },
+    { "abbr": "dkGy", "ja": "暗い灰", "en": "Dark gray", "lightness": [3.5, 3.5], "saturation": [0, 0], "achromatic": true },
+    { "abbr": "Bk", "ja": "黒", "en": "Black", "lightness": [1.5, 1.5], "saturation": [0, 0], "achromatic": true }
+  ]
+}
