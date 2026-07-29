@@ -15,7 +15,7 @@ test.describe('defects that only a real browser can see', () => {
   //    said. The control lied about its own value.
   test('the disc\'s saturation wash reaches the rim, not 78% of it', async ({ page }) => {
     await openPicker(page)
-    const bg = await computed(page, '.pick-face', 'background-image')
+    const bg = await computed(page, '.disc-face', 'background-image')
     // Chromium omits a final colour stop at 100% because that is the default,
     // so "reaches the rim" reads as "the transparent stop carries NO explicit
     // position". Any short stop — 78%, 90% — would appear here.
@@ -50,7 +50,7 @@ test.describe('defects that only a real browser can see', () => {
   //    the portal in Overlay.tsx now makes structurally impossible.
   test('colour codes render in the mono face, not the UI face', async ({ page }) => {
     await openPicker(page)
-    const family = await computed(page, '.pick-input', 'font-family')
+    const family = await computed(page, '.disc-input', 'font-family')
     expect(family).toContain('Atkinson Hyperlegible Mono')
   })
 
@@ -63,12 +63,12 @@ test.describe('defects that only a real browser can see', () => {
     const hex = page.getByRole('dialog', { name: 'Pick a color' }).getByLabel('HEX')
 
     await hex.focus()
-    const focused = await computed(page, '.pick-input', 'border-bottom-color')
+    const focused = await computed(page, '.disc-input', 'border-bottom-color')
     expect(focused).toBe(LINK)
 
     await hex.fill('nonsense')
     await expect(hex).toHaveAttribute('aria-invalid', 'true')
-    const invalid = await computed(page, '.pick-input', 'border-bottom-color')
+    const invalid = await computed(page, '.disc-input', 'border-bottom-color')
     expect(invalid).toBe(ACCENT)
 
     // The point of the test: the two states must be distinguishable.
@@ -78,8 +78,8 @@ test.describe('defects that only a real browser can see', () => {
   // 5. The "BRIGHT" label ran underneath its own slider.
   test('the brightness label does not run under its slider', async ({ page }) => {
     await openPicker(page)
-    const label = await page.locator('.pick-bright .pick-label').boundingBox()
-    const slider = await page.locator('.pick-bright input[type=range]').boundingBox()
+    const label = await page.locator('.disc-bright .disc-label').boundingBox()
+    const slider = await page.locator('.disc-bright input[type=range]').boundingBox()
     expect(label).not.toBeNull()
     expect(slider).not.toBeNull()
     // Laid out side by side: the label must end before the slider begins.

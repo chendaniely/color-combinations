@@ -128,7 +128,7 @@ Never treat a plan as a description of the current code.
   style choice:
   1. **Sanzo Wada's data colours** — the book's own hex values.
   2. **Colour-space renderings** — the hue stops and saturation wash of the
-     picker disc (`.pick-face` in `app.css`) and the wheel's ribbon fills.
+     picker disc (`.disc-face` in `app.css`) and the wheel's ribbon fills.
      A hue wheel cannot be drawn in tokens; it has to be actual hues.
   Exemption 2 was previously claimed by a comment in `app.css` citing a rule
   that only granted exemption 1. If a third exemption ever seems necessary,
@@ -155,7 +155,7 @@ Never treat a plan as a description of the current code.
   `tests/browser/overlay.spec.ts`.
 - Values shared by two renderers live in one module, never two copies:
   `src/plateLayout.ts` (the plate taper, used by `PlateCard` and
-  `exportPng`), `--pick-disc-size` (the colour disc, whose pin is placed
+  `exportPng`), `--disc-size` (the colour disc, whose pin is placed
   in percentages so TypeScript holds no copy of the size).
 
 ## Dependency rules
@@ -279,6 +279,41 @@ Both exist so `src/core/` stays a dependency-free kernel and
   the detector exists and swapping models touches one file. Guarded by
   `tests/facePrivacy.test.ts`: no absolute `http(s)` URL may appear here,
   so the model can never be silently repointed at a CDN.
+
+## The release cadence: debt first, then ONE feature
+
+The owner set this on 2026-07-29, looking at a `TODO.md` with a long feature
+list and a shorter list of known defects:
+
+> *"let's make sure we loop through and fix bugs and tech debt before adding
+> more features. there's a huge feature list to incorporate and we shoudl take
+> each indiviually with a bug fix loop in between"*
+
+So the order of work is fixed, and it is not negotiable by enthusiasm:
+
+1. **Fix bugs and pay debt first.** Not just the items written down — actively
+   look. The two most valuable findings of the last three releases were both
+   things nobody had listed: the site failing the accessibility standard its
+   own feature enforces, and `keyName()` crashing Browse on an id that only a
+   URL could supply.
+2. **Then ONE feature.** Not a batch. Pick it, design it, ship it.
+3. **Then another bug-and-debt loop**, before the next feature.
+
+Why this holds even when a feature looks small and safe: v1.7.0 shipped four
+defects of its own (identical sub-seasons, a washed-out tone rendering, 98 kB
+in the wrong bundle, and a fit panel that hid the very gap it existed to show).
+Every one was caught by looking *after* the feature was built and *before*
+starting the next one. A batch of features would have buried all four.
+
+Practical consequences:
+
+- Do not open a feature branch while `TODO.md` has an actionable defect on it.
+  "Actionable" excludes items needing a person or a design asset — those are
+  blocked, not deferred.
+- When a feature turns up a bug in passing, fix the bug in its own commit and
+  say so. Do not fold it into the feature.
+- A tidying release with no visible change is a legitimate release. v1.6.0 and
+  v1.7.1 were both exactly that.
 
 ## Deliberate YAGNI (do NOT add these "helpfully")
 

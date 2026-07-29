@@ -84,10 +84,40 @@ export function keyColorId(key: string): number {
   return Number(key.slice(1))
 }
 
+/**
+ * The display name for a colour or group key. THROWS on an unknown key.
+ *
+ * Strict on purpose: every caller but one derives its key from the dataset, so
+ * an unknown key there is a programming error and should be loud. It used to
+ * fail as `Cannot read properties of undefined (reading 'name')`, which said
+ * nothing about which key or where — hence the message.
+ *
+ * If the key might not exist — anything reconstructed from app state, and in
+ * particular anything that will one day come out of a URL — use `keyLabel`.
+ */
 export function keyName(ix: Indexed, key: string): string {
-  return isColorKey(key)
-    ? ix.colorById.get(keyColorId(key))!.name
-    : ix.groupById.get(key)!.name
+  const found = isColorKey(key)
+    ? ix.colorById.get(keyColorId(key))?.name
+    : ix.groupById.get(key)?.name
+  if (found === undefined) throw new Error(`Unknown colour or group key "${key}"`)
+  return found
+}
+
+/**
+ * As `keyName`, but returns the key itself rather than throwing when it is not
+ * in the dataset.
+ *
+ * For labels that must render whatever state holds. A filter carrying a stale
+ * id crashed the whole Browse view — harmless while every id came from a
+ * dropdown, and a page-killer the moment state can arrive from a shared link.
+ * Showing the raw key is honest: the filter IS set to that, and it matches
+ * nothing.
+ */
+export function keyLabel(ix: Indexed, key: string): string {
+  const found = isColorKey(key)
+    ? ix.colorById.get(keyColorId(key))?.name
+    : ix.groupById.get(key)?.name
+  return found ?? key
 }
 
 export function keySwatches(ix: Indexed, key: string): string[] {

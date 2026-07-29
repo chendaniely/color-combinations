@@ -33,9 +33,9 @@ export function ColorFields({ hsv, onChange }: {
   function field(name: FieldName, label: string, parse: (t: string) => RGB | null) {
     const invalid = editing === name && bad
     return (
-      <div className="pick-field">
-        <label className="pick-label" htmlFor={`pick-${name}`}>{label}</label>
-        <input id={`pick-${name}`} className="pick-input" spellCheck={false}
+      <div className="disc-field">
+        <label className="disc-label" htmlFor={`disc-${name}`}>{label}</label>
+        <input id={`disc-${name}`} className="disc-input" spellCheck={false}
           value={editing === name ? draft : shown[name]}
           aria-invalid={invalid}
           onChange={(e) => {
@@ -52,7 +52,7 @@ export function ColorFields({ hsv, onChange }: {
   }
 
   return (
-    <div className="pick-fields">
+    <div className="disc-fields">
       {field('hex', 'HEX', parseHex)}
       {field('rgb', 'RGB', parseRgb)}
       {field('cmyk', 'CMYK', (t) => {

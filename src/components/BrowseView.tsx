@@ -1,4 +1,5 @@
-import { ancestorAtLevel, displayableCombinations, keyName, sizeBucket } from '../core/dataset'
+import { useMemo } from 'react'
+import { ancestorAtLevel, displayableCombinations, keyLabel, sizeBucket } from '../core/dataset'
 import type { Action, AppState } from '../core/state'
 import type { SizeBucket } from '../core/types'
 import { allowedFor, dataset } from '../data'
@@ -10,7 +11,10 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
   const { family, shade, colorId } = state.browse
   const setFilter = (patch: Partial<AppState['browse']>) =>
     dispatch({ type: 'setBrowseFilter', browse: { ...state.browse, ...patch } })
-  const allowed = allowedFor(state.access)
+  // useMemo for consistency with App and ChordWheel, which memoize the same
+  // call. The cost is negligible either way; four call sites doing it two
+  // different ways is the thing worth removing.
+  const allowed = useMemo(() => allowedFor(state.access), [state.access])
 
   const combos = displayableCombinations(dataset).filter((c) => {
     if (allowed && !allowed.has(c.id)) return false
@@ -49,8 +53,8 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
         </select>
         {shade && (
           <button className="filter-chip" onClick={() => setFilter({ shade: '' })}
-            aria-label={`Clear shade filter: ${keyName(dataset, shade)}`}>
-            {keyName(dataset, shade)} <span aria-hidden="true">×</span>
+            aria-label={`Clear shade filter: ${keyLabel(dataset, shade)}`}>
+            {keyLabel(dataset, shade)} <span aria-hidden="true">×</span>
           </button>
         )}
         <span className="muted">{comboCount}</span>

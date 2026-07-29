@@ -4,7 +4,7 @@ import { discPointToHueSat, hueSatToDiscPoint } from '../../core/discGeometry'
 
 // The pin is positioned in PERCENTAGES of the disc, never pixels. Asking
 // hueSatToDiscPoint for a unit radius gives offsets in [-1, 1]; since the disc
-// is square (both axes read --pick-disc-size), 50% of it is exactly the radius
+// is square (both axes read --disc-size), 50% of it is exactly the radius
 // in both directions. So the component carries no copy of the disc's size and
 // cannot drift from the CSS — which it previously did, as RADIUS = 118 beside
 // width: 236px, waiting for the first person to make the disc responsive.
@@ -49,7 +49,7 @@ export function ColorDisc({ hsv, onChange }: {
   }
 
   return (
-    <div className="pick-wrap">
+    <div className="disc-wrap">
       {/* The linter is right that this is a smell, and there is no clean fix:
           a hue/saturation disc is a TWO-dimensional control, and ARIA has no
           role for one. role="slider" would force a single aria-valuenow and so
@@ -59,7 +59,7 @@ export function ColorDisc({ hsv, onChange }: {
           spec. Tracked in TODO.md; disabled here rather than globally so the
           reasoning sits at the code it excuses. */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions */}
-      <div ref={disc} className="pick-disc" tabIndex={0} role="group"
+      <div ref={disc} className="disc-control" tabIndex={0} role="group"
         aria-label="Color wheel — arrow keys adjust hue and saturation"
         onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); pick(e) }}
         onPointerMove={(e) => { if (e.currentTarget.hasPointerCapture(e.pointerId)) pick(e) }}
@@ -75,8 +75,8 @@ export function ColorDisc({ hsv, onChange }: {
         onKeyDown={onKeyDown}>
         {/* brightness is exactly multiplicative on RGB, which is what V means —
             so the disc IS the color space, not a picture of it */}
-        <div className="pick-face" style={{ filter: `brightness(${hsv.v})` }} />
-        <div className="pick-pin" style={{
+        <div className="disc-face" style={{ filter: `brightness(${hsv.v})` }} />
+        <div className="disc-pin" style={{
           left: `${50 + dx * 50}%`, top: `${50 + dy * 50}%`, background: hex,
         }} />
       </div>
@@ -87,8 +87,8 @@ export function ColorDisc({ hsv, onChange }: {
       <p className="visually-hidden" role="status" aria-live="polite">
         {`Hue ${Math.round(hsv.h)} degrees, saturation ${Math.round(hsv.s * 100)} percent, ${hex}`}
       </p>
-      <label className="pick-bright">
-        <span className="pick-label">Bright</span>
+      <label className="disc-bright">
+        <span className="disc-label">Bright</span>
         <input type="range" min={0} max={100} value={Math.round(hsv.v * 100)}
           aria-label="Brightness"
           onChange={(e) => onChange({ ...hsv, v: Number(e.target.value) / 100 })} />

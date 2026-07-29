@@ -1,5 +1,55 @@
 # TODO — completed
 
+## Backlog triage (2026-07-29)
+
+Owner: *"let's loop over the TODOs and address them. clear out the tech dept
+and ideas"*
+
+- [x] **Overlay focus management.** `Overlay.tsx` had a real focus trap but
+      never moved focus in or put it back. Now focuses the dialog itself —
+      `showModal`'s default is the first tabbable child, the × button, so a
+      screen reader user's first news of a dialog was the word "Close" — and
+      restores focus to the opener on close instead of dropping it on `<body>`.
+      The first attempt guarded the focus call with a condition that never
+      fired, because `showModal` has already moved focus by then; jsdom's
+      polyfill moves none, so only the browser suite caught it (`fc33063`).
+- [x] **A Browse crash, found by writing the test the backlog asked for.**
+      `keyName()` used non-null assertions, so an unknown group id threw and
+      took the whole Browse view down — harmless while every id came from a
+      dropdown, a page-killer once state can arrive from a URL. Added
+      `keyLabel()` for labels that must render whatever state holds
+      (`fc33063`).
+- [x] **`BrowseView` filter tests.** The backlog asked for one assertion — that
+      the shade predicate narrows `combos.length`. `tests/browseFilters.test.tsx`
+      now counts plates across shade, family, colour, composition and size, and
+      checks an unknown value renders nothing rather than the whole book
+      (`fc33063`).
+- [x] **`allowedFor` memoized in `BrowseView` and `MatchPage`**, matching `App`
+      and `ChordWheel`. Four call sites doing it two ways was the debt, not the
+      microseconds (`fc33063`).
+- [x] **`redAnchorAngle` contiguity guard** — turned out to be **already done**
+      in v1.6.0 (`c000d31`, `tests/wheelContiguity.test.ts`). The entry was
+      stale, not outstanding. Removed.
+- [x] **`make check`** — runs lint + test + build, tees the FULL output to
+      `check.log`, and preserves the exit code with `set -o pipefail`. This
+      closes the process item warning never to skim a test run through `grep`,
+      which silently swallows the exit status; confirmed the old way reports
+      success on a failing run. Verified it exits non-zero and captures the
+      `FAIL` line and the `AssertionError` (`f7c0094`).
+- [x] **`push.followTags` set repo-local**, with the caveat recorded that
+      `.git/config` is not committed so a fresh clone does not inherit it.
+      Setting it globally left as the owner's call (`f7c0094`).
+- [x] **ΔE2000 evaluated and rejected, with numbers.** Over a 512-point grid
+      across the sRGB cube: top-1 nearest differs on 34.2% of queries, but the
+      top-12 set overlaps 73.6%. The disagreements are reordering among
+      near-ties, not different answers. See `TODO.md` for the detail, including
+      a correction to a stronger claim that the measurements disproved (`f7c0094`).
+- [x] **The season-lopsidedness entry rewritten**, not deleted: it named
+      `data/curated/seasons.json`, which v1.7.0 removed. Re-measured against the
+      computed data — 15 to 57, a 3.8× spread, down from 7 to 35 at 5× — with
+      the structural cause and the two available dials recorded (`f7c0094`).
+
+
 ## v1.7.0 — the seasons get a real source (2026-07-29)
 
 Owner: *"are there standard colors for the season?"* — and, when Claude

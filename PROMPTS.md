@@ -1712,3 +1712,47 @@ one blob, and why `CLAUDE.md`'s "exactly two data files" rule became seven.
   code-split guard worked left the dynamic imports in place, so the chunk still
   existed and the test still passed. Redone properly, it fails with "season data
   was never fetched on the You tab".
+
+## 2026-07-29 — Session 18: backlog triage (v1.7.1)
+
+**Owner prompt:**
+
+> let's loop over the TODOs and address them. clear out the tech dept and ideas
+
+Fifty open items. The pass cleared the nine that were genuinely actionable,
+answered three that were questions rather than tasks, and left the rest — which
+are features, product calls, or things that need a person.
+
+**Owner decision (where to go next):** offered deep links, the Match > Colors
+cards, or the lens dropdown; chose **"just merge what's done"**. Shipped as a
+patch release with nothing new built.
+
+### What the pass found that was not on the list
+
+- **`keyName()` crashed the Browse view on an unknown group id.** Non-null
+  assertions on a Map lookup, so a stale filter threw "Cannot read properties of
+  undefined" and took the page down. Unreachable today, because every id comes
+  from a dropdown — and a page-killer the moment state can arrive from a URL,
+  which is the top item in `TODO.md`. Found by writing the single test the
+  backlog asked for. Added `keyLabel()` for labels that must render whatever
+  state holds.
+- **`redAnchorAngle` contiguity was already done**, in v1.6.0. The entry had sat
+  there stale for a release.
+
+### What Claude got wrong
+
+- **The Overlay focus guard never fired.** Wrote
+  `if (!el.contains(document.activeElement)) el.focus()`, which is always false
+  because `showModal()` has already moved focus inside by then. jsdom's polyfill
+  moves no focus at all, so it passed there and only the real browser disagreed.
+  Fixed to be unconditional, respecting an explicit `autofocus`.
+- **Overclaimed about CIEDE2000.** Said it misbehaves in the blue region because
+  it is fitted for small colour differences. The measured distances — 4.0, 4.2,
+  4.9 for the disputed case — are all well inside its valid range, so the claim
+  was wrong. It reorders near-ties; it is not broken. A script printed a
+  hardcoded ">20" assertion that was never checked, which is how the wrong claim
+  got made in the first place.
+- **Verified a guard with a test that could not fail**, twice in two sessions.
+  The first attempt to prove `make check` catches failures broke a test in a way
+  that tripped the linter first, so `&&` short-circuited and the log held a lint
+  error rather than a test failure. The check of the check has to be checked.

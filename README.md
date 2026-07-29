@@ -5,13 +5,16 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.6.0 shipped (2026-07-29) — a consolidation release: no new
-> feature, but every known defect cleared, the seven hand-rolled modal
-> overlays replaced with one accessible component, and a **real-browser test
-> suite** added to catch the class of bug that kept slipping past the fast
-> tests (see [Testing](#testing)). On top of the You tab (v1.5.0), the color
-> picker (v1.4.0), analytics (v1.3.3), the touchscreen wheel (v1.3.2), the
-> hex/photo color sampler (v1.3), and accessibility goggles (v1.2). Live at
+> **Status:** v1.7.1 shipped (2026-07-29) — a backlog pass: overlay focus
+> handling, a latent Browse crash fixed before it could bite, and two open
+> questions settled with measurements. On top of v1.7.0, which replaced the
+> invented season palettes with **PCCS** — the colour system published by the
+> institute Sanzo Wada founded in 1927, six years before this book (see
+> [Where the seasons come from](#where-the-seasons-come-from)). Before that:
+> the v1.6.0 consolidation and its **real-browser test suite** (see
+> [Testing](#testing)), the You tab (v1.5.0), the color picker (v1.4.0),
+> analytics (v1.3.3), the touchscreen wheel (v1.3.2), the hex/photo color
+> sampler (v1.3), and accessibility goggles (v1.2). Live at
 > https://chendaniely.github.io/color-combinations/ — this README always
 > reflects the current state of the project.
 

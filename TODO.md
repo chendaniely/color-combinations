@@ -2,6 +2,10 @@
 
 Move finished items to TODO-completed.md with the commit hash.
 
+**Order of work (owner, 2026-07-29):** bugs and tech debt first, then ONE
+feature, then another debt loop before the next feature. Never a batch of
+features. See "The release cadence" in CLAUDE.md for why.
+
 The v1.6.0 consolidation pass (2026-07-29) cleared the defect half of this
 file; everything below is either a genuine idea, a known limit we accepted, or
 a check that needs a person. See `TODO-completed.md` for what went.
@@ -107,16 +111,24 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Curated data worth a second opinion
 
-- [ ] **The season palettes are lopsided, and `seasons.json` exists precisely so
-      that can be corrected.** Measured 2026-07-29: sizes run 7 to 35, median
-      15. Cool Summer and Soft Summer have 7 colours each; Clear Spring has 35.
-      Some of that is the source — the book runs 109 warm colours to 48 cool, so
-      cool seasons genuinely have fewer candidates — but a 5× spread means the
-      thinnest seasons offer a visitor very little. This is hand-authored data
-      (see CLAUDE.md), so it can be re-curated by the owner or handed to another
-      agent to analyse without touching any TypeScript. A test now guards
-      against a season being gutted (floor of 5, max/min spread of 8), which is
-      a floor, not an endorsement of 7.
+- [ ] **The season palettes are still lopsided, but for a different and better
+      reason.** This entry used to describe hand-curated lists in
+      `data/curated/seasons.json`, a file v1.7.0 deleted. Re-measured
+      2026-07-29 against the computed data: sizes now run **15 to 57**, a 3.8×
+      spread (was 7 to 35, 5×). Membership is per-PARENT, so the three
+      sub-seasons of a season share a pool: Summer 15, Autumn 18, Spring 44,
+      Winter 57.
+      The cause is now structural rather than editorial, which is progress —
+      it can be reasoned about. Summer gets 15 because its PCCS tones are the
+      muted ones (`lt, p, sf, d`) and the book holds eleven usable muted
+      colours. Winter gets 57 because its tones include the vivid and deep ones
+      and the cool half of the hue circle has 14 of the 24 hues.
+      Two dials exist if this is worth rebalancing, both in
+      `data/curated/season-rules.json` and neither requiring TypeScript: the
+      warm/cool hue split (currently 10 warm to 14 cool, and OUR judgement), and
+      each parent's tone set (currently sourced, so changing it needs a reason
+      better than balance). Prefer leaving it: the imbalance is a true fact
+      about a 1933 pigment book, and the fit panel now says so out loud.
 
 ## You tab — known limits
 
@@ -164,9 +176,29 @@ a check that needs a person. See `TODO-completed.md` for what went.
       camera is live) — v1 deliberately chose freeze-then-tap for accuracy.
 - [ ] Multi-point / region-average or pattern (multi-colour) detection from a
       capture — v1 samples one tapped point.
-- [ ] ΔE2000 (or another) colour-difference metric — the default is OKLab
-      Euclidean via culori, and swapping is a one-file change in
-      `src/color/colorDistance.ts` (culori already ships `differenceCiede2000`).
+- [ ] ~~ΔE2000 colour-difference metric~~ — **measured 2026-07-29, and there is
+      no reason to switch.** Compared OKLab Euclidean against
+      `differenceCiede2000` over a 512-point grid spanning the sRGB cube (what a
+      visitor actually feeds in from a photo or the picker, not just colours
+      already in the book):
+      • the top-1 nearest colour differs on **34.2%** of queries;
+      • but the top-12 SET overlaps **73.6%** on average.
+      That first number sounds alarming and is not. Inspecting the
+      disagreements, both metrics pick the same near colours and disagree only
+      on the ordering among near-ties — for `#0000c0` both return Deep Lyons
+      Blue, Violet and Red Violet, at CIEDE2000 distances of 4.9, 4.2 and 4.0.
+      Reordering three candidates separated by 0.9 ΔE is not a better answer,
+      and the UI shows twelve results with a very-close/close/roughly band, so
+      the exact order inside a tight cluster is not load-bearing.
+      Note for whoever revisits this: an earlier draft of this entry claimed
+      CIEDE2000 was misbehaving in the blue region because it is fitted for
+      small differences. The distances above disprove that for this dataset —
+      they are all under 5. The formula is being used in range; it simply
+      weights the same cluster differently. Do not repeat the stronger claim
+      without re-measuring.
+      Left open only because the seam exists and a future dataset with denser
+      coverage might make the ordering matter. It is a one-file change in
+      `src/color/colorDistance.ts` if so.
 - [ ] Browse page — plot all 157 colours on a hue/saturation disc with a
       brightness slider that slices to the colours at that lightness (owner:
       "i liked how you can plot all the points and then also points in same
@@ -208,9 +240,6 @@ a check that needs a person. See `TODO-completed.md` for what went.
 - [ ] Consider unifying the goggles control with the size chips into one filter
       bar (v1 keeps them adjacent but separate; size chips are OR within a
       dimension, goggles are AND across dimensions).
-- [ ] Memoize `allowedFor(state.access)` in `BrowseView`/`MatchPage` for
-      uniformity with `ChordWheel`/`App` (they `useMemo` it). Negligible perf,
-      pattern consistency only.
 
 ## Analytics
 
@@ -228,42 +257,48 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Code and process
 
-- [ ] `redAnchorAngle` (`src/core/chord.ts`) assumes each broad family's nodes
-      are angularly contiguous (true for today's curated `fine` order). If a
-      future dataset interleaves families, the levels 0–2 min/max block-centre
-      would silently drift off-top — add a validation check or make the anchor
-      contiguity-robust if the grouping data ever changes.
 - [ ] Revisit wheel orientation/ordering later (owner: "we can always go back to
       the rotation, color order, and orientation at a later time"): options
       considered but not taken were an RYB primary-triangle wheel and a
       pure-hue Colors level. Current choice is family-order + red-at-12.
 - [ ] Gradient source→target highlight strokes on wheel hover — the highlight
       stroke is currently the source-node colour only.
-- [ ] `src/components/BrowseView.tsx`: add a test asserting the shade predicate
-      actually narrows `combos.length`.
-- [ ] One control still has three names — `ColorDisc` in code, `.pick-*` in
-      CSS, "the wheel" in the copy.
+- [x] ~~One control still has three names~~ — resolved 2026-07-29 by renaming
+      the CSS from `.pick-*` to `.disc-*` and the token from `--pick-disc-size`
+      to `--disc-size`, so code and CSS now agree on "disc". **"The wheel" stays
+      in the visitor-facing copy on purpose**: that is what people call a round
+      colour control, and matching code names in the UI text would be the wrong
+      fix. So it is two names now, one of them deliberately the user's word,
+      which is as far as this should go.
 - [ ] The colour disc is a two-dimensional control and ARIA has no role for
       one, so it is a focusable `role="group"` with its position announced via
       a live region. `make lint` flags this (disabled inline, with reasoning at
       the code). If a better pattern emerges — or if two paired sliders would
       genuinely serve screen-reader users better than the three text fields
       already provided — revisit.
-- [ ] `make coverage` low spots worth a look, none alarming: `ColorSampler`
-      (9% of functions — it is mostly routing between four child screens),
-      `YouView` (8% of branches — the capture state machine), and
-      `ImagePicker` (30% of branches — the file-load error paths). The logic
-      layers underneath them are at ~100%; these are thin React shells, so the
-      question is whether a browser test of each flow is worth more than
-      mocking them into submission in jsdom.
-- [ ] Overlay a11y beyond the modal basics: `Overlay.tsx` gives every screen a
-      focus trap, Escape and `aria-modal`, but does not move initial focus to
-      the dialog or restore it to the trigger on close. The browser's default
-      behaviour is reasonable; explicit management would be better.
+- [x] ~~`make coverage` low spots~~ — question answered 2026-07-29: **the
+      browser suite already covers all three**, and the low numbers are the
+      known blind spot `vite.config.ts` documents rather than untested code.
+      `ColorSampler` is exercised by eleven browser specs, `YouView` by six,
+      `ImagePicker` by three — including the whole capture flow (upload, review,
+      tap to sample, white-balance repaint, confirm to a reading and a palette)
+      and the picker's modal behaviour. Mocking these shells into submission in
+      jsdom would add assertions without adding coverage of anything real.
+      Left as an answered question rather than deleted, because "9% of
+      functions" will look alarming again to the next person who runs
+      `make coverage`.
 - [ ] Process: git tags do NOT travel with `git push` unless pushed explicitly.
       `v1.3.2` sat unpushed for weeks and `v1.3.3` was never tagged; both were
-      repaired on 2026-07-28. Consider `git config --global push.followTags
-      true`.
-- [ ] Process: never pipe a test run through `tail` or `grep` alone — it
-      truncates failures and can mask a non-zero exit. This is how the v1.4.0
-      flaky test lost its name for months. Capture full output to a file.
+      repaired on 2026-07-28. **`push.followTags` is now set repo-local**
+      (2026-07-29), which covers this working copy. It lives in `.git/config`,
+      which is NOT committed, so a fresh clone does not inherit it — set it
+      globally (`git config --global push.followTags true`) if you want the
+      habit everywhere. Left as the owner's call rather than changing a global
+      setting unasked.
+- [x] ~~Process: never pipe a test run through `tail` or `grep` alone~~ —
+      resolved 2026-07-29 by `make check`, which runs lint + test + build, tees
+      the FULL output to `check.log`, and keeps the real exit code via
+      `set -o pipefail`. The hazard was confirmed first: `make test | grep`
+      reports exit 0 on a failing run. Verified the new target exits non-zero
+      and captures both the `FAIL` line and the `AssertionError`. Use it
+      instead of remembering the rule.

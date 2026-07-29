@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { combosForSet, remapKeysToLevel, suggestPartners } from '../core/matching'
 import type { Action, AppState, MatchLevel } from '../core/state'
 import { allowedFor, dataset } from '../data'
@@ -44,7 +44,9 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
   }, [keys.length])
 
   const noun = NOUN[level]
-  const allowed = allowedFor(state.access)
+  // useMemo for consistency with App and ChordWheel — see the note in
+  // BrowseView.
+  const allowed = useMemo(() => allowedFor(state.access), [state.access])
   const suggestions = keys.length ? suggestPartners(dataset, level, keys, MATCH_SIZES, allowed) : []
   const combos = keys.length ? combosForSet(dataset, level, keys, MATCH_SIZES, allowed) : []
   return (
