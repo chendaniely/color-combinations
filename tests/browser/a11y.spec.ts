@@ -15,6 +15,20 @@ function audit(page: Page) {
 }
 
 async function expectClean(page: Page, where: string) {
+  // Let every running animation finish first.
+  //
+  // `.panel` opens with `@keyframes panel-in { from { opacity: 0 } }`, so a
+  // panel audited immediately after a click is still half-transparent, and axe
+  // computes contrast against the blended result. That produced a
+  // colour-contrast failure on the group panel whose own measured values are
+  // 7.08:1 — a false positive that looked exactly like a real defect and cost
+  // an hour to disbelieve.
+  //
+  // Done here rather than at each call site so all thirteen audits are immune,
+  // including the original nine, which were one CSS change away from the same
+  // flake.
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))))
   const { violations } = await audit(page).analyze()
   const summary = violations.map((v) =>
     `${v.id} (${v.impact}) — ${v.help}\n    ${v.nodes.map((n) => n.target.join(' ')).join('\n    ')}`)
@@ -109,4 +123,54 @@ test.describe('the season display passes the same audit', () => {
     await page.locator('.fit-pairs li').first().waitFor()
     await expectClean(page, 'Season fit panel')
   })
+})
+
+// Screens the original nine missed, added 2026-07-29 after the season display
+// turned out to be unaudited and to contain a real violation.
+//
+// These are not obscure states. A colour detail panel is where anyone lands
+// from the wheel or from search; a group panel is one click further; Match with
+// a palette in it is the whole point of Match. None had ever been audited,
+// because the original list grew by hand and nobody enumerated what was left.
+test.describe('the screens the first nine missed', () => {
+  test('a colour detail panel', async ({ page }) => {
+    await page.goto('./')
+    await page.getByLabel('Search colors').fill('blue')
+    await page.getByRole('option').first().waitFor()
+    await page.getByRole('option').first().click()
+    await page.getByRole('dialog').or(page.locator('.panel')).first().waitFor()
+    await expectClean(page, 'Colour detail')
+  })
+
+  test('a group detail panel', async ({ page }) => {
+    await page.goto('./')
+    // Via the colour panel's family breadcrumb, not by clicking an arc: the
+    // wheel puts a full-radius .wheel-hit circle over the arcs to drive
+    // hover and touch-scrub, so it swallows the click. The breadcrumb is a
+    // real route a visitor uses and a stable one for a test.
+    await page.getByLabel('Search colors').fill('blue')
+    await page.getByRole('option').first().waitFor()
+    await page.getByRole('option').first().click()
+    await page.locator('.family-chain').waitFor()
+    await page.locator('.family-chain button').first().click()
+    await page.locator('.crumb').waitFor()
+    await expectClean(page, 'Group detail')
+  })
+
+  test('Match with a palette built', async ({ page }) => {
+    await page.goto('./')
+    await page.getByRole('button', { name: 'Match' }).first().click()
+    await page.getByRole('radiogroup', { name: /matching level/i }).waitFor()
+    const first = page.locator('.match-view button').filter({ hasText: /\w/ })
+    await first.nth(3).click()
+    await page.waitForTimeout(300)
+    await expectClean(page, 'Match with a palette')
+  })
+
+  // NOT audited here: MissingPanel. It is only reachable from app state naming
+  // something the book has not got, which nothing outside the app can set until
+  // deep links exist. A draft of this test "reached" it by opening an ordinary
+  // panel from search and auditing that, which duplicated the colour-detail
+  // test above and proved nothing. Its markup is covered by
+  // tests/missingIds.test.tsx; audit it here once a URL can produce it.
 })
