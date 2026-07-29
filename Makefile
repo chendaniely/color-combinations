@@ -1,6 +1,6 @@
 NPM := npm
 
-.PHONY: help install dev test test-browser install-browser build preview update-data clean
+.PHONY: help install dev lint test test-browser install-browser coverage build preview update-data clean
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-16s %s\n", $$1, $$2}'
@@ -12,8 +12,14 @@ install: ## Install dependencies (needs Node.js >= 20 — see README)
 dev: ## Run the site locally with live reload
 	$(NPM) run dev
 
+lint: ## Check the code for likely mistakes (fast)
+	npx oxlint
+
 test: ## Run all tests once (fast — no browser needed)
 	$(NPM) test
+
+coverage: ## Show which code the fast tests never run
+	npx vitest run --coverage
 
 install-browser: ## One-time: download the browser the layout tests drive
 	npx playwright install chromium

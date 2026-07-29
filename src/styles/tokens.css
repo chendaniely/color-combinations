@@ -7,6 +7,11 @@
   --paper-hi: #fff; /* bright chrome for the dark camera viewfinder */
   /* ink */
   --ink: #2f2a26;
+  /* The same colour as --ink, as bare channels, for shadows that need an alpha:
+     `rgb(var(--ink-rgb) / 0.08)`. Two shadows used to hard-code `rgb(47 42 38)`
+     inline, which is exactly the "no hard-coded colours" rule this file exists
+     to enforce. Keep in sync with --ink above — 0x2f 0x2a 0x26 = 47 42 38. */
+  --ink-rgb: 47 42 38;
   --ink-muted: #7e7468;
   --ink-faint: #b8aea2;
   --hairline: #e8ddd2;

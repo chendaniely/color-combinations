@@ -32,7 +32,9 @@ Run these from the project folder. `make help` lists them all.
 |---|---|
 | `make install` | One-time (and after dependency changes): installs packages into `node_modules/`, and copies the face-detection files into `public/mediapipe/` |
 | `make dev` | Starts a local preview at the printed URL (usually http://localhost:5173/color-combinations/) with live reload |
+| `make lint` | Checks the code for likely mistakes (about a second) |
 | `make test` | Runs the fast automated tests (a few seconds, no browser needed) |
+| `make coverage` | Shows which code the fast tests never run |
 | `make install-browser` | One-time: downloads the browser the layout tests drive (see [Testing](#testing)) |
 | `make test-browser` | Runs the slower tests that check how the site actually *looks* |
 | `make build` | Type-checks everything and builds the deployable site into `dist/` |
@@ -67,6 +69,15 @@ five defects now has a test that would have caught it. It needs a one-time
 
 Both suites run in CI on every push, and the site is not deployed unless both
 pass.
+
+`make lint` is a third, cheaper check: it reads the code for mistakes without
+running it — a React hook missing a dependency, a keyboard trap, an accessible
+name that isn't there. It runs in CI too.
+
+`make coverage` answers a different question: *which code do the tests never
+run at all?* It is a question, not a score to chase — but it's how we found
+that copying a colour code and downloading a plate as a PNG, two things
+visitors actually do, had no automated test behind them. Both now have one.
 
 ## Features
 

@@ -177,6 +177,19 @@ a check that needs a person. See `TODO-completed.md` for what went.
       actually narrows `combos.length`.
 - [ ] One control still has three names — `ColorDisc` in code, `.pick-*` in
       CSS, "the wheel" in the copy.
+- [ ] The colour disc is a two-dimensional control and ARIA has no role for
+      one, so it is a focusable `role="group"` with its position announced via
+      a live region. `make lint` flags this (disabled inline, with reasoning at
+      the code). If a better pattern emerges — or if two paired sliders would
+      genuinely serve screen-reader users better than the three text fields
+      already provided — revisit.
+- [ ] `make coverage` low spots worth a look, none alarming: `ColorSampler`
+      (9% of functions — it is mostly routing between four child screens),
+      `YouView` (8% of branches — the capture state machine), and
+      `ImagePicker` (30% of branches — the file-load error paths). The logic
+      layers underneath them are at ~100%; these are thin React shells, so the
+      question is whether a browser test of each flow is worth more than
+      mocking them into submission in jsdom.
 - [ ] Overlay a11y beyond the modal basics: `Overlay.tsx` gives every screen a
       focus trap, Escape and `aria-modal`, but does not move initial focus to
       the dialog or restore it to the trigger on close. The browser's default

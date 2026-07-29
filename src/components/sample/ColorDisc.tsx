@@ -50,6 +50,15 @@ export function ColorDisc({ hsv, onChange }: {
 
   return (
     <div className="pick-wrap">
+      {/* The linter is right that this is a smell, and there is no clean fix:
+          a hue/saturation disc is a TWO-dimensional control, and ARIA has no
+          role for one. role="slider" would force a single aria-valuenow and so
+          lie about one of the two axes. So it stays a focusable group that
+          handles keys, with its position announced through the live region
+          below, and the three text fields remain the accessible path per the
+          spec. Tracked in TODO.md; disabled here rather than globally so the
+          reasoning sits at the code it excuses. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions */}
       <div ref={disc} className="pick-disc" tabIndex={0} role="group"
         aria-label="Color wheel — arrow keys adjust hue and saturation"
         onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); pick(e) }}

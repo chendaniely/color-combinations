@@ -85,11 +85,33 @@ It justified itself immediately by catching a bug in the very refactor that
 prompted it — the new overlay was rendering as a 447×533 box instead of filling
 the screen, and six hundred passing tests had no opinion about it.
 
-**Also fixed:** a two-year-old flaky test finally diagnosed (it was a timeout on
+**Also fixed:** a long-standing flaky test finally diagnosed (it was a timeout on
 genuinely slow work, not a phantom); the upload picker now lets you sample the
 edges of a landscape photo instead of cropping them out of reach; dead code and
 duplicated constants removed; and the privacy guards strengthened, including
 proof that they can actually detect what they forbid.
+
+**A second pass, before shipping.** The owner asked for one:
+
+> before we push. let's go through this all again and see if there are any more
+> refactoring to be done and other libraries we can use
+
+It turned up the two biggest gaps of the release. The project had **no linter at
+all** — nothing checking twenty React effects or any accessibility rule — so one
+was added, then configured down from about forty warnings to four real ones,
+because a linter that cries wolf teaches you to ignore it. And measuring test
+coverage showed that **copying a colour code and downloading a plate as a PNG
+had no automated test whatsoever** — two things visitors genuinely do, untested
+for exactly the same reason as the layout bugs, since the fast tests have no
+clipboard and no downloads. Both are now covered by the real browser, right down
+to checking the downloaded file really is a PNG and that its stripes match the
+plate you clicked.
+
+Most candidate libraries were turned down rather than adopted — a tooltip
+library, a styling helper, two accessibility toolkits — because each would have
+added weight to replace code that already works and is now tested. The two that
+were added cost the visitor nothing: they are tools for building the site, not
+part of it.
 
 ---
 

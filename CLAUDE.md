@@ -104,14 +104,17 @@ four true.**
 Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision. Dev: vite,
 typescript, vitest, @vitejs/plugin-react, tsx, @types/react,
 @types/react-dom, @types/d3, @types/node, jsdom, @testing-library/react,
-@testing-library/dom, @playwright/test.
+@testing-library/dom, @playwright/test, oxlint, @vitest/coverage-v8.
 
 Justifications: tsx = run TypeScript scripts under Node (ingest, season
 seeding); @vitejs/plugin-react = Vite's React glue; @types/* = TypeScript
 definitions; culori = perceptual color math (OKLab / ΔE / Lab) so we don't
 hand-roll color science — used ONLY in `src/color/`, never in the pure
 `src/core/` kernel; jsdom + @testing-library/* = unit-test DOM interaction;
-@playwright/test = the real-browser suite (see Testing below);
+@playwright/test = the real-browser suite (see Testing below); oxlint =
+the linter (`make lint`, one package, config in `.oxlintrc.json`);
+@vitest/coverage-v8 = `make coverage`, which answers "what do the tests
+never run?";
 @mediapipe/tasks-vision = on-device face detection for the You tab,
 Apache-2.0 with zero transitive dependencies, ~3.5 MB lazy-loaded and
 self-hosted from `public/mediapipe/`.
@@ -132,7 +135,23 @@ rendered 447×533 instead of full-screen.
 Rules: never move a browser test into the fast suite or vice versa; never
 make `make test` depend on a browser; when a defect turns out to be about
 appearance rather than logic, its regression test belongs in
-`tests/browser/`.
+`tests/browser/`. Anything the platform itself supplies — the clipboard,
+a file download — is a browser test by definition; jsdom has neither.
+
+`make lint` (oxlint) must stay clean and stay QUIET. The config disables
+`prefer-tag-over-role`, `no-noninteractive-element-to-interactive-role`
+and `interactive-supports-focus` because all three are wrong for
+deliberately custom ARIA widgets — a styled combobox cannot be a
+`<select>`, and a roving-tabindex group is not meant to be focusable. If
+a rule starts firing on correct code, silence it in `.oxlintrc.json` WITH
+a reason, or disable it inline where the reasoning belongs (see
+`ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
+
+`make coverage` is a question, not a target. Do not chase a number:
+`src/core` and `src/color` are near 100% because the logic lives there,
+and the thin React shells around them are not worth mocking into
+submission. Use it to find code no test touches at all — that is how the
+clipboard and PNG export turned out to be untested.
 
 culori ships no types, so `src/color/culori.d.ts` declares the functions we
 use (`differenceEuclidean`, `wcagContrast`, `filterDeficiencyProt`,

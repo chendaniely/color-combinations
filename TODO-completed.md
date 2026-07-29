@@ -5,6 +5,29 @@
 Owner: *"let's go in and clear up all defects. let's take a pass and see if
 things also need to be refactored."*
 
+**Second pass (owner: "before we push... any more refactoring... other libraries")**
+
+- [x] The project had NO linter. oxlint added, wired into `make lint` and CI,
+      and configured down from ~40 warnings to 4 real ones — `react-in-jsx-scope`
+      is obsolete under React 19's automatic runtime and `prefer-tag-over-role`
+      wanted a `<select>` for a custom swatch combobox.
+- [x] `PaletteTabs`' effect carried a comment claiming that depending on `shown`
+      directly would "rebuild the Set every render and loop". It would not —
+      `shown` is a ternary over two memoized arrays, and `seasonById` returns the
+      array's own object. Deps simplified to say something true.
+- [x] The colour disc's ARIA smell documented inline where the reasoning belongs,
+      rather than silenced globally.
+- [x] Two hard-coded `rgb(47 42 38 / …)` shadows — the last un-tokenized colours
+      in the stylesheet. Now `--ink-rgb`.
+- [x] Coverage measured for the first time, and it found the real gap: the
+      clipboard (`src/copy.ts`, 0%) and the PNG export (`src/exportPng.ts`,
+      13.88%, zero functions covered) had no test at all, both being things
+      jsdom cannot do. Now covered in the browser suite — including the
+      downloaded file's PNG magic bytes and a check that the exported plate's
+      bar proportions match the plate on screen, which guards the
+      `plateLayout.ts` refactor made the same day.
+- [x] `no-shadow` on a duplicated `TAU` in `tests/chord.test.ts`.
+
 **Wrong claims and dead code**
 
 - [x] The "taller bars = the dominant colour / main garment" claim in Browse,

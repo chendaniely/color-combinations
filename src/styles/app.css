@@ -109,7 +109,7 @@ main { flex: 1; min-height: 0; position: relative; }
 .panel {
   position: fixed; top: 0; right: 0; bottom: 0; width: var(--panel-width);
   max-width: 92vw; background: var(--paper-1); border-left: 1px solid var(--hairline);
-  box-shadow: -12px 0 40px rgb(47 42 38 / 0.08); z-index: 10;
+  box-shadow: -12px 0 40px rgb(var(--ink-rgb) / 0.08); z-index: 10;
   display: flex; flex-direction: column;
   animation: panel-in var(--dur) var(--ease);
 }
@@ -217,7 +217,7 @@ main { flex: 1; min-height: 0; position: relative; }
 .search-results {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
   background: var(--paper-1); border: 1px solid var(--hairline); border-radius: var(--radius);
-  list-style: none; padding: var(--s1); box-shadow: 0 8px 30px rgb(47 42 38 / 0.1);
+  list-style: none; padding: var(--s1); box-shadow: 0 8px 30px rgb(var(--ink-rgb) / 0.1);
 }
 /* Each result IS the option row — it no longer wraps a button, so these
    styles moved from `.search-results button` onto the <li> itself. */

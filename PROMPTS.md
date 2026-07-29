@@ -1266,3 +1266,54 @@ rather than testing it.
   forbidden-API list, and the `download` rule was JSX-shaped only, so
   `a.download = …` walked past it. Now shared, hardened, and each rule ships
   samples it must catch and samples it must not.
+
+**Owner prompt (second pass, before pushing):**
+
+> before we push. let's go through this all again and see if there are any more
+> refactoring to be done and other libraries we can use. let's take another pass
+> before we push this big bug fix patch
+
+**Decisions and findings (second pass):**
+
+- **The project had no linter at all.** Twenty `useEffect`s with nothing
+  checking their dependency arrays, and no `jsx-a11y` — in a codebase whose
+  owner does not read code and whose only maintainer is an AI. Added oxlint
+  (one package, ~1s) wired into `make lint` and CI.
+- **A linter is only worth having if it is quiet.** Out of the box it produced
+  ~40 warnings, most of them wrong here: `react-in-jsx-scope` is obsolete under
+  React 19's automatic runtime, and `prefer-tag-over-role` wanted a `<select>`
+  for a custom combobox that shows colour swatches. Configured down to four
+  real findings. The `ColorDisc` warnings are disabled *inline*, with the
+  reasoning at the code: a hue/saturation disc is two-dimensional and ARIA has
+  no role for that, so `role="slider"` would lie about one axis.
+- **The one `exhaustive-deps` hit was a false positive — and still worth it.**
+  The deps were equivalent to the value the linter wanted. But reading it
+  showed the *comment* was wrong: it claimed depending on `shown` directly
+  would "rebuild the Set every render and loop", when `shown` is a ternary over
+  two memoized arrays and is perfectly stable. Simplified to say something true.
+- **Coverage was the most valuable measurement of the pass.** `src/core` and
+  `src/color` sit near 100%, but `src/copy.ts` was at **0%** and
+  `src/exportPng.ts` at **13.88% with not one function covered** — the
+  clipboard and the PNG download, two things visitors actually do, and both
+  sitting on the owner's manual browser checklist. They were untested for the
+  same structural reason as the layout defects: jsdom has no clipboard and no
+  file download. The new Playwright suite can test both, so it now does —
+  including asserting the downloaded PNG's magic bytes and that the exported
+  plate's bar proportions match the plate on screen. That last one guards the
+  `plateLayout.ts` refactor made earlier the same day.
+- **Most library candidates were rejected, on the four properties.** No `clsx`
+  (six usages). No `zod` (already argued). No `@floating-ui` — InfoTip is 51
+  lines of working CSS and a runtime dependency would violate "weight is paid
+  by the feature that incurs it". No `radix-ui`/`react-aria`: they would add a
+  large runtime dependency to replace ~60 lines of now-tested code, and the
+  native `<dialog>` already beats their dialog implementations. The two that
+  were added are both dev-only with zero runtime weight.
+- **The new browser test was itself flaky, and the diagnosis was exact.** The
+  plate-proportions test passed alone and failed under load, missing tolerance
+  by 0.00003. Cause: `.panel .plate-large` runs a 500ms `deal` animation
+  containing `rotate(-1.5deg)`, and a rotation inflates an element's
+  axis-aligned bounding box by an amount that depends on its width — so
+  mid-animation the two bars were inflated by *different* factors, skewing the
+  ratio. Fixed by awaiting the element's own animations rather than sleeping,
+  so it stays correct if the duration ever changes. Verified with three clean
+  runs plus two full-suite runs under CPU contention.

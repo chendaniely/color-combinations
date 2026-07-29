@@ -55,5 +55,15 @@ export default defineConfig({
     // worker contention that crosses 5s. Nothing is hung; the work is real.
     testTimeout: 20_000,
     hookTimeout: 20_000,
+    // `make coverage` answers "what do the fast tests never run?". Scoped to
+    // src/ and to files a test actually imports, so the number means something.
+    // It earned its place on the first run: src/copy.ts sat at 0% and
+    // src/exportPng.ts at 13.88% with not one function covered, which is how
+    // the clipboard and PNG-download browser tests came to be written.
+    coverage: {
+      include: ['src/**'],
+      all: false,
+      reporter: ['text'],
+    },
   },
 })

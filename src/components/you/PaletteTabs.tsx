@@ -40,11 +40,19 @@ export function PaletteTabs({ reading, season, dispatch, onPaletteChange }: {
 
   const shown = which === 'measured' ? measured : seasonColors
 
+  // `shown` is referentially stable: both branches of the ternary are useMemo
+  // results, and `activeSeason` comes from seasonById, which returns the
+  // array's own object rather than a copy. So this fires exactly when the
+  // shown list changes.
+  //
+  // It used to list [which, measured, seasonColors] with a comment claiming
+  // that depending on `shown` directly "would rebuild the Set every render and
+  // loop". That was wrong — the deps were equivalent, and the stated hazard did
+  // not exist. Naming the actual dependency says something true and is what the
+  // linter can verify.
   useEffect(() => {
     onPaletteChange?.(new Set(shown.map((c) => c.id)))
-    // `shown` is derived from these two; depending on it directly would rebuild
-    // the Set every render and loop.
-  }, [which, measured, seasonColors, onPaletteChange])
+  }, [shown, onPaletteChange])
 
   const reasonFor = (id: number) =>
     scored.find((s) => s.color.id === id)?.reasons.join('; ') ?? ''
