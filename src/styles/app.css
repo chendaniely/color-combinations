@@ -504,6 +504,14 @@ main { flex: 1; min-height: 0; position: relative; }
   border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
 }
 
+/* Out of the You tab and into the rest of the site. */
+.you-doorways {
+  margin-top: var(--s8); padding-top: var(--s6);
+  border-top: 1px solid var(--hairline);
+}
+.you-doorways p { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--s3); }
+.you-doorway-buttons { display: flex; gap: var(--s2); flex-wrap: wrap; }
+
 /* Ranked combinations, and the floor that decides where the list stops. */
 .you-combos { margin-top: var(--s8); }
 .you-combos h2 {

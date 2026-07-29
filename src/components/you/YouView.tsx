@@ -5,9 +5,10 @@ import { ProbeReview } from '../sample/ProbeReview'
 import { MatchedCombinations } from './MatchedCombinations'
 import { PaletteTabs } from './PaletteTabs'
 import { ReadingStrip } from './ReadingStrip'
+import { YouDoorways } from './YouDoorways'
 
-// The You tab. Stage 1: capture -> review -> the reading. The two palettes and
-// the ranked combinations arrive in stage 2 (see the spec).
+// The You tab: capture -> review -> the reading, both palettes, the
+// combinations that suit you, and the doorways into Match and Browse.
 export function YouView({ state, dispatch }: {
   state: AppState
   dispatch: (a: Action) => void
@@ -67,6 +68,10 @@ export function YouView({ state, dispatch }: {
       {reading && visiblePalette && (
         <MatchedCombinations palette={visiblePalette} floor={state.you.floor}
           dispatch={dispatch} />
+      )}
+
+      {reading && visiblePalette && (
+        <YouDoorways palette={visiblePalette} dispatch={dispatch} />
       )}
 
       <div className="you-actions">
