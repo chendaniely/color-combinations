@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
+import { reachThePalette } from './seasonHelpers'
 import { expect, test, type Page } from '@playwright/test'
 
 // An independent accessibility audit. Everything in v1.6.0's a11y work was
@@ -83,5 +84,29 @@ test.describe('every screen passes an automated WCAG audit', () => {
     await page.getByRole('combobox', { name: 'Search colors' }).fill('blue')
     await page.getByRole('option').first().waitFor()
     await expectClean(page, 'Search type-ahead')
+  })
+})
+
+// The tenth screen, added 2026-07-29 after it shipped unaudited.
+//
+// "the You tab" above audits the LANDING screen — a heading and a "Take a
+// photo" button. The season display is three screens deeper and needs a photo
+// upload to reach, so nothing here ever saw it. That gap let a real violation
+// through: the "not close" band was set in the NYC orange, which measures
+// 2.92:1 against --paper-1 where AA small text needs 4.50, on a site that
+// ships WCAG contrast goggles.
+//
+// Lives here rather than in seasonFit.spec.ts so it sits with the other nine
+// and cannot be forgotten when a screen is added.
+test.describe('the season display passes the same audit', () => {
+  test('the season palette and its fit panel', async ({ page }) => {
+    await reachThePalette(page)
+    await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
+    await expectClean(page, 'Season palette')
+
+    // And the fit panel, which is a different subtree.
+    await page.getByRole('tab').nth(1).click()
+    await page.locator('.fit-pairs li').first().waitFor()
+    await expectClean(page, 'Season fit panel')
   })
 })

@@ -581,9 +581,18 @@ main { flex: 1; min-height: 0; position: relative; }
   font-family: var(--font-ui); font-size: 0.62rem; letter-spacing: 0.04em;
   text-transform: uppercase; color: var(--ink-muted); white-space: nowrap;
 }
-/* Only the worst band is coloured. Colouring all four would turn an honest
-   scale into a traffic light and imply three of them are problems. */
-.fit-not-close .fit-band, .swatch-band.fit-not-close { color: var(--accent); }
+/* The worst band is emphasised by WEIGHT, not by hue.
+   It was `color: var(--accent)` — the NYC orange, which measures 2.92:1 on
+   --paper-1 where AA small text needs 4.50. At 0.62rem that is a real
+   violation, and it would have shipped: the season screen needs a photo to
+   reach, so neither the axe audit nor the phone-width sweep ever saw it. Both
+   now do.
+   Weight also fixes a second problem the colour had: conveying "this one is a
+   poor match" by hue alone is exactly what WCAG 1.4.1 warns against, and this
+   site ships colour-blindness goggles. --ink is 13.15:1. */
+.fit-not-close .fit-band, .swatch-band.fit-not-close {
+  color: var(--ink); font-weight: 700;
+}
 .fit-caveat {
   font-size: 0.82rem; color: var(--ink-muted); line-height: 1.55;
   border-left: 2px solid var(--accent); padding-left: var(--s3);
@@ -618,7 +627,18 @@ main { flex: 1; min-height: 0; position: relative; }
 .you-floor button[aria-checked='true'] {
   background: var(--ink); border-color: var(--ink); color: var(--paper-1); font-weight: 700;
 }
-.you-floor em { font-style: normal; font-family: var(--font-mono); opacity: 0.7; }
+/* No opacity here, deliberately. It was `opacity: 0.7`, which looked like
+   harmless de-emphasis and measured 3.66:1 against --paper-1 in the resting
+   state — AA small text needs 4.50. (The selected state was fine at 7.26,
+   sitting on dark ink, which is why it never looked broken.) Shipped in v1.5.0
+   and live for two releases, because reaching this screen needs a photo upload
+   and nothing audited it until 2026-07-29.
+   The mono face already tells the count apart from the label, so the
+   de-emphasis was never doing necessary work. Inheriting the button's colour
+   gives 7.79:1 resting and 13.15:1 selected.
+   Lesson worth keeping: `opacity` on text is a contrast change that no token
+   audit will catch, because the token is still correct. */
+.you-floor em { font-style: normal; font-family: var(--font-mono); }
 .you-combo-grid {
   display: grid; gap: var(--s4);
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));

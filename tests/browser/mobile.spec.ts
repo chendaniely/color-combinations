@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
+import { reachThePalette } from './seasonHelpers'
 import { expect, test } from '@playwright/test'
 
 // Phone-sized checks. These were on the owner's manual browser checklist
@@ -103,5 +104,51 @@ test.describe('with reduced motion requested', () => {
     // Suppressing the animation must not leave the opening transform applied.
     const opacity = await panel.evaluate((el) => getComputedStyle(el).opacity)
     expect(Number(opacity)).toBe(1)
+  })
+})
+
+// The season display at phone width, added 2026-07-29.
+//
+// The loop above walks the five top-level views. The season palette is three
+// screens past "You" and needs a photo upload, so it was never measured —
+// exactly the gap that let an accessibility violation ship on the same screen.
+//
+// It is the most overflow-prone layout on the site: each fit row is a flex line
+// holding two swatches, an arrow, a colour name and a band label, and some of
+// Wada's names are long ("Mars Brown / Tobacco", "Light Pinkish Cinnamon").
+test.describe('the season display at phone width', () => {
+  test.use({ viewport: PHONE })
+
+  test('never scrolls sideways, even with the longest colour names', async ({ page }) => {
+    await reachThePalette(page)
+    await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
+    await page.getByRole('tab').nth(1).click()
+    await page.locator('.fit-pairs li').first().waitFor()
+
+    const overflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }))
+    expect(overflow.scrollWidth,
+      `the season display is ${overflow.scrollWidth - overflow.clientWidth}px too wide`)
+      .toBeLessThanOrEqual(overflow.clientWidth)
+  })
+
+  test('a fit row keeps both swatches and its band on screen', async ({ page }) => {
+    await reachThePalette(page)
+    await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
+    await page.getByRole('tab').nth(1).click()
+    const row = page.locator('.fit-pairs li').first()
+    await row.waitFor()
+
+    // The comparison is the whole point of the panel: if the band label wraps
+    // off or a swatch collapses to nothing, the row stops saying anything.
+    for (const part of ['.fit-ideal', '.fit-actual', '.fit-band']) {
+      const box = await row.locator(part).boundingBox()
+      expect(box, `${part} is not rendered`).not.toBeNull()
+      expect(box!.width, `${part} collapsed to ${box!.width}px`).toBeGreaterThan(4)
+      expect(box!.x + box!.width, `${part} runs off the right edge`)
+        .toBeLessThanOrEqual(PHONE.width)
+    }
   })
 })
