@@ -1507,3 +1507,30 @@ observation. Continuing would be looking for the sake of looking.
   theme-color, plus a test tying it to the `--paper-1` token since HTML cannot
   read a CSS custom property. Open Graph tags are logged rather than added: a
   card wants a 1200×630 image, which is a design asset the owner should approve.
+
+**Tenth pass — a real user-facing bug, in a feature nobody had exercised:**
+
+- **Copy CSS produced invalid CSS for 28 of the 338 combinations.** Five of the
+  book's colours carry punctuation that a data slug keeps happily and a CSS
+  identifier rejects: "Hay's Russet", "Pale King's Blue" and "Vandar Poel's
+  Blue" hold an apostrophe, "Eugenia Red | A" and "| B" hold a pipe. The
+  exporter wrote them straight into custom property names — `--hay's-russet:
+  #a35d4a;` — which a browser drops on parse. A visitor pasting the result got a
+  stylesheet quietly missing colours, with no error anywhere. Roughly one
+  combination in twelve.
+- **The fix keeps the slug and fixes the output.** A slug is a stable data key;
+  a CSS custom property name is an identifier; conflating the two was the bug.
+  Apostrophes are removed rather than replaced (an apostrophe sits inside a
+  word, so "hay's" reads "hays", not "hay-s"), other invalid runs become
+  hyphens. Verified across all 157 colours that this collides for none of them.
+- **The regression test was proved to catch the bug, not merely to pass.**
+  Restoring the old behaviour makes it fail with the exact damage —
+  "combination 49: wrote 2, browser kept 0" — and the strongest form of the test
+  is a real browser parsing the generated CSS with `CSSStyleSheet.replaceSync`,
+  because "matches a regex" and "Chromium keeps it" are different claims.
+- Two things checked and found FINE, recorded so they are not re-checked: all
+  eight `@font-face` blocks already declare `font-display: swap` (an earlier
+  count of nine was my own miscount — the file's opening comment contains the
+  string), and exactly one colour of 157 has no combinations (Vandar Poel's
+  Blue), which settles the long-open zero-width-arc question as a curiosity
+  rather than a systemic gap.

@@ -115,3 +115,37 @@ test.describe('taking a plate away', () => {
     })
   })
 })
+
+// The generated CSS, parsed by an actual browser. The unit tests assert the
+// identifiers match a regex; this asserts Chromium keeps them — which is the
+// thing that was actually broken. Before cssVarName, `--hay's-russet` was
+// dropped silently on parse, so a visitor pasting Copy CSS got a stylesheet
+// missing colours with no error anywhere.
+test('every combination\'s Copy CSS survives a real CSS parser', async ({ page }) => {
+  const { readFileSync } = await import('node:fs')
+  const { index } = await import('../../src/core/dataset')
+  const { validateDataset } = await import('../../src/core/validate')
+  const { cssVariablesFor } = await import('../../src/core/export')
+
+  const ix = index(validateDataset(
+    JSON.parse(readFileSync('data/processed/colors-data.json', 'utf8'))))
+  const cases = ix.data.combinations
+    .filter((c) => !c.excluded)
+    .map((c) => ({ id: c.id, css: cssVariablesFor(ix, c), expected: c.colorIds.length }))
+
+  await page.goto('./')
+  const dropped = await page.evaluate((all) => {
+    const bad: string[] = []
+    for (const { id, css, expected } of all) {
+      const sheet = new CSSStyleSheet()
+      sheet.replaceSync(css)
+      const rule = sheet.cssRules[0] as CSSStyleRule | undefined
+      // Every declaration the exporter wrote must have survived the parse.
+      const kept = rule ? rule.style.length : 0
+      if (kept !== expected) bad.push(`combination ${id}: wrote ${expected}, browser kept ${kept}`)
+    }
+    return bad
+  }, cases)
+
+  expect(dropped, 'the browser discarded custom properties').toEqual([])
+})

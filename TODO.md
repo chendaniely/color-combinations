@@ -64,7 +64,9 @@ a check that needs a person. See `TODO-completed.md` for what went.
       time at all 4 granularities, dragging off past the wheel's edge and
       lifting cancels, and the page never scrolls under the drag); and a
       product call on whether colours with zero combinations reading as
-      zero-width arcs at the Colors level is acceptable.
+      zero-width arcs at the Colors level is acceptable — measured
+      2026-07-29, this affects exactly ONE colour of 157 (Vandar Poel's
+      Blue, #127), so it is a curiosity rather than a systemic gap.
 - [ ] You tab (v1.5.0) — owner review passed with "anything else are smaller ui
       element changes i can fix later on"; those specific tweaks were never
       enumerated. Add them as they come up.
