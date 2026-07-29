@@ -5,6 +5,7 @@ import { classifySeason, parentOf, seasonById } from '../../core/seasons'
 import type { Action } from '../../core/state'
 import type { ColorRecord, SkinReading } from '../../core/types'
 import { dataset, type SeasonData } from '../../data'
+import { ShareLink } from '../ShareLink'
 import { SeasonFit } from './SeasonFit'
 import { useSeasonData } from './useSeasonData'
 
@@ -190,6 +191,19 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
       </div>
 
       {which === 'season' && <SeasonFit sub={activeSeason} data={data} />}
+
+      {/* The motivating case for the whole feature: "someone finds their season
+          and the only way to show a friend is to make them redo the photo".
+          Only on the season view — the measured palette cannot be shared,
+          because a link carries no reading. */}
+      {which === 'season' && (
+        <div className="you-share">
+          <ShareLink label={`Copy link to ${activeSeason.name}`} />
+          <span className="muted">
+            The link carries the season, not your measurements.
+          </span>
+        </div>
+      )}
 
       {which === 'measured' && measured.length < SHORT_LIST && (
         <p className="you-note">

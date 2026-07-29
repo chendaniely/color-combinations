@@ -6,6 +6,7 @@ import { CopyField } from './CopyField'
 import { MissingPanel } from './MissingPanel'
 import { Panel } from './Panel'
 import { PlateCard } from './PlateCard'
+import { ShareLink } from './ShareLink'
 import { dataset } from '../data'
 import { useState } from 'react'
 
@@ -43,6 +44,7 @@ export function CombinationDetail({ comboId, dispatch }: { comboId: number; disp
           {copiedWhat === 'json' ? 'copied ✓' : 'Copy JSON'}
         </button>
         <button onClick={() => downloadPlatePng(dataset, combo)}>Download PNG</button>
+        <ShareLink label="Copy link to this combination" />
       </div>
     </Panel>
   )

@@ -949,3 +949,17 @@ main { flex: 1; min-height: 0; position: relative; }
   border-left-color: var(--link);
   margin-bottom: var(--s4);
 }
+
+/* Copy-the-current-address. Reads as a secondary action beside the export
+   buttons rather than competing with them. */
+.share-link {
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: none; color: var(--ink-muted); font: inherit; font-size: 0.82rem;
+  padding: var(--s2) var(--s3); cursor: pointer;
+}
+.share-link:hover { border-color: var(--link); color: var(--ink); }
+.you-share {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3);
+  margin-top: var(--s4);
+}
+.you-share .muted { font-size: 0.78rem; }

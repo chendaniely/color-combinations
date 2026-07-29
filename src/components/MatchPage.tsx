@@ -3,6 +3,7 @@ import { combosForSet, remapKeysToLevel, suggestPartners } from '../core/matchin
 import type { Action, AppState, MatchLevel } from '../core/state'
 import { allowedFor, dataset } from '../data'
 import { PaletteTray } from './PaletteTray'
+import { ShareLink } from './ShareLink'
 import { PlateCard } from './PlateCard'
 import { ShadePicker } from './ShadePicker'
 import { SuggestionList } from './SuggestionList'
@@ -74,6 +75,9 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
       ) : (
         <>
           <PaletteTray keys={keys} dispatch={dispatch} />
+          {/* A link to a palette IS a saved palette on a site with no accounts —
+              the other half of TODO.md's "save / export a built palette". */}
+          {keys.length > 0 && <ShareLink label="Copy link to this palette" />}
           <div className="match-cols">
             <section>
               <h2 className="seclabel">Add a {noun.one} <span className="q">— goes with everything above</span></h2>
