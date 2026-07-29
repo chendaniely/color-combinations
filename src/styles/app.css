@@ -373,6 +373,8 @@ main { flex: 1; min-height: 0; position: relative; }
 .reading-strip {
   border: 1px solid var(--hairline); border-radius: var(--radius);
   padding: var(--s4); margin-top: var(--s6);
+  /* Positioned so a tooltip can span it on a narrow screen (see below). */
+  position: relative;
 }
 .reading-swatches { display: flex; gap: var(--s6); margin-bottom: var(--s4); }
 .reading-swatch { display: flex; align-items: center; gap: var(--s2); }
@@ -390,6 +392,55 @@ main { flex: 1; min-height: 0; position: relative; }
 .reading-axes dd {
   margin: 0; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-muted);
 }
+/* "What does this word mean?" — tap target sized for a finger, since this is
+   primarily a phone feature. */
+.infotip { position: relative; display: inline-block; vertical-align: middle; }
+/* isolation keeps the 44px hit area from sitting above neighbouring controls. */
+.infotip-btn { position: relative; isolation: isolate; }
+.infotip-btn {
+  width: 18px; height: 18px; border-radius: 50%; padding: 0;
+  border: 1px solid var(--ink-faint); background: transparent; color: var(--ink-muted);
+  font-family: var(--font-ui); font-size: 0.68rem; font-style: italic; font-weight: 700;
+  line-height: 1; cursor: pointer; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+.infotip-btn:hover, .infotip-btn[aria-expanded="true"] {
+  border-color: var(--link); color: var(--link);
+}
+/* The visible circle stays 18px so it doesn't shout, but the HIT AREA is
+   extended to 44px — the size a fingertip actually needs. Without this the
+   control is decorative on the device the feature is mostly used on. */
+.infotip-btn::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
+.infotip-body {
+  position: absolute; z-index: 20; top: calc(100% + 8px);
+  /* Clamp to the viewport so a tip near the right edge cannot run off-screen:
+     centred on the button, but never past 8px from either side. */
+  left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: min(19rem, calc(100vw - 2 * var(--s4)));
+  background: var(--paper-hi); border: 1px solid var(--hairline);
+  border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+  padding: var(--s3); font-size: 0.8rem; font-weight: 400; line-height: 1.5;
+  color: var(--ink); text-transform: none; letter-spacing: normal; text-align: left;
+}
+.infotip-body b { font-weight: 700; }
+/* On a phone a tip centred on its button runs off the edge — a 304px card
+   centred on a right-hand term overflows a 390px screen by ~130px. Below this
+   width the tip stops tracking the button and becomes a full-width card spanning
+   the reading strip instead, which is both reachable and easier to read.
+   NOTE: this is the one part of the info tips that browser automation could not
+   verify (the viewport would not resize); it is on the owner's 375px checklist. */
+@media (max-width: 560px) {
+  .infotip { position: static; }
+  .infotip-body {
+    left: var(--s4); right: var(--s4); transform: none;
+    width: auto; max-width: none;
+  }
+}
+
 .reading-badge {
   display: inline-block; margin: 0; padding: var(--s1) var(--s3); border-radius: 999px;
   font-size: 0.75rem; font-weight: 700;
