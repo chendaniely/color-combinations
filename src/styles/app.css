@@ -681,6 +681,20 @@ main { flex: 1; min-height: 0; position: relative; }
   width: 56px; height: 56px; border-radius: 50%; background: var(--paper-hi);
   border: 3px solid var(--paper-2); box-shadow: 0 0 0 2px var(--accent); cursor: pointer;
 }
+/* The crash screen (ErrorBoundary). Plain and centred — it has to render when
+   something else in the app has already failed, so it depends on nothing but
+   tokens. */
+.crash {
+  max-width: 34rem; margin: 0 auto; padding: var(--s12) var(--s6);
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--s4);
+}
+.crash h1 { font-family: var(--font-display); font-weight: 500; }
+.crash-detail { color: var(--ink-muted); font-size: 0.85rem; }
+.crash-detail code {
+  display: block; margin-top: var(--s2); font-family: var(--font-mono);
+  font-size: 0.8rem; color: var(--ink);
+}
+
 .cam-btn { font: inherit; padding: 0.6rem 1rem; border-radius: var(--radius); cursor: pointer; }
 .cam-btn.primary { background: var(--link); color: var(--paper-hi); border: 1px solid var(--link); }
 .cam-btn.primary:disabled { opacity: 0.5; cursor: default; }
