@@ -776,10 +776,13 @@ main { flex: 1; min-height: 0; position: relative; }
    The hue stops and the white saturation wash below are the COLOR SPACE, not
    design tokens — the same exemption CLAUDE.md grants Sanzo Wada's data colors.
    Every other value here comes from tokens.css.
-   The 236px size must stay in sync with RADIUS in ColorDisc.tsx. */
+   The disc's size lives in --pick-disc-size and NOWHERE else: ColorDisc.tsx
+   positions the pin in percentages, so this can change (or become responsive)
+   without touching TypeScript. */
 .pick-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--s3); }
 .pick-disc {
-  position: relative; width: 236px; height: 236px; border-radius: 50%;
+  position: relative; border-radius: 50%;
+  width: var(--pick-disc-size); height: var(--pick-disc-size);
   touch-action: none; cursor: crosshair;
 }
 .pick-disc:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
@@ -795,7 +798,7 @@ main { flex: 1; min-height: 0; position: relative; }
   border: 2px solid var(--paper-hi); box-shadow: 0 0 0 1.5px var(--ink);
   pointer-events: none;
 }
-.pick-bright { display: flex; align-items: center; gap: var(--s2); width: 236px; }
+.pick-bright { display: flex; align-items: center; gap: var(--s2); width: var(--pick-disc-size); }
 .pick-bright input { flex: 1; min-width: 0; accent-color: var(--link); }
 
 .pick-swatch {

@@ -1,8 +1,6 @@
-import { readableTextOn } from '../core/colorMath'
 import type { Action } from '../core/state'
 import { dataset } from '../data'
-
-const TAPER = [1.5, 1.15, 0.9, 0.75, 0.7] // decorative, not from the book
+import { barWeights } from '../plateLayout'
 
 export function PlateCard({ comboId, dispatch, large = false, outsiders }:
   {
@@ -16,14 +14,14 @@ export function PlateCard({ comboId, dispatch, large = false, outsiders }:
   }) {
   const combo = dataset.comboById.get(comboId)!
   const colors = combo.colorIds.map((id) => dataset.colorById.get(id)!)
-  const total = TAPER.slice(0, colors.length).reduce((a, b) => a + b, 0)
+  const weights = barWeights(colors.length)
   const isOutsider = (id: number) => outsiders?.includes(id) ?? false
   const inner = (
     <figure className={large ? 'plate plate-large' : 'plate'}>
       <div className="plate-bars">
         {colors.map((c, i) => (
-          <div key={c.id} style={{ background: c.hex, flexGrow: TAPER[i] / total }}
-            className={`plate-bar text-${readableTextOn(c.hex)}${isOutsider(c.id) ? ' is-outsider' : ''}`}
+          <div key={c.id} style={{ background: c.hex, flexGrow: weights[i] }}
+            className={`plate-bar${isOutsider(c.id) ? ' is-outsider' : ''}`}
             title={isOutsider(c.id) ? `${c.name} — not in your palette` : c.name} />
         ))}
       </div>

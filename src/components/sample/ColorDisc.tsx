@@ -2,9 +2,13 @@ import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
 import { hsvToRgb, rgbToHex, type HSV } from '../../core/colorMath'
 import { discPointToHueSat, hueSatToDiscPoint } from '../../core/discGeometry'
 
-// Must match the .pick-disc size in app.css — the disc is a fixed square so the
-// pin can be placed before the element has been measured.
-const RADIUS = 118
+// The pin is positioned in PERCENTAGES of the disc, never pixels. Asking
+// hueSatToDiscPoint for a unit radius gives offsets in [-1, 1]; since the disc
+// is square (both axes read --pick-disc-size), 50% of it is exactly the radius
+// in both directions. So the component carries no copy of the disc's size and
+// cannot drift from the CSS — which it previously did, as RADIUS = 118 beside
+// width: 236px, waiting for the first person to make the disc responsive.
+const UNIT = 1
 
 const HUE_STEP = 2
 const SAT_STEP = 0.02
@@ -16,7 +20,7 @@ export function ColorDisc({ hsv, onChange }: {
   onChange: (hsv: HSV) => void
 }) {
   const disc = useRef<HTMLDivElement>(null)
-  const { dx, dy } = hueSatToDiscPoint(hsv.h, hsv.s, RADIUS)
+  const { dx, dy } = hueSatToDiscPoint(hsv.h, hsv.s, UNIT)
   const hex = rgbToHex(hsvToRgb(hsv))
 
   function pick(e: PointerEvent<HTMLDivElement>) {
@@ -55,7 +59,7 @@ export function ColorDisc({ hsv, onChange }: {
             so the disc IS the color space, not a picture of it */}
         <div className="pick-face" style={{ filter: `brightness(${hsv.v})` }} />
         <div className="pick-pin" style={{
-          left: `calc(50% + ${dx}px)`, top: `calc(50% + ${dy}px)`, background: hex,
+          left: `${50 + dx * 50}%`, top: `${50 + dy * 50}%`, background: hex,
         }} />
       </div>
       <label className="pick-bright">

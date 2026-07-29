@@ -36,9 +36,16 @@
   .chosen{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 
   .stage{position:relative;width:226px;height:226px;margin:0 auto;touch-action:none;cursor:crosshair}
+  /* Corrected 2026-07-29: the white saturation wash used to fade out at 78%
+     of the radius, so every dot rendered more saturated than the HSV maths
+     said it was. The same bug was fixed in .pick-face in app.css during the
+     feat/color-picker review; this file kept it because it was the record of
+     what the owner reviewed. It is also the designated starting point for the
+     Browse-page disc, which made it a trap rather than a record — so the stop
+     is now 100%, matching the shipped app. */
   .face{position:absolute;inset:0;border-radius:50%;
     background:
-      radial-gradient(circle closest-side,#fff 0%,rgba(255,255,255,0) 78%),
+      radial-gradient(circle closest-side,#fff 0%,rgba(255,255,255,0) 100%),
       conic-gradient(from 0deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
     box-shadow:0 0 0 1px rgba(0,0,0,.14) inset}
   .layer{position:absolute;inset:0;pointer-events:none}

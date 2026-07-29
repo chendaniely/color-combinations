@@ -13,8 +13,9 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
       <h3>Dress yourself</h3>
       <p>
         Want a fresh palette? Hit <strong>Surprise me</strong>, or browse 2–3 color
-        combinations in families you like wearing. Taller bars suggest the main
-        garment; slivers are accents.
+        combinations in families you like wearing. The bar heights on each plate
+        are decorative — the book says which colors belong together, not how much
+        of each to use.
       </p>
       <h3>Build around what you own</h3>
       <p>

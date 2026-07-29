@@ -26,6 +26,10 @@
   --panel-width: 400px;
   --radius: 3px;
   --header-height: 64px;
+  /* The colour picker's disc. Width AND height both read this, so the disc is
+     square by construction — which is what lets ColorDisc.tsx place the pin in
+     percentages instead of pixels, with no size constant of its own to drift. */
+  --pick-disc-size: 236px;
   /* motion */
   --dur-hover: 120ms;
   --dur-fast: 200ms;

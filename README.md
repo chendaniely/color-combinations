@@ -39,8 +39,8 @@ Run these from the project folder. `make help` lists them all.
 ## Features
 
 - **Dress yourself** — hit Surprise me, or browse 2–3 color combinations in
-  families you like wearing. Taller bars suggest the main garment; slivers
-  are accents.
+  families you like wearing. The bar heights on a plate are decorative: the
+  book records which colors belong together, not how much of each to use.
 - **Build around what you own** — search for your item's color, open it, and
   see every combination the book endorses. Don't have the exact shade? Zoom
   the wheel out a level to see what pairs with blues, ochres, etc. in

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
-  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, parseCmyk, parseRgb, readableTextOn, rgbToCmyk, rgbToHex, rgbToHsl, rgbToHsv,
+  cmykToRgb, hexToRgb, hsvToRgb, hueOf, isNeutral, parseCmyk, parseRgb, rgbToCmyk, rgbToHex, rgbToHsl, rgbToHsv,
 } from '../src/core/colorMath'
 
 describe('colorMath', () => {
@@ -22,16 +22,12 @@ describe('colorMath', () => {
     expect(rgbToHsl([255, 255, 255]).s).toBeCloseTo(0)
   })
   it('hueOf matches known colors', () => {
-    expect(hueOf('#ffb3f0')).toBeGreaterThan(300) // Hermosa Pink ≈ 316
+    expect(hueOf('#ffb3f0')).toBeGreaterThan(300) // Hermosa Pink ≈ 311.84
     expect(hueOf('#ffb3f0')).toBeLessThan(330)
   })
   it('flags neutrals by low saturation', () => {
     expect(isNeutral('#808080')).toBe(true)
     expect(isNeutral('#ff3319')).toBe(false)
-  })
-  it('picks readable text color', () => {
-    expect(readableTextOn('#1b3644')).toBe('light') // dark slate → light text
-    expect(readableTextOn('#ffcfc4')).toBe('dark')
   })
   it('converts to hsv', () => {
     expect(rgbToHsv([255, 0, 0]).h).toBeCloseTo(0)
@@ -39,6 +35,18 @@ describe('colorMath', () => {
     expect(rgbToHsv([255, 0, 0]).v).toBeCloseTo(1)
     expect(rgbToHsv([0, 255, 0]).h).toBeCloseTo(120)
     expect(rgbToHsv([0, 0, 255]).h).toBeCloseTo(240)
+  })
+  // HSL and HSV share one hue definition (the private hueFrom helper). This is
+  // the invariant that lets them share it — if anyone re-inlines the sector
+  // maths into one of them and gets it subtly wrong, this fails.
+  it('agrees on hue between hsl and hsv, across the whole wheel', () => {
+    for (let r = 0; r <= 255; r += 17) {
+      for (let g = 0; g <= 255; g += 17) {
+        for (let b = 0; b <= 255; b += 17) {
+          expect(rgbToHsv([r, g, b]).h).toBeCloseTo(rgbToHsl([r, g, b]).h, 10)
+        }
+      }
+    }
   })
   it('reports zero saturation for grays and black', () => {
     expect(rgbToHsv([128, 128, 128]).s).toBe(0)
