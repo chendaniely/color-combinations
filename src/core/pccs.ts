@@ -31,6 +31,13 @@ export interface PccsTone {
   lightness: [number, number]
   /** [lo, hi] on the PCCS saturation scale, 0-9. */
   saturation: [number, number]
+  /**
+   * The tone's canonical position — NOT the centre of its band. `bright`
+   * spans lightness 7.0-9.5 but sits at 7.5; rendering it at the midpoint
+   * produced a washed-out swatch unlike any real PCCS bright chip. Membership
+   * uses the band; anything that DRAWS the tone uses this.
+   */
+  representative?: { lightness: number; saturation: number }
   achromatic?: boolean
 }
 
@@ -46,7 +53,8 @@ function checkEnvelope(
   file: string,
   data: unknown,
   sourceIds: Set<string>,
-): { sources: string[]; notes: string } {
+  opts: { requireNotes?: boolean } = {},
+): { sources: string[] } {
   if (typeof data !== 'object' || data === null || Array.isArray(data)) fail(file, 'not an object')
   const d = data as { schemaVersion?: number; description?: string; sources?: unknown; notes?: unknown }
   if (d.schemaVersion !== PCCS_SCHEMA_VERSION) {
@@ -57,8 +65,11 @@ function checkEnvelope(
   for (const id of d.sources) {
     if (!sourceIds.has(id)) fail(file, `cites unknown source id "${id}"`)
   }
-  if (typeof d.notes !== 'string') fail(file, 'notes missing')
-  return { sources: d.sources as string[], notes: d.notes }
+  // Generated files carry no notes: there is no transcription judgement in
+  // them to explain. Hand-transcribed ones must say where they departed from
+  // their source.
+  if (opts.requireNotes !== false && typeof d.notes !== 'string') fail(file, 'notes missing')
+  return { sources: d.sources as string[] }
 }
 
 export function validatePccsHues(data: unknown, sourceIds: Set<string>): PccsHue[] {
@@ -112,6 +123,19 @@ export function validatePccsTones(data: unknown, sourceIds: Set<string>): PccsTo
       }
     }
 
+    // A representative that sits outside its own band would draw a swatch the
+    // membership rule disagrees with — the two would drift apart silently.
+    if (!t.achromatic) {
+      const r = t.representative
+      if (!r) fail(file, `chromatic tone "${t.abbr}" has no representative point`)
+      if (r.lightness < t.lightness[0] || r.lightness > t.lightness[1]) {
+        fail(file, `tone "${t.abbr}" representative lightness ${r.lightness} is outside its band`)
+      }
+      if (r.saturation < t.saturation[0] || r.saturation > t.saturation[1]) {
+        fail(file, `tone "${t.abbr}" representative saturation ${r.saturation} is outside its band`)
+      }
+    }
+
     // The ja.wikipedia dull/grayish collision, caught at load rather than
     // shipped. Achromatic tones are points on the grey axis and are exempt.
     if (!t.achromatic) {
@@ -125,6 +149,47 @@ export function validatePccsTones(data: unknown, sourceIds: Set<string>): PccsTo
   const chromatic = (tones as PccsTone[]).filter((t) => !t.achromatic)
   if (chromatic.length !== 12) fail(file, `expected 12 chromatic tones, found ${chromatic.length}`)
   return tones as PccsTone[]
+}
+
+/** One rendered cell of the 24 x 12 grid. */
+export interface PccsCell {
+  hue: number
+  hueAbbr: string
+  tone: string
+  toneName: string
+  lightness: number
+  saturation: number
+  hex: string
+}
+
+export function validatePccsGrid(
+  data: unknown,
+  sourceIds: Set<string>,
+  hues: PccsHue[],
+  tones: PccsTone[],
+): PccsCell[] {
+  const file = 'pccs-grid.json'
+  checkEnvelope(file, data, sourceIds, { requireNotes: false })
+  const cells = (data as { cells?: unknown }).cells
+  if (!Array.isArray(cells)) fail(file, 'cells missing')
+
+  const chromatic = tones.filter((t) => !t.achromatic)
+  const expected = hues.length * chromatic.length
+  if (cells.length !== expected) fail(file, `expected ${expected} cells, found ${cells.length}`)
+
+  const hueNumbers = new Set(hues.map((h) => h.n))
+  const toneAbbrs = new Set(chromatic.map((t) => t.abbr))
+  const seen = new Set<string>()
+  for (const raw of cells) {
+    const c = raw as PccsCell
+    if (!hueNumbers.has(c.hue)) fail(file, `cell references unknown hue ${c.hue}`)
+    if (!toneAbbrs.has(c.tone)) fail(file, `cell references unknown tone "${c.tone}"`)
+    const key = `${c.hue}/${c.tone}`
+    if (seen.has(key)) fail(file, `duplicate cell ${key}`)
+    seen.add(key)
+    if (!/^#[0-9a-f]{6}$/.test(c.hex)) fail(file, `cell ${key} has a bad hex "${c.hex}"`)
+  }
+  return cells as PccsCell[]
 }
 
 /** The tone whose region contains this pair, or null if none does. */

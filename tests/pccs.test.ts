@@ -13,6 +13,7 @@ import { describe, expect, it } from 'vitest'
 import {
   PCCS_SCHEMA_VERSION,
   toneKey,
+  validatePccsGrid,
   validatePccsHues,
   validatePccsTones,
 } from '../src/core/pccs'
@@ -122,6 +123,67 @@ describe('the PCCS tone system', () => {
 
   it('records the source conflict rather than smoothing it over', () => {
     expect(rawTones.notes).toMatch(/wikipedia/i)
+  })
+})
+
+describe('every chromatic tone has a canonical position', () => {
+  it('carries a representative point inside its own band', () => {
+    for (const t of chromatic) {
+      expect(t.representative, `${t.abbr} has none`).toBeDefined()
+      const r = t.representative!
+      expect(r.lightness, `${t.abbr}`).toBeGreaterThanOrEqual(t.lightness[0])
+      expect(r.lightness, `${t.abbr}`).toBeLessThanOrEqual(t.lightness[1])
+      expect(r.saturation, `${t.abbr}`).toBeGreaterThanOrEqual(t.saturation[0])
+      expect(r.saturation, `${t.abbr}`).toBeLessThanOrEqual(t.saturation[1])
+    }
+  })
+
+  // The reason this field exists at all. If someone "simplifies" it away and
+  // goes back to the band midpoint, bright renders as a washed-out pink.
+  it('is not merely the midpoint of the band', () => {
+    const differs = chromatic.filter(
+      (t) => t.representative!.lightness !== (t.lightness[0] + t.lightness[1]) / 2,
+    )
+    expect(differs.length, 'representative points look like midpoints').toBeGreaterThan(0)
+  })
+
+  it('rejects a representative outside its band', () => {
+    const bad = {
+      ...rawTones,
+      tones: rawTones.tones.map((t: { abbr: string }) =>
+        t.abbr === 'dp' ? { ...t, representative: { lightness: 9.0, saturation: 8 } } : t,
+      ),
+    }
+    expect(() => validatePccsTones(bad, ids)).toThrow(/outside its band/)
+  })
+})
+
+describe('the rendered grid', () => {
+  const rawGrid = JSON.parse(readFileSync('data/reference/pccs-grid.json', 'utf8'))
+  const cells = validatePccsGrid(rawGrid, ids, hues, tones)
+
+  it('has one cell per hue per chromatic tone', () => {
+    expect(cells).toHaveLength(24 * 12)
+  })
+
+  it('gives every cell a valid sRGB hex', () => {
+    for (const c of cells) expect(c.hex, `${c.hue}/${c.tone}`).toMatch(/^#[0-9a-f]{6}$/)
+  })
+
+  it('says plainly that it is our rendering, not JCRI chip values', () => {
+    expect(rawGrid.description).toMatch(/not the Japan Color Research Institute/i)
+  })
+
+  it('records the script that generates it', () => {
+    expect(rawGrid.generatedBy).toBe('scripts/build-pccs-grid.ts')
+  })
+
+  it('renders deep tones darker than bright ones at the same hue', () => {
+    for (const hue of [2, 8, 12, 17]) {
+      const deep = cells.find((c) => c.hue === hue && c.tone === 'dp')!
+      const bright = cells.find((c) => c.hue === hue && c.tone === 'b')!
+      expect(deep.lightness, `hue ${hue}`).toBeLessThan(bright.lightness)
+    }
   })
 })
 

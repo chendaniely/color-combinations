@@ -14,7 +14,8 @@
     "test:browser": "playwright test",
     "coverage": "vitest run --coverage",
     "ingest": "tsx scripts/ingest/ingest.ts",
-    "seed-seasons": "tsx scripts/seed-seasons.ts"
+    "seed-seasons": "tsx scripts/seed-seasons.ts",
+    "build-pccs-grid": "tsx scripts/build-pccs-grid.ts"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.0",
