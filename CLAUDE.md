@@ -121,7 +121,31 @@ Never treat a plan as a description of the current code.
   Replaced `data/curated/seasons.json`, which held twelve hand-listed
   palettes it admitted had no published source. Its admission is quoted in
   `docs/color-analysis-sources.md` rather than deleted with the file.
-- App state is one serializable object (`src/core/state.ts`).
+- App state is one serializable object (`src/core/state.ts`). That decision
+  paid for deep links, which are two modules split along the purity line:
+  - `src/core/urlState.ts` is PURE — `encodeState`/`decodeState`, string work
+    only, no `location`/`window`/`history`/dataset. All of the interesting
+    logic is here, which is why 29 assertions about hostile URLs run in
+    milliseconds without a browser.
+  - `src/urlSync.ts` owns the browser: the address bar, the history stack, and
+    checking a decoded id against the book.
+
+  **A `SkinReading` MUST NEVER enter a URL.** Not `skin`, `hair`, `ita`,
+  `skinL`, `skinHue` or `contrastGap`. A link carrying those, pasted into a
+  chat, publishes the sender's skin tone to someone else's server. Owner
+  decision, 2026-07-29. `tests/urlPrivacy.test.ts` checks by field name AND by
+  value, so a rename cannot slip past, and belongs with the other privacy
+  guards: never weaken it.
+
+  Two rules that came out of building it:
+  - **Panels push, everything else replaces.** Back closes a panel; filters do
+    not stack history entries.
+  - **`decodeState` omits what it cannot parse** rather than defaulting in
+    place, so the caller's merge over `initialState` always yields a renderable
+    state. A URL is the only input to this site that arrives from outside it.
+  - **Sanitising is asymmetric on purpose.** A stale FILTER or palette key is
+    dropped silently; a stale SELECTION is kept so `MissingPanel` can explain
+    it. The selection is the subject of the link.
 - Every design token (color/font/spacing/motion) lives in
   `src/styles/tokens.css`. No hard-coded colors in components, with exactly
   **three** exemptions, all because the colour IS the content rather than a

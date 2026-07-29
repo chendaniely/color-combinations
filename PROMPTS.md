@@ -1844,3 +1844,54 @@ v1.7.2 shipped, then the hunt resumed and found the export.
   what CLAUDE.md's import-versus-readFileSync rule already implied.
 - **Called the season-lopsidedness spread "3.8x, down from 5x" as if improved by
   design.** It was a side effect of the rules change, not an intent.
+
+## 2026-07-29 — Session 20: deep links (v1.8.0)
+
+The first feature under the debt-first cadence, after three hunt patches.
+
+**Owner prompt:**
+
+> yes let's go and implment deep links so results are shareable
+
+**Owner decision (privacy) — the design question of the release.** Offered three
+options for what a shared You-tab link should carry; chose **season only**:
+
+> #/you?season=deep-autumn&floor=2 … NOT in the URL: skin #a1673f, hair #1a1110
+
+`SkinReading` holds the visitor's actual skin and hair colour. A link containing
+those, pasted into a chat, publishes the sender's skin tone to someone else's
+server — by their own hand, enabled by our design, probably without realising.
+Hash fragments never reach OUR server, which does not help: the risk is the
+recipient. Accepted costs: the measured palette cannot be reproduced from a link,
+and nobody can bookmark their own full result.
+
+**Owner decision (history):** chose **Back closes the panel**, with filters not
+stacking entries.
+
+**Owner question, answered mid-design:**
+
+> what is this 1200x630 card that is out of scope but related?
+
+Explained Open Graph cards, and surfaced a ceiling that is a property of this
+design rather than of effort: hash routing makes PER-LINK previews permanently
+impossible, because the fragment is never sent to the server and crawlers do not
+run JavaScript. One site-wide card is the maximum. Owner chose to finish deep
+links first.
+
+### What Claude got wrong
+
+- **Shipped the feature broken and nearly did not notice.** `state.you.season`
+  was set only when the visitor picked from the dropdown, so after a capture the
+  screen said "Deep Autumn — our guess" while the state held null and the
+  shareable link was a bare `#/you`. The exact sentence in `TODO.md` that
+  justified the feature was still true after the feature existed. Caught only by
+  a test that read the real clipboard instead of trusting the encoder.
+- **Made the URL unreadable and the tests could not see it.**
+  `URLSearchParams` percent-encodes `:` and `,`, producing
+  `open=combination%3A1&sizes=2%2C3`. Every round-trip test stayed green because
+  decoding is symmetric. Found by looking at an actual address bar — the whole
+  argument for this format over an encoded blob is that a person can read it.
+- **A new test exposed a pre-existing bug in `copyText`**, which called
+  `document.execCommand` outside any try and so REJECTED rather than returning
+  false when both clipboard routes were unavailable. Reachable from every copy
+  button on the site, not just the new one.

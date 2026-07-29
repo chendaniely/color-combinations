@@ -10,9 +10,16 @@ The v1.6.0 consolidation pass (2026-07-29) cleared the defect half of this
 file; everything below is either a genuine idea, a known limit we accepted, or
 a check that needs a person. See `TODO-completed.md` for what went.
 
-## The biggest open question
+## The biggest open question — half answered
 
-- [ ] **The site has no way to keep anything you make.** Everything the *book*
+- [x] ~~**Shareable deep links**~~ — shipped in v1.8.0. Every screen has an
+      address; the Back button closes a panel; a stale link explains itself. A
+      link to a built palette is also, on a site with no accounts, the closest
+      thing to saving one — so most of the second bullet below came free.
+      A You link carries the SEASON and never the reading (owner decision;
+      `tests/urlPrivacy.test.ts`), so the one thing still missing is a way to
+      keep your own MEASURED palette: reloading means retaking the photo.
+- [ ] **What is left of it: keeping your own measured result.** Everything the *book*
       produces can be taken away — a combination has PNG export and hex/CSS/
       JSON copy. Nothing the *visitor* produces can be. There is no save, no
       name, no export for a palette built on Match, and nothing at all in
@@ -24,8 +31,11 @@ a check that needs a person. See `TODO-completed.md` for what went.
       the ones we have is missing. Deep links are cheap here specifically
       because app state is one serializable object — that decision was made
       *for* this. Two pieces, buildable separately:
-      • shareable deep links (serialize the state object into the URL);
-      • save / name / export a built outfit palette.
+      • ~~shareable deep links~~ — done, v1.8.0;
+      • ~~export a built outfit palette~~ — a share link does this;
+      • NAMING and KEEPING a measured personal palette across a reload is the
+        genuine remainder, and it needs storage rather than a URL — which is a
+        privacy decision, not a plumbing one, given what the reading contains.
 
 ## Deferred from v1.7.0
 
@@ -109,9 +119,21 @@ a check that needs a person. See `TODO-completed.md` for what went.
       for a site that is entirely about colour. Deliberately not added blind:
       a card wants a 1200×630 image, which is a design asset the owner should
       approve rather than something to generate unattended. Cheap once that
-      exists: four meta tags and a file in `public/`. Pairs naturally with the
-      shareable-deep-links item at the top of this file, since a link worth
-      sharing and a preview worth seeing are the same feature.
+      exists: four meta tags and a file in `public/`. Now much more worth doing,
+      since v1.8.0 made every screen linkable and people will actually paste
+      links.
+      **Ceiling, established 2026-07-29 and NOT a matter of effort:** hash
+      routing makes PER-LINK previews permanently impossible. Everything after
+      `#` is never sent to the server and crawlers do not run JavaScript, so
+      every link will show the same card whatever screen it points at.
+      Per-combination previews would need path-based URLs and a pre-rendered
+      page per combination — a much larger build that would undo the simplicity
+      making deep links cheap. One site-wide card is the maximum, and that is an
+      acceptable trade.
+      The image can be GENERATED rather than designed: `exportPng.ts` already
+      renders 1200x900 plates, so a 1200x630 card from Wada's own colours is the
+      same machinery pointed at a different canvas. Candidates for the owner to
+      choose from is the next step, not a design brief.
 
 ## Curated data worth a second opinion
 

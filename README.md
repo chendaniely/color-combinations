@@ -5,7 +5,10 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.7.3 shipped (2026-07-29) — the second hunt: every exported PNG
+> **Status:** v1.8.0 shipped (2026-07-29) — **every screen has an address now**:
+> deep links, a Copy link button, and Back that closes a panel. Your season is
+> shareable; your measurements deliberately are not (see
+> [Sharing what you find](#sharing-what-you-find)). Before it, v1.7.3: every exported PNG
 > was carrying a contrast colour v1.6.0 had retired, and a manual checklist item
 > became an automated one that measures all 338 combinations. Before it, v1.7.2:
 > four screens that would
@@ -239,6 +242,34 @@ card, not identical.
 Run `make check-links` to check every cited URL still resolves. It's not part of
 `make test` on purpose: whether someone else's website is up isn't a fact about
 this project.
+
+### Sharing what you find
+
+Every screen now has its own address. Open a colour, filter Browse down to
+reds, build a palette, find your season — the address bar updates as you go, so
+copying it shares exactly what you are looking at. There is a **Copy link**
+button on combinations, on a built palette, and on your season result, because
+phone browsers hide the address bar while you scroll.
+
+A few deliberate choices worth knowing:
+
+- **Your season is shareable. Your measurements are not.** A link to your
+  season carries the words `season=deep-autumn` and nothing else. It does not
+  contain your skin tone, your hair colour, or any of the numbers measured from
+  your face. Those would otherwise end up in whatever chat you pasted the link
+  into, and on that service's servers. The trade-off is real and accepted: the
+  "Measured for you" palette can't be reproduced from a link, and you can't
+  bookmark your own full result — reloading still means retaking the photo.
+- **Someone opening your season link sees a clear note** saying it came from a
+  link and that nothing on the page is a measurement of *them*, with an
+  invitation to take their own photo.
+- **The Back button closes a panel** rather than leaving the site, which is what
+  most people expect and what the Android back gesture means. Changing a filter
+  does not add a history entry, so browsing around doesn't bury you in them.
+- **The front page has no `#` in its address**, as it always has.
+- **An old link still works, or says why not.** A link to a colour that isn't in
+  the book explains itself; a saved palette that has lost a colour opens with
+  the rest of it.
 
 ### Accessibility goggles
 
