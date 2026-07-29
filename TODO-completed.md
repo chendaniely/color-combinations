@@ -1,5 +1,43 @@
 # TODO — completed
 
+## Bug hunt, second pass (2026-07-29, v1.7.3)
+
+Owner: *"make the patch first then keep hunting"*
+
+- [x] **Every exported PNG carried a retired contrast colour.**
+      `exportPng.ts` hardcoded its hex values because a canvas cannot use
+      `var(--ink)`. v1.6.0 re-solved the three ink tokens for WCAG AA and moved
+      `--ink-muted` from `#7e7468` to `#554c41`; this copy kept the old one, so
+      caption text sat at 4.24:1 against the 4.50 AA needs — on the one artefact
+      people share and print. Now reads the tokens at run time (`152748b`).
+- [x] **A manual checklist item automated, and corrected.** "PNG download for
+      the 5-colour No. 331 specifically (longest name)" — No. 331 is the longest
+      FIVE-colour plate at 62 characters, but No. 311 is longer at 64. All 338
+      are now measured in a real browser, which is necessary because canvas text
+      width depends on the font engine. Result: the widest fits, 955px of 1040px,
+      so the overflow was never real; the `maxWidth` clamp added alongside
+      protects a future longer name rather than fixing anything (`152748b`).
+- [x] **A guard for the drift, not just the instance.**
+      `tests/exportTokens.test.ts` asserts the export's jsdom fallbacks still
+      equal their tokens, and that no retired ink value appears outside a
+      comment. Verified by restoring `#7e7468` and watching both assertions fail
+      (`ea3d26e`).
+- [x] **A third token exemption granted rather than stretched.** A sweep found
+      seven hardcoded hex literals in all of `src/`; four are the sRGB primaries
+      in `pccsMap.ts`, which sat outside both stated exemptions. CLAUDE.md says
+      to add an exemption rather than cite the rule for something it does not
+      say, so it was added — they are measurements, not style choices. The other
+      three are the export fallbacks, now in sync, so the drift was one file
+      rather than a pattern (`ea3d26e`).
+- [x] **Two ways of breaking the colour rule without touching a token**, written
+      down because each has now cost a release: `opacity` on text changes
+      rendered contrast while the token stays correct, and a canvas must read
+      tokens at run time rather than copy them (`ea3d26e`).
+- [x] **Checked and clean:** Vandar Poel's Blue, the one colour in no
+      combination at all, already renders "Appears in no combinations in the
+      book — a wallflower" (`152748b`).
+
+
 ## Bug hunt (2026-07-29, v1.7.2)
 
 Owner: *"let's go huntin'"* — the first debt loop under the new cadence, with

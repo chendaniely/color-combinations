@@ -81,9 +81,7 @@ a check that needs a person. See `TODO-completed.md` for what went.
       parts that are not: per-level arc counts on the wheel at all 4
       granularities; the hover dim + centre label (rebuilt 2026-07-20 — is the
       flicker gone, does the dimming read right); the crossfade between
-      granularity levels; the size-chip filter live toggle; PNG download for
-      the 5-colour No. 331 specifically (longest name — check it doesn't
-      overflow the canvas; that a PNG downloads at all is now tested); the
+      granularity levels; the size-chip filter live toggle; the
       mobile touch-scrub on the wheel (press/drag to preview, LIFT to open —
       confirm
       hold-drag-then-lift opens the right combo, a quick tap still opens first
@@ -93,6 +91,12 @@ a check that needs a person. See `TODO-completed.md` for what went.
       zero-width arcs at the Colors level is acceptable — measured
       2026-07-29, this affects exactly ONE colour of 157 (Vandar Poel's
       Blue, #127), so it is a curiosity rather than a systemic gap.
+      **Struck from this list 2026-07-29:** the PNG caption overflow, now
+      measured for all 338 combinations by `tests/browser/exportText.spec.ts`.
+      Automating it corrected it too — the checklist named No. 331 as the
+      longest, but No. 311 is longer (64 characters against 62), so checking
+      the named plate by eye would never have found it. The answer is that it
+      fits, with 85px of 1040px spare.
 - [ ] You tab (v1.5.0) — owner review passed with "anything else are smaller ui
       element changes i can fix later on"; those specific tweaks were never
       enumerated. Add them as they come up.

@@ -5,7 +5,10 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.7.2 shipped (2026-07-29) — a bug hunt: four screens that would
+> **Status:** v1.7.3 shipped (2026-07-29) — the second hunt: every exported PNG
+> was carrying a contrast colour v1.6.0 had retired, and a manual checklist item
+> became an automated one that measures all 338 combinations. Before it, v1.7.2:
+> four screens that would
 > have crashed the whole app on a bad link, two contrast violations on a screen
 > nothing was auditing, and a classification that depended on the order of lines
 > in a file. Before it, v1.7.1's backlog pass: overlay focus

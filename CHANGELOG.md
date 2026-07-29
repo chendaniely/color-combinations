@@ -28,6 +28,45 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.7.3 — 2026-07-29 — The colour in the file you download
+
+The hunt continued, on the owner's instruction:
+
+> make the patch first then keep hunting
+
+**Every image this site has ever exported had text that was too faint.** When you
+download a combination as a PNG, the caption underneath it is drawn on a canvas —
+and a canvas can't use the site's colour palette directly, so the values had been
+copied in by hand. Back in v1.6.0 those colours were all recalculated to meet the
+accessibility standard for readable text. The copy in the export was missed. So
+the site got fixed and the *file you download* didn't, and it has been shipping
+slightly-too-faint captions ever since.
+
+It now reads the real colours at the moment it draws, so there is one source of
+truth rather than a copy that can quietly fall behind. A test checks that too.
+
+**A job came off the manual checklist — and turned out to have been aimed at the
+wrong plate.** One item asked a human to download combination No. 331, the
+five-colour one with the longest name, and check the text didn't run off the edge
+of the image. That is now measured automatically for all 338 combinations, which
+is the only way it could have been noticed that **No. 331 isn't the longest**.
+No. 311 is, by two characters. Checking the plate the list named would never have
+revealed it.
+
+And the good news: **it fits.** The longest caption uses 955 pixels of the 1040
+available. So the thing that item worried about was never actually happening.
+There is now a guard so a longer colour name in some future edition can't start
+it happening quietly.
+
+**Also settled while looking around:** the one colour in the book that appears in
+no combination at all already has a graceful page of its own — it says it
+"appears in no combinations in the book — a wallflower". Somebody had thought
+about that. And a sweep of the entire codebase for hand-written colour values
+found seven, every one of them legitimate, which means the problem above was one
+file rather than a habit.
+
+---
+
 ## v1.7.2 — 2026-07-29 — Going looking for trouble
 
 The first release under a rule the owner had just set: fix bugs and debt before

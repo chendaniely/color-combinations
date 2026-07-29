@@ -1808,3 +1808,39 @@ which is the whole argument for the rule.
 - **Narrated the neutral-undertone tiebreak as a neutral-only problem.**
   Removing the tiebreak to verify showed `warm/light/low` flipping too. Ordinary
   warm readings were affected; neutral only made the ties constant.
+
+## 2026-07-29 — Session 19b: the hunt continues (v1.7.3)
+
+**Owner prompt:**
+
+> make the patch first then keep hunting
+
+v1.7.2 shipped, then the hunt resumed and found the export.
+
+### The finds
+
+- **Every exported PNG carried a contrast colour v1.6.0 had already retired.**
+  `exportPng.ts` hardcoded its hex values, because a canvas cannot use
+  `var(--ink)`. v1.6.0 re-solved the ink tokens for WCAG AA and moved
+  `--ink-muted` from `#7e7468` to `#554c41`; the export kept the old one, at
+  4.24:1 against the 4.50 AA requires. It now reads the tokens at run time.
+- **A manual checklist item automated, and found to be mis-aimed.** The list
+  named No. 331 as the longest-named plate; No. 311 is longer, 64 characters
+  against 62. Measuring all 338 was the only way to see that.
+- **A third token exemption granted rather than stretched.** A sweep found the
+  four sRGB primaries in `pccsMap.ts` outside both stated exemptions. CLAUDE.md
+  instructs adding one rather than citing the rule for something it does not
+  say, so it was added.
+
+### What Claude got wrong, or nearly did
+
+- **Nearly shipped the overflow clamp as a bug fix.** Measuring first showed the
+  widest caption uses 955px of 1040px — it fits. The clamp protects a future
+  longer name and fixes nothing today, and the commit says so. Presenting it as
+  a fix would have been the easy and wrong write-up.
+- **Wrote a test that could not typecheck**, reaching for `import('/src/data.ts')`
+  from inside the browser. The dataset is bundled, so the built site exposes no
+  module path. Rewritten to read the data in Node and pass it in, which is also
+  what CLAUDE.md's import-versus-readFileSync rule already implied.
+- **Called the season-lopsidedness spread "3.8x, down from 5x" as if improved by
+  design.** It was a side effect of the rules change, not an intent.
