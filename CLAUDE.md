@@ -56,6 +56,19 @@ docs in the SAME commit:
   real traffic. Never move the tag into `index.html` (it would fire in dev)
   or into `src/` (it would sit next to the privacy-guarded sampler).
   `tests/analytics.test.ts` enforces the build-only gate — don't weaken it.
+- **Every full-screen overlay goes through `src/components/Overlay.tsx`.**
+  It is a native `<dialog>` opened with `showModal()` and portalled to
+  `<body>`. Never hand-roll `<div role="dialog">` again: that shipped seven
+  times with no focus trap, no Escape and no `aria-modal`. The portal is
+  also load-bearing, not tidiness — it removes the `.search-box` ancestor
+  whose `.search-box input` rule (0,1,1) outranked overlay styles and
+  caused real visual defects. jsdom has no `showModal`, so `tests/setup.ts`
+  polyfills only the `open` flag; the modal behaviour is asserted in
+  `tests/browser/overlay.spec.ts`.
+- Values shared by two renderers live in one module, never two copies:
+  `src/plateLayout.ts` (the plate taper, used by `PlateCard` and
+  `exportPng`), `--pick-disc-size` (the colour disc, whose pin is placed
+  in percentages so TypeScript holds no copy of the size).
 
 ## Dependency rules
 
@@ -72,6 +85,15 @@ four true.**
    compilation, no Python, no separate download step. Anything npm won't
    deliver gets vendored into the repo (see `data/raw/`,
    `vendor/mediapipe/`).
+   Scope note (v1.6.0): this promise covers **running the site** —
+   `make install`, `make dev`, `make build`, `make test`. It does NOT
+   cover `make test-browser`, which needs a one-time
+   `make install-browser` to fetch a private Chromium (~95 MB). The owner
+   chose that explicitly, taking reproducibility over install weight, so
+   that layout results are identical on every machine and in CI. The rule
+   stands for everything a contributor needs in order to run or ship the
+   site; a browser for the layout suite is an opt-in extra, and
+   `make test` must never come to depend on it.
 3. **Nothing user-derived leaves the device.** Any asset must be
    self-hosted from our own origin. A third-party CDN request is a leak
    even when it carries no payload, because it reveals that the visitor is
@@ -82,17 +104,35 @@ four true.**
 Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision. Dev: vite,
 typescript, vitest, @vitejs/plugin-react, tsx, @types/react,
 @types/react-dom, @types/d3, @types/node, jsdom, @testing-library/react,
-@testing-library/dom.
+@testing-library/dom, @playwright/test.
 
 Justifications: tsx = run TypeScript scripts under Node (ingest, season
 seeding); @vitejs/plugin-react = Vite's React glue; @types/* = TypeScript
 definitions; culori = perceptual color math (OKLab / ΔE / Lab) so we don't
 hand-roll color science — used ONLY in `src/color/`, never in the pure
-`src/core/` kernel; jsdom + @testing-library/* = unit-test DOM interaction
-(other UI is covered by renderToString smoke + the owner browser checklist);
+`src/core/` kernel; jsdom + @testing-library/* = unit-test DOM interaction;
+@playwright/test = the real-browser suite (see Testing below);
 @mediapipe/tasks-vision = on-device face detection for the You tab,
 Apache-2.0 with zero transitive dependencies, ~3.5 MB lazy-loaded and
 self-hosted from `public/mediapipe/`.
+
+## Testing: two suites, and why
+
+`make test` (vitest + jsdom, ~600 checks, seconds) proves the site
+*computes* the right answer. jsdom does no layout and applies no cascade,
+so it structurally CANNOT see fonts, colours, sizes or positions.
+
+`make test-browser` (Playwright + Chromium, `tests/browser/`) drives the
+BUILT site and asserts what only a browser knows. It exists because five
+user-visible defects reached production past a green unit suite, all
+logic-correct; `tests/browser/regressions.spec.ts` documents them and
+tests each one. It earned its keep immediately, catching an overlay that
+rendered 447×533 instead of full-screen.
+
+Rules: never move a browser test into the fast suite or vice versa; never
+make `make test` depend on a browser; when a defect turns out to be about
+appearance rather than logic, its regression test belongs in
+`tests/browser/`.
 
 culori ships no types, so `src/color/culori.d.ts` declares the functions we
 use (`differenceEuclidean`, `wcagContrast`, `filterDeficiencyProt`,
@@ -129,4 +169,6 @@ sparingly, blue #236192 links, warm neutrals). Tokens in
 ## Commands
 
 `make help` lists everything. Verify `make test` and `make build` pass
-before claiming any task complete.
+before claiming any task complete — and `make test-browser` too whenever
+the change touches CSS, layout, fonts or an overlay, since the fast suite
+cannot see any of those.

@@ -5,13 +5,15 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.4.0 shipped (2026-07-28) — Sample a color's third source is
-> now **Pick a color**: a color wheel with a brightness slider plus synced
-> HEX/RGB/CMYK fields (see [Sample a color](#sample-a-color)), replacing the
-> hex-only picker. On top of analytics (v1.3.3), the touchscreen wheel
-> (v1.3.2), the hex/photo color sampler (v1.3), and accessibility goggles
-> (v1.2). Live at https://chendaniely.github.io/color-combinations/ — this
-> README always reflects the current state of the project.
+> **Status:** v1.6.0 shipped (2026-07-29) — a consolidation release: no new
+> feature, but every known defect cleared, the seven hand-rolled modal
+> overlays replaced with one accessible component, and a **real-browser test
+> suite** added to catch the class of bug that kept slipping past the fast
+> tests (see [Testing](#testing)). On top of the You tab (v1.5.0), the color
+> picker (v1.4.0), analytics (v1.3.3), the touchscreen wheel (v1.3.2), the
+> hex/photo color sampler (v1.3), and accessibility goggles (v1.2). Live at
+> https://chendaniely.github.io/color-combinations/ — this README always
+> reflects the current state of the project.
 
 ## What you need installed (one-time setup)
 
@@ -30,11 +32,41 @@ Run these from the project folder. `make help` lists them all.
 |---|---|
 | `make install` | One-time (and after dependency changes): installs packages into `node_modules/`, and copies the face-detection files into `public/mediapipe/` |
 | `make dev` | Starts a local preview at the printed URL (usually http://localhost:5173/color-combinations/) with live reload |
-| `make test` | Runs the automated tests |
+| `make test` | Runs the fast automated tests (a few seconds, no browser needed) |
+| `make install-browser` | One-time: downloads the browser the layout tests drive (see [Testing](#testing)) |
+| `make test-browser` | Runs the slower tests that check how the site actually *looks* |
 | `make build` | Type-checks everything and builds the deployable site into `dist/` |
 | `make preview` | Serves the built `dist/` exactly as GitHub Pages will |
 | `make update-data` | Re-downloads the source colors and regenerates the processed data |
 | `make clean` | Deletes build output, the copied face-detection files, and `node_modules/` |
+
+## Testing
+
+There are **two** test suites, and the split matters.
+
+`make test` is the fast one — around 600 checks in a few seconds. It runs
+without a browser, using a simulated one called jsdom. That makes it quick
+enough to run constantly, but jsdom has a hard limit: **it never actually
+draws anything.** It does no layout and applies no CSS. So it can confirm the
+site *calculates* the right answer, and cannot tell you whether the answer is
+visible, readable, or on top of something else.
+
+That limit is not theoretical. Five user-visible defects reached the live site
+past a fully green run of this suite — a color wheel that rendered more
+saturated than the numbers printed beneath it, a button that could not be
+reached on a short screen, color codes in the wrong typeface, a valid field
+that turned the same orange as an invalid one, and a label sitting underneath
+its own slider. Every one was found by a person opening a browser and looking.
+
+`make test-browser` is the answer to that. It drives a real Chromium browser
+over the built site and asserts the things only a browser knows: computed
+colors, fonts, and the actual position of elements on screen. Each of those
+five defects now has a test that would have caught it. It needs a one-time
+`make install-browser` first, which downloads a private copy of Chromium
+(~95 MB) so the results are identical on every machine and in CI.
+
+Both suites run in CI on every push, and the site is not deployed unless both
+pass.
 
 ## Features
 
@@ -169,6 +201,9 @@ see — they never change or hide the underlying book data.
   to change (e.g. licensing), only `scripts/ingest/` needs rewriting.
   `data/curated/seasons.json` is the opposite: written by hand, never
   generated — see [Editing the season lists](#editing-the-season-lists).
+- `tests/` — the fast suite. `tests/browser/` is the separate real-browser
+  suite run by `make test-browser` (see [Testing](#testing)); it is deliberately
+  excluded from `make test`.
 - `docs/superpowers/` — the design spec and implementation plans.
 - `CLAUDE.md` — working rules for the AI sessions that maintain this repo.
 - `PROMPTS.md` — the owner's prompts & decisions that shaped this project.

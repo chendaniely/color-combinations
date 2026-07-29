@@ -1201,3 +1201,68 @@ accuracy fixtures. That jsdom cannot catch layout bugs at all is logged in
 
 **Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`
+
+## 2026-07-29 — Session: consolidation (v1.6.0)
+
+**Owner prompt (opening):**
+
+> i think i've exhaused all the features i can think of from this color
+> pallete and what peopel might want to do with it. what do you think?
+
+**Owner prompt (the work):**
+
+> let's go in and clear up all defects. let's take a pass and see if things
+> also need to be refactored. we've built a lot of things from scratch. i know
+> we've said not to have dependencies, but i really meant that as "i want this
+> to be deployable via github pages" so if you think some parts are better
+> served with external libraries, please refactor to use those.
+
+**Owner decision (browser testing):** chose **Playwright with its own
+browsers** over driving the already-installed Chrome, accepting a ~95 MB
+one-time download in exchange for identical results on every machine and in
+CI. This is the first deliberate exception to the "no separate download step"
+dependency rule, and `CLAUDE.md` now scopes that rule to running the site
+rather than testing it.
+
+**Decisions and findings:**
+
+- **The answer to the opening question was "no, but not where you'd expect."**
+  Nine ways in (search, wheel, browse, match, hex, upload, camera, picker,
+  face) is enough. What is missing is the back half: everything the *book*
+  makes can be exported, nothing the *visitor* makes can be — no saved
+  palette, and no URL state anywhere in `src/`, so no screen can be linked to.
+  Logged, not built; the owner chose consolidation first.
+- **The site claimed something the data cannot support.** "Taller bars suggest
+  the dominant color — the main garment" appeared in Browse, the About panel
+  and the README. Verified against the dataset: all 338 multi-colour
+  combinations are stored in ascending colour-id order, and a combination
+  record has only `{id, colorIds, size, excluded}` — there is no area field.
+  The taper is decorative and the order is an artifact of the id sort. The
+  v1.5.0 spec already recorded this; the copy had never been corrected.
+- **Seven overlays, one missing component.** Every camera/sampler/capture
+  screen was a `<div role="dialog">`: it announced itself as a dialog while
+  Tab walked out into the page behind and Escape did nothing. Replaced with
+  one native `<dialog>` + `showModal()`, which is the rare case where the
+  platform simply grew the feature.
+- **The dependency audit mostly said no.** `colorMath` looks hand-rolled but
+  its parsers are deliberately *stricter* than culori's (they reject `0x10`
+  and `1e2`) and its CMYK is the book's own convention, not a standard one;
+  `validate.ts` looks like a job for zod but its interesting half is
+  referential integrity — cross-references agreeing both ways — which zod
+  cannot express. The one real gap was testing, not libraries.
+- **The browser suite caught a regression on its first run.** The new overlay
+  was rendering 447×533 instead of full-screen: the UA stylesheet sets
+  `width: fit-content` on `<dialog>`, which makes `inset: 0` over-constrained,
+  so the browser drops `right`/`bottom`. 598 unit tests were happy with it.
+- **The v1.4.0 "UNDIAGNOSED" flaky test is diagnosed.** It reproduced twice,
+  both times as `matchedCombinations > the floor control > offers all four
+  stops`, and both times as a TIMEOUT (7122ms against a 5000ms default), never
+  a failed assertion. Cause: several files render the whole book in jsdom on
+  purpose, and this is the first test in a heavy file. Verified the fix against
+  the triggering condition rather than by hoping — under a deliberate build +
+  browser-suite CPU contention the same test took 7484ms and passed.
+- **A guard that cannot catch its own target is a green tick with nothing
+  behind it.** The two privacy guards each kept a private copy of the
+  forbidden-API list, and the `download` rule was JSX-shaped only, so
+  `a.download = …` walked past it. Now shared, hardened, and each rule ships
+  samples it must catch and samples it must not.

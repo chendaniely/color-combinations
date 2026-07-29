@@ -28,6 +28,71 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.6.0 — 2026-07-29 — Paying down what we owed
+
+**No new feature. On purpose.** This release started with the owner taking
+stock:
+
+> i think i've exhaused all the features i can think of from this color pallete
+> and what peopel might want to do with it. what do you think?
+
+The honest answer was *mostly yes* — nine ways into 157 colours is enough — but
+that the remaining work was finishing, not inventing. The owner chose that over
+another feature:
+
+> let's go in and clear up all defects. let's take a pass and see if things also
+> need to be refactored. we've built a lot of things from scratch. i know we've
+> said not to have dependencies, but i really meant that as "i want this to be
+> deployable via github pages" so if you think some parts are better served with
+> external libraries, please refactor to use those.
+
+**The site was claiming something the book never said.** For six releases,
+Browse, the About panel and the README all told you that a plate's taller bars
+mean the dominant colour — "the main garment, the page background". That was
+invented. Checked against the data: all 338 multi-colour combinations are stored
+in ascending colour-id order, and a combination record holds only its id,
+colours, size and an excluded flag. There is no area or proportion field
+anywhere. The bar heights are decorative and the order is an artifact of sorting
+by id. The copy now says so, and points out that the proportions are yours to
+choose.
+
+**The site can now be used without a mouse.** The search type-ahead announced
+nothing to a screen reader — no popup, no highlighted result. The nearest-colour
+grid made every one of its twelve swatches a separate tab stop, with arrow keys
+doing nothing. The colour wheel was silent when you moved it. All fixed, and the
+seven full-screen overlays — camera, upload, picker, face capture, probe review
+— became real modal dialogs, so Escape closes them and the keyboard can no
+longer wander off into the page behind.
+
+**The You tab stops sounding certain when it isn't.** Two guards, both prompted
+by the owner's own first use of it — *"i think my camera and lightening isn't
+great"*. If the hair probe lands on a forehead or a bald patch it now says so,
+rather than quietly reporting the contrast between your face and your face. And
+a dark, blown-out or unevenly lit photo now says so *before* you commit to the
+reading, while Retake is still one tap away.
+
+**A second test suite, because the first one is blind by construction.** The
+fast tests run in a simulated browser that never draws anything, so it cannot
+see fonts, colours, sizes or positions. Five defects had already reached the
+live site past a fully green run of it. There is now a real-browser suite that
+checks what the page actually looks like, and each of those five has a test that
+would have caught it. The owner chose the more reproducible of the two options,
+accepting a one-time browser download so results are identical everywhere:
+
+> *(decision, from the options offered)* Playwright with its own browsers
+
+It justified itself immediately by catching a bug in the very refactor that
+prompted it — the new overlay was rendering as a 447×533 box instead of filling
+the screen, and six hundred passing tests had no opinion about it.
+
+**Also fixed:** a two-year-old flaky test finally diagnosed (it was a timeout on
+genuinely slow work, not a phantom); the upload picker now lets you sample the
+edges of a landscape photo instead of cropping them out of reach; dead code and
+duplicated constants removed; and the privacy guards strengthened, including
+proof that they can actually detect what they forbid.
+
+---
+
 ## v1.5.0 — 2026-07-28 — "You"
 
 **A new tab that starts from your face.** Photograph yourself, and the site

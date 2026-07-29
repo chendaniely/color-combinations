@@ -1,5 +1,126 @@
 # TODO — completed
 
+## v1.6.0 — consolidation: defects, refactor, real-browser tests (2026-07-29)
+
+Owner: *"let's go in and clear up all defects. let's take a pass and see if
+things also need to be refactored."*
+
+**Wrong claims and dead code**
+
+- [x] The "taller bars = the dominant colour / main garment" claim in Browse,
+      the About panel and the README. The book records no proportions at all:
+      all 338 multi-colour combinations are stored in ascending colour-id
+      order and a combination has no area field (`e686b52`).
+- [x] `PlateCard` applied `text-${readableTextOn(hex)}` where neither class
+      existed in any stylesheet and no `.plate-bar` contains text; the
+      className and its now-callerless helper both removed (`e686b52`).
+- [x] Stale hue comment in `tests/colorMath.test.ts` — "≈ 316" → "≈ 311.84"
+      (`e686b52`).
+- [x] `ColorFields` used `if (next)` where `next !== null` says what it means
+      (`e686b52`).
+- [x] Picker labelled its field `Hex` while its siblings are RGB/CMYK and the
+      detail pages say HEX; now HEX everywhere (`e686b52`).
+- [x] The disc mockup's saturation wash faded at 78% of the radius instead of
+      100% — the bug already fixed in `app.css`. It was kept as a record of
+      what the owner reviewed, but it is also the designated starting point
+      for the Browse-page disc, which made it a trap (`e686b52`).
+
+**Duplication**
+
+- [x] `TAPER` hard-coded in both `PlateCard` and `exportPng`, so a drift would
+      make a downloaded PNG disagree with the plate on screen. Now
+      `src/plateLayout.ts` (`e686b52`).
+- [x] The picker disc's size lived in three places (`RADIUS = 118` in TS,
+      `236px` twice in CSS). The pin is now placed in percentages, so the
+      component holds no copy at all and the disc can be made responsive
+      without touching TypeScript (`e686b52`).
+- [x] `rgbToHsv` duplicated the hue-sector maths from `rgbToHsl`; extracted,
+      with a test asserting the two agree across the whole wheel (`e686b52`).
+- [x] The Browse filter chip's `border-radius: 999px` and off-grid padding —
+      the last un-tokenized spacing (`a7b96ba`).
+
+**Accessibility**
+
+- [x] Seven `<div role="dialog">` overlays with no focus trap, no Escape and
+      no `aria-modal`, plus six copies of the same close button under four
+      labels. One native `<dialog>` component now (`e37dcfe`).
+- [x] Overlay inputs inheriting `.search-box input` (0,1,1) — the trap that
+      caused the picker's wrong font and its orange "valid looks invalid"
+      underline. Portalling to `<body>` removes the ancestor, so it is now
+      structurally unreachable rather than patched around (`e37dcfe`).
+- [x] Search type-ahead had no combobox ARIA: nothing announced the popup or
+      the highlighted result. Now `role=combobox` with `aria-expanded`,
+      `aria-controls` and `aria-activedescendant` (`1331a7f`).
+- [x] `role=option` rows wrapping `<button>`s — invalid, and each button stole
+      a tab stop from a widget whose point is that focus stays in the input
+      (`1331a7f`).
+- [x] No roving tabindex on the nearest-colours grid, the match-level
+      radiogroup or MatchPage's level radiogroup: twelve tab stops and no
+      arrow keys. Now one shared `useRovingFocus` (`1331a7f`).
+- [x] The colour disc announced nothing on arrow-key movement; a 2D control
+      has no honest single `aria-valuenow`, so it now reports position through
+      a polite live region (`1331a7f`).
+- [x] `ColorDisc` never explicitly released pointer capture (`1331a7f`).
+
+**Copy**
+
+- [x] MatchPage said "shade" regardless of the active level, so Colors and
+      Families showed instructions for a level the visitor was not on
+      (`1331a7f`).
+- [x] The level-switch notice lingered in state while hidden and reappeared
+      when the palette was later emptied, describing a switch long past
+      (`1331a7f`).
+
+**The You tab's honesty**
+
+- [x] The hair sample was never checked against the skin sample, so a probe
+      landing on a forehead produced a confident contrast reading from
+      comparing the face with itself (`5e92a67`). The threshold is the
+      colour-distance seam's own VERY_CLOSE, deliberately far below
+      CONTRAST_LOW so it cannot steal a genuine low-contrast reading — tested.
+- [x] The app said nothing about photo quality; a poor frame looked exactly as
+      confident as a good one. `src/core/photoQuality.ts` flags dark,
+      blown-out and unevenly-lit frames before Continue (`5e92a67`).
+
+**Tests**
+
+- [x] Nothing covered CSS cascade, fonts or layout, and five user-visible
+      defects had shipped past a green suite because of it. Playwright +
+      pinned Chromium now drive the built site; each of the five has a
+      regression test (`f436153`). Owner chose the pinned-browser option over
+      driving an installed Chrome.
+- [x] It caught a regression on its first run: the new overlay rendered
+      447×533 instead of full-screen, because the UA's `width: fit-content`
+      makes `inset: 0` over-constrained (`f436153`).
+- [x] UNDIAGNOSED flaky test, open since v1.4.0 with its name lost to a
+      `tail` pipe. Reproduced twice, both times as
+      `matchedCombinations > the floor control > offers all four stops` and
+      both times a TIMEOUT, never an assertion (7122ms against a 5000ms
+      default). Cause: heavy jsdom renders of the real dataset, first test in
+      its file. Verified against the triggering condition — under deliberate
+      CPU contention the same test took 7484ms and passed (`a7b96ba`).
+- [x] `core-purity` caught only static `from '...'`, so one `await
+      import('d3')` would have walked through; now covers dynamic import and
+      require, bans computed specifiers, and checks 21 browser globals
+      (`5e92a67`).
+- [x] The two privacy guards each kept a copy of the forbidden-API list, and
+      the `download` rule was JSX-shaped only so `a.download = …` evaded it.
+      Shared and hardened, and each rule now ships samples it must catch and
+      must not (`5e92a67`).
+- [x] `averagePatch`'s untested empty-patch branch returned black for a tap
+      outside the image, so the caller matched the visitor to the book colour
+      nearest black. Now clamps to the nearest real pixels (`a7b96ba`).
+- [x] The three accessibility lenses disagreed below two colours — `some` is
+      false on an empty list, `every` vacuously true (`a7b96ba`).
+
+**Other**
+
+- [x] The upload picker cover-cropped into a fixed 3:4 stage, putting the left
+      and right of a landscape photo out of eyedropper reach. The stage now
+      takes the photo's aspect ratio and uses `contain` — the `fit` parameter
+      it needed had been added in v1.5.0 (`a7b96ba`).
+
+
 ## v1.5.0 — the You tab (2026-07-28)
 
 - [x] Photograph your face and get the book colours that suit you — the whole
