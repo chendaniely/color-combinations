@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { syntheticPortrait } from './makePng'
+import { reachThePalette } from './seasonHelpers'
 
 // The season display, in a real browser.
 //
@@ -15,30 +15,6 @@ import { syntheticPortrait } from './makePng'
 // 2. The two levels — a sourced parent season and our sub-season — are
 //    distinguished by badges whose whole job is to LOOK different. A test that
 //    cannot see the cascade cannot tell whether they do.
-
-async function reachThePalette(page: import('@playwright/test').Page) {
-  await page.goto('./')
-  await page.getByRole('button', { name: 'You' }).first().click()
-  await page.getByRole('button', { name: /photograph|take a photo|start/i }).first().click()
-  await page.getByRole('dialog', { name: 'Photograph your face' }).waitFor()
-
-  const upload = page.getByRole('tab', { name: /upload a photo/i })
-  if (await upload.count()) await upload.click()
-
-  await page.getByLabel('Choose a photo').setInputFiles({
-    name: 'portrait.png', mimeType: 'image/png', buffer: syntheticPortrait(),
-  })
-  // The detector is lazily loaded (~3.5 MB) on first use, so allow for it.
-  await page.getByRole('dialog', { name: 'Check what we read' }).waitFor({ timeout: 20_000 })
-
-  await page.getByRole('button', { name: /correct the skin/i }).click()
-  const stage = page.locator('.probe-stage')
-  const box = (await stage.boundingBox())!
-  await stage.click({ position: { x: box.width * 0.5, y: box.height * 0.55 } })
-  await page.getByRole('button', { name: /^continue$/i }).click()
-  await expect(page.getByRole('dialog')).toHaveCount(0)
-  await page.locator('.you-palettes').waitFor()
-}
 
 test.describe('the season display', () => {
   test('loads the code-split season data and then shows the season', async ({ page }) => {

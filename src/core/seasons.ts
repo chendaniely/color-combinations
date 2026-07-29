@@ -185,7 +185,18 @@ export function classifySeason(
     const score = (undertone === reading.undertone ? 3 : 0)
       + (depthOfTone(bands.lightness) === reading.depth ? 2 : 0)
       + (chromaOfTone(bands.saturation) === reading.contrast ? 1 : 0)
-    if (score > bestScore) {
+    // STRICTLY greater, plus an explicit tiebreak on id.
+    //
+    // Without the tiebreak the winner of a tie was whichever season came first
+    // in season-rules.json — and that file is hand-editable by design, so
+    // reordering two rows would silently change what a visitor is told. It bites
+    // hardest on a NEUTRAL undertone, which no parent matches (parents are only
+    // warm or cool), so every season scores 0 on the heaviest axis and ties are
+    // common. `skinMetrics` really does return 'neutral', so this is a live path.
+    //
+    // Comparing ids makes the result a property of the rules rather than of
+    // their order. tests/seasons.test.ts shuffles the array to prove it.
+    if (score > bestScore || (score === bestScore && s.id < best.id)) {
       bestScore = score
       best = s
     }

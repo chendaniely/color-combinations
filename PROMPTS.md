@@ -1756,3 +1756,55 @@ patch release with nothing new built.
   The first attempt to prove `make check` catches failures broke a test in a way
   that tripped the linter first, so `&&` short-circuited and the log held a lint
   error rather than a test failure. The check of the check has to be checked.
+
+## 2026-07-29 — Session 19: the first hunt (v1.7.2)
+
+**Owner prompt:**
+
+> let's go huntin'
+
+The first debt loop under the cadence set in v1.7.1. `TODO.md` had nothing
+actionable left, so every find came from looking rather than from the list —
+which is the whole argument for the rule.
+
+**Owner prompt (order of work):**
+
+> make the patch first then keep hunting
+
+### The finds
+
+- **Four screens crashed the WHOLE APP on an unknown id.** `keyName` in v1.7.1
+  was one instance; `ColorDetail`, `CombinationDetail`, `GroupDetail` and
+  `PlateCard` were the rest. The ErrorBoundary is at the root, so one bad id cost
+  every screen, not one panel. `RibbonDetail` was already correct — the four were
+  outliers, not the norm.
+- **Two contrast violations on a screen nothing audited.** The a11y suite's "You
+  tab" case audits the landing screen; the season display is three screens deeper
+  behind a photo upload. One violation was mine and hours old; one had been live
+  since v1.5.0.
+- **`opacity` on text defeats colour audits.** The v1.5.0 violation was
+  `opacity: 0.7` on a count badge: 3.66:1 resting, 7.26 selected on dark ink.
+  Passing in one state is exactly why it was never spotted. Recorded at the CSS.
+- **Three core screens were never audited** — colour detail, group detail, Match
+  with a palette. All passed, which usefully bounded the earlier finds to the
+  newest screen.
+- **Classification depended on JSON row order.** A tie in `classifySeason` went
+  to whichever row was listed first, in a file that is hand-editable by design.
+
+### What Claude got wrong
+
+- **Called a false positive a third violation.** The group panel's axe failure
+  was `.panel` animating from `opacity: 0` — axe measured a half-faded panel. The
+  real values are 7.08:1. Fixed in `expectClean` so all thirteen audits are
+  immune. An hour spent disbelieving it, and correctly spent.
+- **Measured the wrong element first.** Probed `.partner` when axe had flagged
+  `.partner-list:nth-child(3) > .partner:nth-child(2)`, concluded the numbers
+  passed, and nearly dismissed the report on that basis. The flagged row was
+  hovered, with a different background.
+- **Left a stray `vite preview` holding port 4173**, which made four consecutive
+  probe attempts return silently empty. Diagnosed only after capturing output to
+  a file — the exact lesson `make check` was built for two hours earlier, applied
+  to something other than tests.
+- **Narrated the neutral-undertone tiebreak as a neutral-only problem.**
+  Removing the tiebreak to verify showed `warm/light/low` flipping too. Ordinary
+  warm readings were affected; neutral only made the ties constant.

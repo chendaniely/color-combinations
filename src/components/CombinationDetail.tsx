@@ -3,14 +3,15 @@ import type { Action } from '../core/state'
 import { copyText } from '../copy'
 import { downloadPlatePng } from '../exportPng'
 import { CopyField } from './CopyField'
+import { MissingPanel } from './MissingPanel'
 import { Panel } from './Panel'
 import { PlateCard } from './PlateCard'
 import { dataset } from '../data'
 import { useState } from 'react'
 
 export function CombinationDetail({ comboId, dispatch }: { comboId: number; dispatch: (a: Action) => void }) {
-  const combo = dataset.comboById.get(comboId)!
-  const colors = combo.colorIds.map((id) => dataset.colorById.get(id)!)
+  const found = dataset.comboById.get(comboId)
+  const colors = found?.colorIds.map((id) => dataset.colorById.get(id)!) ?? []
   const [copiedWhat, setCopiedWhat] = useState<string | null>(null)
   async function copyAs(label: string, text: string) {
     if (await copyText(text)) {
@@ -18,6 +19,10 @@ export function CombinationDetail({ comboId, dispatch }: { comboId: number; disp
       setTimeout(() => setCopiedWhat(null), 1500)
     }
   }
+  // AFTER the hook, deliberately: an early return above useState would make the
+  // hook call conditional, which React forbids and the linter catches.
+  if (!found) return <MissingPanel what="combination" id={comboId} dispatch={dispatch} />
+  const combo = found
   return (
     <Panel title={`Combination ${combo.id}`} onClose={() => dispatch({ type: 'closePanel' })}>
       <PlateCard comboId={comboId} large />

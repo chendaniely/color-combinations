@@ -163,6 +163,45 @@ describe('classifySeason', () => {
     expect(classifySeason(rules, r, toneBands)).toBe(classifySeason(rules, r, toneBands))
   })
 
+  // The result must be a property of the RULES, not of their order in the file.
+  // season-rules.json is hand-editable by design, and before the explicit
+  // tiebreak a tie was won by whichever row came first — so swapping two lines
+  // would silently change what a visitor is told. Worst for a NEUTRAL undertone,
+  // which no parent matches, so every season scores zero on the heaviest axis
+  // and ties are the norm rather than the exception.
+  it('does not depend on the order of rows in season-rules.json', () => {
+    const shuffled = {
+      ...rules,
+      subSeasons: [...rules.subSeasons].reverse(),
+      parents: [...rules.parents].reverse(),
+    }
+    for (const u of UNDERTONES) {
+      for (const d of DEPTHS) {
+        for (const c of CONTRASTS) {
+          const r = reading(u, d, c)
+          expect(
+            classifySeason(shuffled, r, toneBands),
+            `${u}/${d}/${c} changed when the rules were reordered`,
+          ).toBe(classifySeason(rules, r, toneBands))
+        }
+      }
+    }
+  })
+
+  // A neutral undertone is a real reading — skinMetrics returns it — and it
+  // matches no parent, so it is decided by depth and chroma alone. Assert it
+  // still reaches BOTH families rather than collapsing onto one, which would
+  // mean neutral visitors were quietly being told they are warm.
+  it('sends a neutral undertone to both warm and cool families', () => {
+    const temps = new Set<string>()
+    for (const d of DEPTHS) {
+      for (const c of CONTRASTS) {
+        temps.add(parentOf(rules, classifySeason(rules, reading('neutral', d, c), toneBands)).temperature)
+      }
+    }
+    expect([...temps].sort()).toEqual(['cool', 'warm'])
+  })
+
   it('puts a warm reading under a warm parent', () => {
     const id = classifySeason(rules, reading('warm', 'deep', 'high'), toneBands)
     expect(parentOf(rules, id).temperature).toBe('warm')

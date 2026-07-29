@@ -1,5 +1,52 @@
 # TODO — completed
 
+## Bug hunt (2026-07-29, v1.7.2)
+
+Owner: *"let's go huntin'"* — the first debt loop under the new cadence, with
+nothing on `TODO.md` left that was actionable. Every find below was unlisted.
+
+- [x] **An unknown id took down the whole site, in four places.** The
+      `keyName` crash fixed in v1.7.1 was one instance of a pattern:
+      `ColorDetail`, `CombinationDetail`, `GroupDetail` and `PlateCard` all
+      asserted non-null on a Map lookup. The ErrorBoundary is at the ROOT, so a
+      throw cost the entire application rather than one panel. Unreachable while
+      every id comes from a click; reachable the moment a URL supplies state.
+      `RibbonDetail` was already correct, so these four were the outliers
+      (`00a7e98`).
+- [x] **Two colour-contrast violations on a screen nothing audited.** The a11y
+      suite's "You tab" case covers the LANDING screen; the season display is
+      three screens deeper behind a photo upload. One violation was hours old
+      (the "not close" band in NYC orange, 2.92:1 where AA needs 4.50); the
+      other had been live since v1.5.0 (`opacity: 0.7` on the floor count,
+      3.66:1 resting, fine at 7.26 when selected on dark ink — which is why it
+      never looked broken) (`de0f73f`).
+- [x] **Three core screens added to the audit** — colour detail, group detail,
+      and Match with a palette built. All three passed, which established that
+      the two violations were specific to the newest screen rather than
+      stylesheet-wide (`4871541`).
+- [x] **A false positive in the new audit, fixed in the harness not the site.**
+      The group panel reported a contrast failure whose measured values are
+      7.08:1. Cause: `.panel` animates from `opacity: 0`, so axe measured a
+      half-faded panel. `expectClean` now waits for animations, protecting all
+      thirteen audits including the original nine (`4871541`).
+- [x] **The season a visitor is told depended on JSON row order.**
+      `classifySeason` used a plain `>`, so a tie went to whichever row came
+      first in `season-rules.json` — a file that is hand-editable by design.
+      Broken explicitly on id. Verified by removing the tiebreak: the first
+      failure was `warm/light/low`, so this was never confined to the neutral
+      readings that led me to it (`0fc1390`).
+- [x] **A neutral undertone no longer hides its own uncertainty.** All four
+      parent seasons are warm or cool, so a neutral reading — which
+      `skinMetrics` really does produce — is decided by depth and contrast
+      alone. The page now says so and points at the override, instead of
+      presenting it with the same confidence as a clear reading (`0fc1390`).
+- [x] **Checked and clean, recorded so nobody re-runs it:** `parseHex` against
+      19 malformed inputs (empty, 3-digit, no hash, uppercase, padded,
+      over-long, non-hex) — no crash, no NaN; and `labToPccs`/`pccsToHex` at
+      every extreme, all 576 legal hue/lightness/saturation combinations
+      producing valid hex (`0fc1390`).
+
+
 ## Backlog triage (2026-07-29)
 
 Owner: *"let's loop over the TODOs and address them. clear out the tech dept
