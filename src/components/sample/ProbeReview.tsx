@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { readSkin } from '../../color/skinMetrics'
+import { hairIsActuallySkin, readSkin } from '../../color/skinMetrics'
 import {
   CONTROL_LIMIT, controlsToWhiteRef, NEUTRAL, whiteBalance, whiteBalanceTable,
   whiteRefToControls, type WhiteBalanceControls,
 } from '../../color/whiteBalance'
 import { rgbToHex, type RGB } from '../../core/colorMath'
 import type { ProbeKind } from '../../core/facePlan'
+import { photoWarnings, WARNING_TEXT } from '../../core/photoQuality'
 import { medianColor, robustColor, samplesInPatch } from '../../core/robustSample'
 import type { SkinReading } from '../../core/types'
 import { canvasPointAt, PATCH_RADIUS } from '../camera/sampleCanvas'
@@ -54,7 +55,12 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
   const [correcting, setCorrecting] = useState<Correcting>(null)
 
   const skin = medianColor(skinMarks.map((m) => m.rgb))
-  const hair = hairMark?.rgb ?? null
+  // A hair sample that is really skin is dropped by readSkin anyway; checking
+  // it here too keeps this screen honest, so the swatch says "no hair visible"
+  // instead of showing a colour the reading is about to discard.
+  const rawHair = hairMark?.rgb ?? null
+  const hair = skin && hairIsActuallySkin(skin, rawHair) ? null : rawHair
+  const warnings = photoWarnings(skinMarks.map((m) => m.rgb))
   // One source of truth: whatever the sliders say, expressed as the white
   // reference the rest of the pipeline already understands.
   const whiteRef = controls ? controlsToWhiteRef(controls) : null
@@ -244,9 +250,18 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       )}
       {!hair && (
         <p className="probe-note">
-          No hair visible, so the contrast reading is weaker than usual.
+          {rawHair
+            ? 'That looks like skin rather than hair, so we’ve left it out — tap Correct the hair to point at it, or carry on with a weaker contrast reading.'
+            : 'No hair visible, so the contrast reading is weaker than usual.'}
         </p>
       )}
+
+      {/* Said before Continue, while retaking is still one tap away. A poor
+          photo used to produce a reading that looked just as confident as a
+          good one. */}
+      {warnings.map((w) => (
+        <p key={w} className="probe-note probe-warn" role="status">{WARNING_TEXT[w]}</p>
+      ))}
 
       <div className="cam-controls">
         <button className="cam-btn ghost" onClick={onRetake}>Retake</button>

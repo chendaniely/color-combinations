@@ -650,6 +650,10 @@ main { flex: 1; min-height: 0; position: relative; }
   font-size: 0.8rem; color: var(--ink-muted); border-left: 2px solid var(--accent);
   padding-left: var(--s3); margin: 0 0 var(--s3);
 }
+/* A photo-quality warning. Louder than a note but with no new colour — the
+   brand rule keeps orange sparing, and the note border is already orange, so
+   this steps up the text weight instead. */
+.probe-warn { color: var(--ink); font-weight: 700; }
 .cam-tap { position: absolute; transform: translate(-50%, -50%);
   width: 30px; height: 30px; border: 2px solid var(--paper-hi); border-radius: 50%;
   box-shadow: 0 0 0 2px var(--accent); pointer-events: none; }

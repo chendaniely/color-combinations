@@ -20,7 +20,20 @@ describe('core purity (never weaken this test — see CLAUDE.md)', () => {
   it('core files import only other core files', () => {
     for (const file of coreFiles()) {
       const src = readFileSync(file, 'utf8')
-      const specs = [...src.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((m) => m[1])
+      // Static `from '...'`, plus dynamic import() and require(). The first
+      // version checked only static imports, so a single `await import('d3')`
+      // would have walked straight through the guard.
+      const specs = [
+        ...[...src.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((m) => m[1]),
+        ...[...src.matchAll(/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1]),
+        ...[...src.matchAll(/\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1]),
+      ]
+      // A computed specifier cannot be checked statically, so it is banned
+      // outright rather than waved through.
+      expect(
+        /\b(import|require)\s*\(\s*[^'")]/.test(src),
+        `${file} has a dynamic import with a computed specifier — core imports must be literal`,
+      ).toBe(false)
       for (const spec of specs) {
         expect(
           spec.startsWith('./') || spec.startsWith('../'),
@@ -37,12 +50,21 @@ describe('core purity (never weaken this test — see CLAUDE.md)', () => {
   })
 
   it('core files never touch browser globals', () => {
+    // Widened from the original five. The point of the kernel is that it runs
+    // anywhere, so anything that only exists in a browser (or that reaches the
+    // network or disk from either runtime) is out.
+    const BROWSER = [
+      'window', 'document', 'navigator', 'location', 'history',
+      'localStorage', 'sessionStorage', 'indexedDB', 'caches',
+      'fetch', 'XMLHttpRequest', 'WebSocket', 'EventSource', 'sendBeacon',
+      'alert', 'requestAnimationFrame', 'matchMedia',
+      'Image', 'HTMLCanvasElement', 'CanvasRenderingContext2D', 'OffscreenCanvas',
+    ]
+    const re = new RegExp(`\\b(${BROWSER.join('|')})\\s*[.([]`)
     for (const file of coreFiles()) {
       const src = readFileSync(file, 'utf8')
-      expect(
-        /\b(window|document|navigator|localStorage|fetch)\s*[.([]/.test(src),
-        `${file} references a browser global`,
-      ).toBe(false)
+      const hit = re.exec(src)
+      expect(hit === null, `${file} references the browser global "${hit?.[1]}"`).toBe(true)
     }
   })
 })
