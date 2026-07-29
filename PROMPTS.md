@@ -1580,3 +1580,34 @@ Makefile target is documented; every file path named in README and CLAUDE.md
 resolves; every test file cited in a source comment exists; app state really is
 one serializable object (arrays, strings, numbers, booleans — no Sets, no DOM
 handles), so the deep-links item is as cheap as claimed.
+
+**Owner decision (provenance):**
+
+> i like your resolutin for specs and plans. this way we have provinance on how
+> this repo was built.
+
+**What that changed:**
+
+- The specs/plans rule is now recorded with its REASON, not just as a
+  mechanism. A bare rule gets "tidied" away by a future session; a rule
+  carrying its why survives. CLAUDE.md now opens with provenance as a stated
+  project value, naming the four files that carry it — PROMPTS.md, CHANGELOG,
+  specs/plans, and TODO-completed's commit hashes — and the reason it matters
+  more here than usual: the owner does not read the code, and every future
+  maintainer is a fresh session with no memory of this one.
+- **Audited the chain and found it intact**: all 68 commit hashes cited in
+  TODO-completed.md resolve to real commits.
+- **But the contract was being broken by this very session.** Seven completed
+  entries carried no commit hash at all — six from the second pass, plus one
+  inherited from v1.5.0. Found by writing the check rather than by reading.
+  Fixed.
+- `tests/provenance.test.ts` now enforces both halves: every cited hash
+  resolves, and every completed entry cites one. It skips on a shallow clone,
+  because CI checks out at depth 1 and "the history was not downloaded" is a
+  different fact from "the history is wrong" — a test that cries wolf in CI
+  gets deleted.
+- The obvious implementation spawned a git process per hash and took 7.8s, a
+  large share of a ten-second suite, in a release that already spent a pass
+  diagnosing a timeout caused by slow tests. One batched `git cat-file
+  --batch-check` brought it to 155ms, and it was checked against a deliberately
+  fake hash to confirm it still detects one.

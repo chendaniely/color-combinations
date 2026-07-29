@@ -4,6 +4,33 @@ This project is **fully vibe-coded**: the owner does not read
 JavaScript/HTML/CSS. You (Claude) are the only maintainer. These rules are
 non-negotiable.
 
+## Why the docs are shaped like this: provenance
+
+This repo is kept as a **record of how it was built**, not only as a
+codebase. The owner's words, on approving the specs/plans rule below:
+*"i like your resolutin for specs and plans. this way we have provinance
+on how this repo was built."*
+
+That one idea explains files that otherwise look like overhead:
+
+- `PROMPTS.md` — the owner's words, verbatim, in order.
+- `CHANGELOG.md` — each release paired with the prompt that drove it.
+- `docs/superpowers/specs/` + `plans/` — what was designed, and how.
+- `TODO-completed.md` — what was finished, and **the commit that did it**.
+
+Together they answer "why is this like this?" for anything in the repo,
+which matters more than usual here: the owner does not read the code, and
+every future maintainer is a fresh session with no memory of this one.
+
+So: **never delete or rewrite the record to make it tidy.** Correct it in
+place, dated, with the old claim still visible. A tidy history that lies
+is worth less than a messy one that doesn't.
+
+`tests/provenance.test.ts` enforces the checkable part — every commit
+hash cited in `TODO-completed.md` must resolve, and every completed entry
+must cite one. It skips on a shallow clone (CI checks out at depth 1), so
+it runs on developer machines where the history actually exists.
+
 ## The documentation contract
 
 **Wrong documentation is worse than no documentation.** Any change that

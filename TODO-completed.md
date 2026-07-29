@@ -39,23 +39,23 @@ things also need to be refactored."*
 - [x] The project had NO linter. oxlint added, wired into `make lint` and CI,
       and configured down from ~40 warnings to 4 real ones — `react-in-jsx-scope`
       is obsolete under React 19's automatic runtime and `prefer-tag-over-role`
-      wanted a `<select>` for a custom swatch combobox.
+      wanted a `<select>` for a custom swatch combobox (`363a3d0`).
 - [x] `PaletteTabs`' effect carried a comment claiming that depending on `shown`
       directly would "rebuild the Set every render and loop". It would not —
       `shown` is a ternary over two memoized arrays, and `seasonById` returns the
-      array's own object. Deps simplified to say something true.
+      array's own object. Deps simplified to say something true (`363a3d0`).
 - [x] The colour disc's ARIA smell documented inline where the reasoning belongs,
-      rather than silenced globally.
+      rather than silenced globally (`363a3d0`).
 - [x] Two hard-coded `rgb(47 42 38 / …)` shadows — the last un-tokenized colours
-      in the stylesheet. Now `--ink-rgb`.
+      in the stylesheet. Now `--ink-rgb` (`363a3d0`).
 - [x] Coverage measured for the first time, and it found the real gap: the
       clipboard (`src/copy.ts`, 0%) and the PNG export (`src/exportPng.ts`,
       13.88%, zero functions covered) had no test at all, both being things
       jsdom cannot do. Now covered in the browser suite — including the
       downloaded file's PNG magic bytes and a check that the exported plate's
       bar proportions match the plate on screen, which guards the
-      `plateLayout.ts` refactor made the same day.
-- [x] `no-shadow` on a duplicated `TAU` in `tests/chord.test.ts`.
+      `plateLayout.ts` refactor made the same day (`363a3d0`).
+- [x] `no-shadow` on a duplicated `TAU` in `tests/chord.test.ts` (`363a3d0`).
 
 **Wrong claims and dead code**
 
@@ -183,7 +183,7 @@ things also need to be refactored."*
 - [x] Season→colour mapping as editable data rather than code (`d46e0bc`),
       the owner's idea; see the learning moment written up the same day.
 - [x] The dependency budget replaced by four properties instead of a package
-      whitelist, reopened by the owner (`CLAUDE.md`, this release).
+      whitelist, reopened by the owner (`CLAUDE.md`, `965c069`).
 - [x] `sampleCanvasAt` gains the `fit` parameter that TODO.md had specified —
       `Math.min` for contain vs `Math.max` for cover (`abe4cdc`). The camera and
       upload pickers keep the cover default; the image-upload cover-crop issue
