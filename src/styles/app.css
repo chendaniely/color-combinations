@@ -941,3 +941,11 @@ main { flex: 1; min-height: 0; position: relative; }
   width: 34px; height: 34px; flex: none; border-radius: var(--radius);
   border: 1px solid var(--hairline);
 }
+
+/* A season that arrived by link rather than by measurement. Marked with the
+   link colour rather than the accent, because it is information about where
+   this came from, not a warning — and it must not read as an error state. */
+.you-note.shared-season {
+  border-left-color: var(--link);
+  margin-bottom: var(--s4);
+}

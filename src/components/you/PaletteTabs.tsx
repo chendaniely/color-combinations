@@ -18,7 +18,10 @@ const COOL_COUNT = 48
 const SHORT_LIST = 30
 
 interface Props {
-  reading: SkinReading
+  // Null when a shared link supplied a season but no measurements — a URL never
+  // carries a reading (tests/urlPrivacy.test.ts). With no reading there is no
+  // measured palette and no tab strip, just the season.
+  reading: SkinReading | null
   season: string | null
   dispatch: (a: Action) => void
   // Reports whichever palette is on screen, so the combinations below follow
@@ -45,18 +48,22 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
   data: SeasonData
 }) {
   const { seasonColors, seasonRules, toneBands } = data
-  const [which, setWhich] = useState<Which>('measured')
+  const [which, setWhich] = useState<Which>(reading ? 'measured' : 'season')
 
+  // Both are measurements OF the visitor, so both are empty without a reading.
   const scored = useMemo(
-    () => scorePalette(reading, dataset.data.colors), [reading])
+    () => (reading ? scorePalette(reading, dataset.data.colors) : []), [reading])
   const measured = useMemo(
-    () => measuredPalette(reading, dataset.data.colors), [reading])
+    () => (reading ? measuredPalette(reading, dataset.data.colors) : []), [reading])
 
   const guess = useMemo(
-    () => classifySeason(seasonRules, reading, toneBands), [reading, seasonRules, toneBands])
+    () => (reading ? classifySeason(seasonRules, reading, toneBands) : null),
+    [reading, seasonRules, toneBands])
 
-  // The dropdown shows our guess until the visitor overrides it.
-  const activeSeasonId = season ?? guess
+  // The dropdown shows our guess until the visitor overrides it. With no
+  // reading the link's own season is all there is, and the first sub-season is
+  // a last resort so the component can never render seasonless.
+  const activeSeasonId = season ?? guess ?? seasonRules.subSeasons[0].id
   const activeSeason = seasonById(seasonRules, activeSeasonId)
   const parent = parentOf(seasonRules, activeSeasonId)
 
@@ -73,7 +80,8 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
   const bandOf = useMemo(
     () => new Map(seasonRows.map((r) => [r.colorId, r.band])), [seasonRows])
 
-  const shown = which === 'measured' ? measured : seasonPalette
+  // With no reading there is nothing measured to show, whatever the tab says.
+  const shown = reading && which === 'measured' ? measured : seasonPalette
 
   // `shown` is referentially stable: both branches of the ternary are useMemo
   // results. So this fires exactly when the shown list changes.
@@ -115,16 +123,30 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
         </span>
       </div>
 
-      <div className="you-tabs" role="tablist" aria-label="Which palette">
-        <button role="tab" aria-selected={which === 'measured'}
-          onClick={() => setWhich('measured')}>
-          Measured for you · {measured.length}
-        </button>
-        <button role="tab" aria-selected={which === 'season'}
-          onClick={() => setWhich('season')}>
-          {activeSeason.name} · {seasonPalette.length}
-        </button>
-      </div>
+      {/* No tab strip without a reading: there is no second palette to switch
+          to, and a one-tab tablist is a lie about what is available. */}
+      {reading && (
+        <div className="you-tabs" role="tablist" aria-label="Which palette">
+          <button role="tab" aria-selected={which === 'measured'}
+            onClick={() => setWhich('measured')}>
+            Measured for you · {measured.length}
+          </button>
+          <button role="tab" aria-selected={which === 'season'}
+            onClick={() => setWhich('season')}>
+            {activeSeason.name} · {seasonPalette.length}
+          </button>
+        </div>
+      )}
+
+      {/* What a shared link says for itself. It must not imply that anything
+          about the READER was measured — nothing was. */}
+      {!reading && (
+        <p className="you-note shared-season">
+          <b>Opened from a shared link.</b> These are {activeSeason.name}'s colours
+          from Wada's book — nothing here is a measurement of you. Take your own
+          photo below and the site will work out your season and compare it.
+        </p>
+      )}
 
       {/* Always visible, never behind a disclosure. The visitor chose to see
           both palettes; they must always be able to see where each came from. */}
@@ -144,7 +166,7 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
           answer is genuinely less certain than for a warm or cool reading.
           Saying so beats presenting the same confident label — and it points at
           the override, which is the useful thing to do about it. */}
-      {which === 'season' && reading.undertone === 'neutral' && (
+      {which === 'season' && reading?.undertone === 'neutral' && (
         <p className="you-note">
           Your undertone reads <b>neutral</b> — between warm and cool. The seasons
           are all one or the other, so this one was chosen by your depth and
