@@ -88,8 +88,13 @@ main { flex: 1; min-height: 0; position: relative; }
   stroke-linejoin: round;
   pointer-events: none;
 }
-.wheel-controls { padding: var(--s4) var(--s8) var(--s6); text-align: center; }
-.granularity { display: inline-flex; gap: var(--s2); }
+/* max-width is load-bearing: .wheel-view centres its children, so a control
+   bar wider than the viewport overflows BOTH sides and the page scrolls
+   sideways. At 375px the four granularity buttons plus 2rem of side padding
+   came to 403px, pushing the document 14px wide. Caught by
+   tests/browser/mobile.spec.ts. */
+.wheel-controls { padding: var(--s4) var(--s8) var(--s6); text-align: center; max-width: 100%; }
+.granularity { display: inline-flex; gap: var(--s2); flex-wrap: wrap; justify-content: center; }
 .granularity button {
   background: none; border: none; border-bottom: 2px solid transparent;
   color: var(--ink-muted); font-size: 0.8rem; letter-spacing: var(--tracking-label);
@@ -259,6 +264,8 @@ main { flex: 1; min-height: 0; position: relative; }
   .nav { flex-wrap: wrap; }
   .search-box input { width: 130px; }
   .chord-wheel { max-width: 96vw; }
+  /* 2rem a side is a fifth of a 375px screen. */
+  .wheel-controls { padding: var(--s4) var(--s4) var(--s6); }
   .browse-view { padding: var(--s4); }
   .browse-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   /* Panels become bottom sheets */

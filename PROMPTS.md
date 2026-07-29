@@ -1361,3 +1361,21 @@ rather than testing it.
   the stylesheet against every reference in `src/`. The three other candidates
   were false positives — `is-skin`/`is-hair`/`is-white` are built dynamically as
   `is-${kind}`.
+
+**Fourth pass — phone width and reduced motion, both off the manual checklist:**
+
+- **A real mobile defect: the Wheel scrolled sideways by 14px at 375px.**
+  `.wheel-view` centres its children, so `.wheel-controls` — which shrink-to-fits
+  its content — overflowed BOTH sides once the four granularity buttons plus
+  2rem of side padding came to 403px in a 375px viewport. Fixed with
+  `max-width: 100%`, wrapping on `.granularity`, and less side padding on small
+  screens. Every view is now checked for horizontal overflow.
+- **`prefers-reduced-motion` verified for the first time.** The checklist had
+  asked whether it really suppresses the animations; now a test opens a panel
+  under `emulateMedia({ reducedMotion: 'reduce' })` and asserts nothing is
+  running — and, separately, that suppressing the animation does not leave the
+  panel stuck at its opening opacity.
+- **Tap targets checked against WCAG 2.2's 24x24 minimum**, allowing for the
+  padded `::before` hit area that lets `.infotip-btn` reach 44px without
+  looking it — the fix made by hand in v1.5.0, now guarded.
+- The WCAG audit runs at phone width too, not just desktop.

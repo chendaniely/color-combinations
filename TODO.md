@@ -23,6 +23,24 @@ a check that needs a person. See `TODO-completed.md` for what went.
       • shareable deep links (serialize the state object into the URL);
       • save / name / export a built outfit palette.
 
+## Owner's next feature idea
+
+- [ ] **Match > Colors is empty, and the ways to find a colour should live
+      there.** Owner, 2026-07-29: *"i think the sample a color next to the find
+      a color should also appear as different card/'apps' under the match >
+      colors feature. there's nothing tehre right now, and the options we have
+      to find a color, and the sample a color shoudl all fit in this section."*
+      Today the Colors level of Match shows only a line of text — "Search a
+      colour name above, or snap a colour with the camera" — pointing at
+      affordances that live in the header. The four ways in (search by name,
+      camera, upload a photo, pick a colour) should be cards on that empty
+      panel, the same way `ColorSampler` already presents three of them.
+      Worth noting the pieces exist: `ColorSampler` renders exactly this card
+      list, so this is likely a matter of surfacing it inline rather than only
+      inside the overlay, plus a name-search card. Open questions: does picking
+      a source open the existing overlay or work inline, and does the same
+      block belong on Browse's empty state too.
+
 ## Needs a person, not a test
 
 - [ ] **The You tab has still only ever seen ONE face.** The scoring rules were
