@@ -1379,3 +1379,25 @@ rather than testing it.
   padded `::before` hit area that lets `.infotip-btn` reach 44px without
   looking it — the fix made by hand in v1.5.0, now guarded.
 - The WCAG audit runs at phone width too, not just desktop.
+
+**Fifth pass — the last untested journey, and a crossfade misclick:**
+
+- **The wheel is `role="img"` with a label naming Browse as its text
+  alternative.** Checked whether the site's primary feature was mouse-only; it
+  is a documented, legitimate pattern for a complex visualisation rather than a
+  defect, and Browse genuinely carries the same 348 combinations.
+- **A click during the 200ms granularity crossfade could hit the OUTGOING
+  wheel.** `renderChord` fades the old `g.wheel` out before removing it, so for
+  that window two wheels exist and both carry pointer handlers — a click landing
+  on the old one dispatches from the previous granularity's geometry. Made the
+  outgoing group inert on the way out.
+- **The sampler's end-to-end journeys are now covered in a browser** rather than
+  mocked in jsdom: pick a colour, see the nearest book colours, hand off to
+  Match (palette seeded) or Browse (filtered, not the full 338), switch the
+  match level, and go back. `ColorSampler` was the last sizeable piece of
+  routing sitting near zero coverage, and it is a shell — mocking it would have
+  tested the mock.
+- **Coverage numbers understate reality, and now say so.** They measure only the
+  vitest run, so `copy.ts` still reports 0% and `exportPng.ts` 13.88% even
+  though both are thoroughly tested by Playwright. Recorded in the config so a
+  future reader treats a low number as "go and check", not "this is untested".

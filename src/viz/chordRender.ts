@@ -55,7 +55,14 @@ export function renderChord(
   const svg = d3.select(svgEl)
     .attr('viewBox', `${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`)
 
-  svg.selectAll('g.wheel').transition().duration(motionOk ? 200 : 0).style('opacity', 0).remove()
+  // The outgoing wheel fades for 200ms, so for that window two wheels exist in
+  // the DOM and BOTH still carry pointer handlers. A click landing on the
+  // outgoing one would dispatch from the previous granularity's geometry —
+  // opening whatever used to be under the cursor. Making it inert on the way
+  // out costs one line and closes that window.
+  svg.selectAll('g.wheel')
+    .style('pointer-events', 'none')
+    .transition().duration(motionOk ? 200 : 0).style('opacity', 0).remove()
 
   const layout = d3.chord()
     .padAngle(nodes.length > 40 ? 0.004 : 0.02)

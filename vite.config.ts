@@ -55,11 +55,17 @@ export default defineConfig({
     // worker contention that crosses 5s. Nothing is hung; the work is real.
     testTimeout: 20_000,
     hookTimeout: 20_000,
-    // `make coverage` answers "what do the fast tests never run?". Scoped to
+    // `make coverage` answers "what do the FAST tests never run?". Scoped to
     // src/ and to files a test actually imports, so the number means something.
     // It earned its place on the first run: src/copy.ts sat at 0% and
     // src/exportPng.ts at 13.88% with not one function covered, which is how
     // the clipboard and PNG-download browser tests came to be written.
+    //
+    // IMPORTANT, and a trap for the next reader: these numbers only cover the
+    // vitest run. The Playwright suite exercises plenty that shows here as 0% —
+    // copy.ts and exportPng.ts are both thoroughly tested now, in
+    // tests/browser/takeaways.spec.ts, and still report 0% and 13.88%. Treat a
+    // low number as "go and check", never as "this is untested".
     coverage: {
       include: ['src/**'],
       all: false,
