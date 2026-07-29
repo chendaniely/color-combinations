@@ -9,6 +9,7 @@ import type { ProbeKind } from '../../core/facePlan'
 import { medianColor, robustColor, samplesInPatch } from '../../core/robustSample'
 import type { SkinReading } from '../../core/types'
 import { canvasPointAt, PATCH_RADIUS } from '../camera/sampleCanvas'
+import { Overlay } from '../Overlay'
 import type { CaptureResult } from './FaceCapture'
 
 const SKIN_KINDS: ProbeKind[] = ['forehead', 'leftCheek', 'rightCheek', 'jaw']
@@ -140,8 +141,12 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
     </div>
   )
 
+  // No × button: the way out of this screen is Retake or Continue, both
+  // rendered below. Escape maps to Retake — the same "back", not a silent
+  // discard of a capture the visitor has just spent time correcting.
   return (
-    <div className="cam-overlay probe-review" role="dialog" aria-label="Check what we read">
+    <Overlay label="Check what we read" className="probe-review"
+      onClose={onRetake} closeLabel={null}>
       <p className="cam-steps">
         {capture.faceFound
           ? <><b>Check this is right.</b> These are the colours we measured, and
@@ -251,6 +256,6 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       <p className="cam-privacy">
         Your photo stays on this device — only these few numbers go any further.
       </p>
-    </div>
+    </Overlay>
   )
 }

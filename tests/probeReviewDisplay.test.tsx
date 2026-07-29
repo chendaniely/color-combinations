@@ -32,7 +32,7 @@ function capture(width: number, height: number, hidden: boolean): CaptureResult 
 
 describe('ProbeReview display', () => {
   it('shows the photograph even when the capture canvas arrived hidden', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture(640, 480, true)} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const canvas = container.querySelector('canvas')!
     expect(canvas).toBeTruthy()
@@ -42,21 +42,21 @@ describe('ProbeReview display', () => {
   it('renders the whole frame rather than a centre crop', () => {
     // A cover crop can hide the white object at the edge of the frame, which
     // would make "correct the white" impossible to use.
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture(640, 480, false)} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const canvas = container.querySelector('canvas')!
     expect(canvas.className).toContain('probe-canvas')
   })
 
   it('sizes the stage to the photo so dot percentages are exact', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture(640, 480, false)} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const stage = container.querySelector('.probe-stage') as HTMLElement
     expect(stage.style.aspectRatio).toBe('640 / 480')
   })
 
   it('places a dot at the source fraction of the photo', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture(640, 480, false)} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const dot = container.querySelector('.probe-dot') as HTMLElement
     expect(dot.style.left).toBe('50%')   // cx = width / 2
@@ -73,7 +73,7 @@ describe('ProbeReview white marker', () => {
   }
 
   it('marks where the white reference was taken', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const white = container.querySelector('.probe-dot.is-white') as HTMLElement
     expect(white).toBeTruthy()
@@ -83,20 +83,20 @@ describe('ProbeReview white marker', () => {
   })
 
   it('shows no white marker when none was found', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture(200, 200, false)} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     expect(container.querySelector('.probe-dot.is-white')).toBeNull()
   })
 
   it('removes the marker when the visitor says there is nothing white', () => {
-    const { container, getByRole } = render(
+    const { baseElement: container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     fireEvent.click(getByRole('button', { name: /nothing white/i }))
     expect(container.querySelector('.probe-dot.is-white')).toBeNull()
   })
 
   it('moves the marker to where the visitor taps a correction', () => {
-    const { container, getByRole } = render(
+    const { baseElement: container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     fireEvent.click(getByRole('button', { name: /correct.*white/i }))
     // The mocked box is 100x100 for a 200x200 source, so a tap at (25, 25)
@@ -109,7 +109,7 @@ describe('ProbeReview white marker', () => {
   })
 
   it('repaints the photo when the white reference changes', () => {
-    const { container, getByRole } = render(
+    const { baseElement: container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const ctx = (container.querySelector('canvas') as HTMLCanvasElement)
       .getContext('2d') as unknown as { putImageData: { mock: { calls: unknown[] } } }
@@ -121,7 +121,7 @@ describe('ProbeReview white marker', () => {
   })
 
   it('shows the skin swatch white-balanced, so it moves with the reference', () => {
-    const { container, getByRole } = render(
+    const { baseElement: container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const skinChip = () =>
       (container.querySelectorAll('.probe-chip')[0] as HTMLElement).style.background
@@ -133,7 +133,7 @@ describe('ProbeReview white marker', () => {
   })
 
   it('never corrects the source pixels, so corrections cannot compound', () => {
-    const { container, getByRole } = render(
+    const { baseElement: container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const stage = container.querySelector('.probe-stage') as HTMLElement
     // Tap the same spot twice with a white reference active. If the source were
@@ -163,7 +163,7 @@ describe('ProbeReview white marker', () => {
   })
 
   it('repaints the photo when a slider moves', () => {
-    const { container, getByLabelText } = render(
+    const { baseElement: container, getByLabelText } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const ctx = (container.querySelector('canvas') as HTMLCanvasElement)
       .getContext('2d') as unknown as { putImageData: { mock: { calls: unknown[] } } }
@@ -190,7 +190,7 @@ describe('ProbeReview white marker', () => {
   })
 
   it('Reset clears both the correction and the marker', () => {
-    const { container, getByRole, getByLabelText } = render(
+    const { baseElement: container, getByRole, getByLabelText } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     fireEvent.click(getByRole('button', { name: /^reset$/i }))
     expect(Number((getByLabelText(/temperature/i) as HTMLInputElement).value)).toBe(0)
@@ -198,7 +198,7 @@ describe('ProbeReview white marker', () => {
   })
 
   it('moves the hair marker when the hair is corrected', () => {
-    const { container, getByRole } = render(
+    const { baseElement: container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     fireEvent.click(getByRole('button', { name: /correct.*hair/i }))
     const stage = container.querySelector('.probe-stage') as HTMLElement

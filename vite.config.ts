@@ -34,6 +34,10 @@ export default defineConfig({
   base: '/color-combinations/',
   test: {
     environment: 'node',
+    // tests/browser/ is Playwright's (see `make test-browser`); it drives a real
+    // browser and must not be collected by the fast jsdom/node suite.
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    exclude: ['tests/browser/**'],
+    setupFiles: ['tests/setup.ts'],
   },
 })

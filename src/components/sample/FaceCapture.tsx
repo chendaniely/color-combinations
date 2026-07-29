@@ -4,6 +4,7 @@ import { faceTooSmall, planProbes, type Probe } from '../../core/facePlan'
 import { robustColor, samplesInPatch } from '../../core/robustSample'
 import { findWhiteRef } from '../../core/whiteRef'
 import { cameraSupported, stopStream } from '../camera/cameraStream'
+import { Overlay } from '../Overlay'
 
 const MAX_DIM = 1200
 
@@ -133,9 +134,7 @@ export function FaceCapture({ onCapture, onClose }: {
   }
 
   return (
-    <div className="cam-overlay face-capture" role="dialog" aria-label="Photograph your face">
-      <button className="cam-close" onClick={onClose} aria-label="Close">×</button>
-
+    <Overlay label="Photograph your face" onClose={onClose} className="face-capture">
       <p className="cam-steps">
         Fit your face in the oval, and hold <b>something white</b> next to it —
         paper, a mug, a wall, a t-shirt. We use it to correct the lighting.
@@ -185,6 +184,6 @@ export function FaceCapture({ onCapture, onClose }: {
         Your photo stays on this device — nothing is uploaded or saved, and the
         photo itself is thrown away as soon as we’ve measured it.
       </p>
-    </div>
+    </Overlay>
   )
 }

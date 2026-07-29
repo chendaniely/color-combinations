@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { rgbToHex, type RGB } from '../../core/colorMath'
 import { sampleCanvasAt } from '../camera/sampleCanvas'
+import { Overlay } from '../Overlay'
 
 const MAX_DIM = 1600
 
@@ -51,8 +52,7 @@ export function ImagePicker({ onSample, onClose }: {
   }
 
   return (
-    <div className="cam-overlay" role="dialog" aria-label="Sample a color from a photo">
-      <button className="cam-close" onClick={onClose} aria-label="Back">×</button>
+    <Overlay label="Sample a color from a photo" onClose={onClose} closeLabel="Back">
       <p className="cam-steps">
         {!loaded
           ? <><b>Step 1 of 2:</b> Choose a photo.</>
@@ -81,6 +81,6 @@ export function ImagePicker({ onSample, onClose }: {
         )}
       </div>
       <p className="cam-privacy">Your photo stays on this device — nothing is uploaded or saved.</p>
-    </div>
+    </Overlay>
   )
 }

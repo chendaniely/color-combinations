@@ -28,7 +28,7 @@ function capture(overrides: Partial<CaptureResult> = {}): CaptureResult {
 
 describe('ProbeReview', () => {
   it('shows the colours it read', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     // Scoped to the readings, since the probe dots on the photo are labelled
     // "skin"/"hair" too.
@@ -38,7 +38,7 @@ describe('ProbeReview', () => {
   })
 
   it('labels each probe dot so a misplaced one is obvious', () => {
-    const { container } = render(
+    const { baseElement: container } = render(
       <ProbeReview capture={capture()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
     const hairDot = container.querySelector('.probe-dot.is-hair')
     expect(hairDot).toBeTruthy()

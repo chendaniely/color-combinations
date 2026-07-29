@@ -4,6 +4,7 @@ import { keyColorId } from '../../core/dataset'
 import type { Action, MatchLevel } from '../../core/state'
 import { cameraSupported } from '../camera/cameraStream'
 import { ColorCapture } from '../camera/ColorCapture'
+import { Overlay } from '../Overlay'
 import { ColorMatches } from './ColorMatches'
 import { ColorPicker } from './ColorPicker'
 import { ImagePicker } from './ImagePicker'
@@ -29,8 +30,7 @@ export function ColorSampler({ dispatch, onClose }: {
 
   if (rgb !== null) {
     return (
-      <div className="cam-overlay" role="dialog" aria-label="Nearest colors">
-        <button className="cam-close" onClick={onClose} aria-label="Close">×</button>
+      <Overlay label="Nearest colors" onClose={onClose}>
         <ColorMatches rgb={rgb}
           onBack={() => { setRgb(null); setSource(null) }}
           onMatch={(level, key) => { dispatch({ type: 'seedPalette', key, level }); onClose() }}
@@ -39,7 +39,7 @@ export function ColorSampler({ dispatch, onClose }: {
             dispatch({ type: 'setView', view: 'browse' })
             onClose()
           }} />
-      </div>
+      </Overlay>
     )
   }
   if (source === 'camera') return <ColorCapture onSample={setRgb} onClose={() => setSource(null)} />
@@ -47,8 +47,7 @@ export function ColorSampler({ dispatch, onClose }: {
   if (source === 'pick') return <ColorPicker onSample={setRgb} onClose={() => setSource(null)} />
 
   return (
-    <div className="cam-overlay" role="dialog" aria-label="Sample a color">
-      <button className="cam-close" onClick={onClose} aria-label="Close">×</button>
+    <Overlay label="Sample a color" onClose={onClose}>
       <div className="sample-picker">
         <h2 className="sample-title">Sample a color</h2>
         <p className="sample-sub">Find the book colors nearest to one you have.</p>
@@ -67,6 +66,6 @@ export function ColorSampler({ dispatch, onClose }: {
           <span className="sample-src-tx"><b>Pick a color</b><small>Wheel, or a hex / RGB / CMYK value</small></span>
         </button>
       </div>
-    </div>
+    </Overlay>
   )
 }

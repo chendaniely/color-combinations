@@ -12,7 +12,6 @@ import { YouView } from '../src/components/you/YouView'
 import { MatchPage } from '../src/components/MatchPage'
 import { RibbonDetail } from '../src/components/RibbonDetail'
 import { ColorMatches } from '../src/components/sample/ColorMatches'
-import { ColorSampler } from '../src/components/sample/ColorSampler'
 import { hexToRgb } from '../src/core/colorMath'
 import { initialState } from '../src/core/state'
 import { dataset } from '../src/data'
@@ -92,12 +91,12 @@ describe('app shell', () => {
     expect(html).toContain('Match'); expect(html).toContain('Browse')
   })
 
-  it('color sampler offers camera-agnostic sources (upload + picker) and renders', () => {
-    const html = renderToString(<ColorSampler dispatch={() => {}} onClose={() => {}} />)
-    expect(html).toContain('Sample a color')
-    expect(html).toContain('Upload a photo')
-    expect(html).toContain('Pick a color')
-  })
+  // The ColorSampler smoke test used to live here, as a renderToString check.
+  // It moved to tests/overlay.test.tsx when overlays became portalled <dialog>
+  // elements: a portal attaches to document.body, so it cannot server-render at
+  // all. That is correct rather than awkward — an overlay is a client-side
+  // attachment, and asserting on markup no server could ever produce was
+  // testing a fiction. It is now rendered for real in jsdom.
 
   it('search box uses the new placeholder copy', () => {
     const html = renderToString(<App />)
