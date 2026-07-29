@@ -28,6 +28,129 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.5.0 — 2026-07-28 — "You"
+
+**A new tab that starts from your face.** Photograph yourself, and the site
+measures three things about your colouring — whether you lean warm or cool, how
+deep it is, and how much contrast there is between your skin and your hair —
+then shows you the book colours that suit you and the combinations built from
+them.
+
+> yes i do want the ability (probably a new tab) that allows the user to take a
+> photo of their face and then we pick out good matching colors from this
+> pallete to go with their face. it's almost a combination of all the other
+> features of the site that allow you to find a pactifular color, but now we are
+> using the user's face to filter colors by hue, group, color. maybe we prompt
+> the user to hold up a piece of white paper around their face so we can use it
+> as white balance.
+
+**Two palettes, honestly labelled.** The owner asked for the traditional
+seasonal reading alongside the measured one:
+
+> i'd also like the results to reutrn the seasonal anslysis as well.
+
+Shown both methods run over the real 157 colours — where they agreed on only 9
+of them — the owner chose to ship both rather than pick:
+
+> i actually liked how you showed both side by side. this lets everyone explore
+> different views
+
+So the page carries a permanent provenance line. **Measured for you** comes from
+your face by four stated rules, and hovering any colour tells you which. **The
+season palette** says plainly that it comes from a table we wrote, with no
+published source, offered as a second opinion. Any of the twelve is pickable
+from a dropdown, so someone who has had a professional analysis can use theirs.
+
+**The season lists are data, not code** — the owner's idea, and a better one
+than the design had:
+
+> maybe we create a separate dataset that maps color to season. this way i can
+> easily change it or have another agent analyze it. and it'll update in the
+> website.
+
+They live in `data/curated/seasons.json`, hand-editable, validated on load. The
+one part of the feature we admit is invented is now the part that is easiest to
+inspect and correct — and correcting it needs no programmer.
+
+**The dependency rule changed to allow this.** Face detection meant a new
+package, which the old four-package budget forbade:
+
+> let's think about the constraints for this app. we can use external libraries,
+> but it needs to still run on github pages (static site). ... the original
+> constraight was to make it so the app runs and launches easily, but i may have
+> been tto strict in my words.
+
+The audit that followed found the real constraint was never the package count
+but four properties: static build, `make install` just works, nothing
+user-derived leaves the device, and weight is paid by the feature that incurs
+it. `CLAUDE.md` now states those instead. MediaPipe's BlazeFace satisfies all
+four — ~3.5 MB, lazy-loaded only on entering the tab, and self-hosted so no
+third-party request ever fires.
+
+**Your photo never leaves your device**, is never saved, and is thrown away as
+soon as it is measured. The owner asked for that to be stated plainly:
+
+> i like the ability you're not capturing the photo for privacy. let's make sure
+> that's documnted in the readme as a privacy statement.
+
+The README now has a **Privacy** section, and two test files enforce it rather
+than leaving it a promise.
+
+**Six rounds of owner review found five real defects** that a passing test suite
+had not — and the owner diagnosed most of them. Listing the five positions of
+the sampling dots identified, precisely, that the detector's bounding box starts
+at the brow rather than the top of the head, which had every probe sitting a
+zone too low and reading hair colour off forehead skin:
+
+> where are the dots supposed to be? i see them on my forehead, between the
+> eyebrows, both cheeks and then my chin. i think it's tagging the wrong color
+> for my hair
+
+And a request for one small feature exposed a whole class of bug:
+
+> we should also have a circle for where it's capturing the white
+>
+> ... when i correct the location/sample of the color, the circle should move to
+> that location
+
+Corrections had been keeping the colour and discarding the position, so the
+markers would have gone stale the moment anyone touched one.
+
+**"Confirm it, don't tell me."** Asked whether the white balance actually worked:
+
+> can you confirm its whitebalance correcting correctly?
+
+Simulating 48 illuminant-and-skin pairs showed the correction was being applied
+to gamma-encoded values when light multiplies *linear* light — good enough under
+mild casts, but wrong enough under strong ones to flip the warm/cool verdict
+three times. Fixed, and pinned by tests that recreate the cast physically.
+
+**White balance you can see and steer.** The photo now repaints corrected as you
+adjust it, and there are Temperature and Tint sliders like a photo editor's:
+
+> when i am picking the white balance. i think the photo should correct so the
+> skin and hair colors update as well. this way i have a good sense if the white
+> balance is being adjusted properly
+
+> for correcting white balance can we also provide a ui slider? i still cant
+> seem to color correct it properly. i'm used to white balance correcting
+> filters from photography software
+
+**Plain-English explanations.** Small **i** buttons beside undertone, depth and
+contrast, sized for a fingertip:
+
+> i'm thinking maybe we can have a little info icon next to the cool/wam medium,
+> high contrast words, something small where the hover over/mouse click (or
+> finger click on a phone) has a info pop up box that explains more about the
+> terms
+
+**Also in this release:** the combinations list is ranked rather than filtered,
+with a four-step control for how strict it is, because demanding every colour be
+yours leaves 12 of 338. Colours in a plate that aren't yours are outlined. And
+the page discloses that Wada's palette leans warm — 109 colours to 48 — so a
+cool-toned visitor's shorter list reads as the book rather than a fault.
+
+
 ## [1.4.0] — 2026-07-28 — Pick a color, in whatever language you have it
 
 > **Owner asked for:** "i like that ability to pick hex. but now i like the

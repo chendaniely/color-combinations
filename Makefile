@@ -26,5 +26,5 @@ update-data: ## Re-download source data and regenerate data/processed/
 	date +%F > data/raw/retrieved-on.txt
 	$(NPM) run ingest
 
-clean: ## Remove build output and installed dependencies
-	rm -rf dist node_modules
+clean: ## Remove build output, copied assets, and installed dependencies
+	rm -rf dist node_modules public/mediapipe

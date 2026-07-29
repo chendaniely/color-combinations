@@ -1159,3 +1159,45 @@ accuracy fixtures. That jsdom cannot catch layout bugs at all is logged in
 
 **Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`
+
+### Session 15 continued — stage 2, and the v1.5.0 release
+
+**Owner prompt (checkpoint passed, stage 2 approved):**
+
+> yes let's keep going. dont' stop
+
+**Owner prompt (refining the confirmed vocabulary):**
+
+> for the wording. i'm thinking maybe we can have a little info icon next to the
+> cool/wam medium, high contrast words, something small where the hover over/
+> mouse click (or finger click on a phone) has a info pop up box that explains
+> more about the terms
+
+**Owner prompt (kickoff):**
+
+> let's gooo!
+
+**Decisions and findings:**
+
+- **Vocabulary kept, and made self-explaining.** The owner confirmed
+  warm/cool, deep/light, contrast, ITA and L* read fine, so the result page
+  reuses them rather than re-teaching. The info tips explain them on demand.
+- **Two defects the 533-test suite could not see**, both found by measuring in
+  a real browser: the info-tip tap target was 18px against the ~44px a finger
+  needs, and a 304px tip centred on a right-hand term overflows a 390px phone.
+- **`core-purity` caught a worse bug than the one it was testing for.** The
+  first `src/core/seasons.ts` imported the JSON directly; fixing that revealed
+  the validator had been checking colour ids against the seasons file itself,
+  so "references a missing colour" was vacuously true and could never fire.
+- **The spec's own numbers were wrong and were corrected.** Its 53-colour /
+  13-118-148-239 table came from the throwaway mockup script and its hand-rolled
+  sRGB→Lab; the app uses culori as the project rule requires, giving 50 and
+  12/117/143/234. Every colour that moved sits within 0.6 of a threshold. The
+  argument the table supports is unchanged, and now has a test rather than prose.
+- **The palette coverage test asserts wearability, not non-emptiness.** All 108
+  tonal bands return at least 8 colours; measured floor is 11, ceiling 70, and
+  the floor is indeed a cool reading — the expected consequence of a book that
+  runs 109 warm to 48 cool.
+
+**Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`
