@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { readSkin } from '../../color/skinMetrics'
+import { readSkin, whiteBalance, whiteBalanceTable } from '../../color/skinMetrics'
 import { rgbToHex, type RGB } from '../../core/colorMath'
 import type { ProbeKind } from '../../core/facePlan'
-import { medianColor } from '../../core/robustSample'
+import { medianColor, robustColor, samplesInPatch } from '../../core/robustSample'
 import type { SkinReading } from '../../core/types'
-import { canvasPointAt, sampleCanvasAt } from '../camera/sampleCanvas'
+import { canvasPointAt, PATCH_RADIUS } from '../camera/sampleCanvas'
 import type { CaptureResult } from './FaceCapture'
 
 const SKIN_KINDS: ProbeKind[] = ['forehead', 'leftCheek', 'rightCheek', 'jaw']
@@ -28,7 +28,7 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
   onConfirm: (reading: SkinReading) => void
   onRetake: () => void
 }) {
-  const stageRef = useRef<HTMLDivElement>(null)
+  const displayRef = useRef<HTMLCanvasElement>(null)
   const [skinMarks, setSkinMarks] = useState<Mark[]>(() =>
     capture.probes
       .filter((p) => SKIN_KINDS.includes(p.kind))
@@ -47,30 +47,44 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
   const hair = hairMark?.rgb ?? null
   const whiteRef = whiteMark?.rgb ?? null
 
-  // Show the captured frame. The canvas came from FaceCapture; we mount it
-  // rather than copy it, so no second copy of the photograph exists.
+  // Paint the photo into our OWN canvas, white-balanced, so the visitor can see
+  // the correction working on the whole frame rather than trusting a number.
   //
-  // Two things this must undo, both found the hard way: FaceCapture's camera
-  // path leaves `display: none` on the element, which would travel with it and
-  // hide the photo entirely; and .cam-canvas is object-fit: cover, which crops
-  // the frame — often cropping away the very white object the visitor is being
-  // asked to confirm. Here the whole frame is shown, contained.
+  // capture.canvas is never mounted and never modified — it stays the untouched
+  // source of truth. Correcting it in place would mean a later tap sampled
+  // already-corrected pixels and corrected them twice.
   useEffect(() => {
-    const stage = stageRef.current
-    if (!stage) return
-    capture.canvas.className = 'probe-canvas'
-    capture.canvas.style.display = 'block'
-    stage.prepend(capture.canvas)
-    return () => { capture.canvas.remove() }
-  }, [capture.canvas])
+    const display = displayRef.current
+    const source = capture.canvas.getContext('2d')
+    const target = display?.getContext('2d')
+    if (!display || !source || !target) return
+    const { width, height } = capture.canvas
+    const frame = source.getImageData(0, 0, width, height)
+    if (whiteMark) {
+      // Per-channel lookup: identical to whiteBalance(), minus ~4 million
+      // Math.pow calls on a full-size photo.
+      const [tr, tg, tb] = whiteBalanceTable(whiteMark.rgb)
+      const d = frame.data
+      for (let i = 0; i < d.length; i += 4) {
+        d[i] = tr[d[i]]; d[i + 1] = tg[d[i + 1]]; d[i + 2] = tb[d[i + 2]]
+      }
+    }
+    target.putImageData(frame, 0, 0)
+  }, [capture.canvas, whiteMark])
 
   function correctAt(e: React.PointerEvent<HTMLDivElement>) {
     if (!correcting) return
-    // 'contain' to match how the canvas is laid out above — inverting a cover
-    // transform here would sample the wrong pixels and misplace the marker.
-    const point = canvasPointAt(capture.canvas, e.clientX, e.clientY, 'contain')
-    const rgb = sampleCanvasAt(capture.canvas, e.clientX, e.clientY, undefined, 'contain')
-    if (!point || !rgb) return
+    const display = displayRef.current
+    const source = capture.canvas.getContext('2d')
+    if (!display || !source) return
+    // Geometry from the canvas that is actually on screen; PIXELS from the
+    // untouched original, so a tap is never read through the correction.
+    const point = canvasPointAt(display, e.clientX, e.clientY, 'contain')
+    if (!point) return
+    const { width, height } = capture.canvas
+    const frame = source.getImageData(0, 0, width, height)
+    const rgb = robustColor(samplesInPatch(frame.data, width, height, point.x, point.y, PATCH_RADIUS))
+    if (!rgb) return
     const mark: Mark = { rgb, cx: point.x, cy: point.y }
     // A corrected skin reading replaces the automatic set: the visitor pointing
     // at one spot is a stronger signal than four guesses averaged together.
@@ -122,8 +136,10 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       {/* The stage takes the photo's own aspect ratio, so a mark's source
           fraction is exactly its percentage position and the dots land on the
           pixels that were actually sampled. */}
-      <div ref={stageRef} className="probe-stage" onPointerDown={correctAt}
+      <div className="probe-stage" onPointerDown={correctAt}
         style={{ aspectRatio: `${capture.canvas.width} / ${capture.canvas.height}` }}>
+        <canvas ref={displayRef} className="probe-canvas"
+          width={capture.canvas.width} height={capture.canvas.height} />
         {skinMarks.map((m, i) => dot('skin', m, `skin-${i}`))}
         {hairMark && dot('hair', hairMark, 'hair')}
         {whiteMark && dot('white', whiteMark, 'white')}
@@ -136,10 +152,22 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       )}
 
       <div className="probe-reads">
-        {swatch('Skin', skin, 'tap your cheek')}
-        {swatch('Hair', hair, 'no hair visible')}
+        {/* Corrected, so they match the photo above and move when the white
+            reference changes — that is how the visitor can tell the balance is
+            working, rather than being asked to take it on trust. */}
+        {swatch('Skin', skin && whiteBalance(skin, whiteRef), 'tap your cheek')}
+        {swatch('Hair', hair && whiteBalance(hair, whiteRef), 'no hair visible')}
+        {/* The white swatch stays UNcorrected: it is the cast being removed, and
+            showing it post-correction would just be a grey square every time. */}
         {swatch('White', whiteRef, 'none — rough reading')}
       </div>
+      {whiteRef && (
+        <p className="probe-note">
+          The photo above is corrected using that white. If it now looks like
+          the room you were in, the balance is right — if it has gone orange or
+          blue, tap <b>Correct the white</b> and pick something properly white.
+        </p>
+      )}
 
       <div className="probe-fixes">
         <button type="button" onClick={() => setCorrecting('skin')}>Correct the skin</button>

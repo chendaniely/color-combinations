@@ -14,7 +14,14 @@ export function installPhotoMocks(
     data[i * 4] = fill[0]; data[i * 4 + 1] = fill[1]
     data[i * 4 + 2] = fill[2]; data[i * 4 + 3] = 255
   }
-  const ctx = { drawImage: vi.fn(), getImageData: vi.fn(() => ({ data, width, height })) }
+  // getImageData returns a FRESH copy, as the real API does — callers that
+  // white-balance a frame mutate the buffer they are given, and must not be
+  // able to corrupt the source pixels through it.
+  const ctx = {
+    drawImage: vi.fn(),
+    getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(data), width, height })),
+    putImageData: vi.fn(),
+  }
   ;(HTMLCanvasElement.prototype as unknown as { getContext: () => unknown }).getContext =
     vi.fn(() => ctx)
   HTMLCanvasElement.prototype.getBoundingClientRect = () =>

@@ -108,6 +108,45 @@ describe('ProbeReview white marker', () => {
     expect(white.style.top).toBe('25%')
   })
 
+  it('repaints the photo when the white reference changes', () => {
+    const { container, getByRole } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    const ctx = (container.querySelector('canvas') as HTMLCanvasElement)
+      .getContext('2d') as unknown as { putImageData: { mock: { calls: unknown[] } } }
+    const before = ctx.putImageData.mock.calls.length
+    fireEvent.click(getByRole('button', { name: /correct.*white/i }))
+    fireEvent.pointerDown(container.querySelector('.probe-stage') as HTMLElement,
+      { clientX: 25, clientY: 25 })
+    expect(ctx.putImageData.mock.calls.length).toBeGreaterThan(before)
+  })
+
+  it('shows the skin swatch white-balanced, so it moves with the reference', () => {
+    const { container, getByRole } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    const skinChip = () =>
+      (container.querySelectorAll('.probe-chip')[0] as HTMLElement).style.background
+    const balanced = skinChip()
+    fireEvent.click(getByRole('button', { name: /nothing white/i }))
+    // With the reference dropped the correction is the identity, so the swatch
+    // must visibly change — otherwise it was never being corrected at all.
+    expect(skinChip()).not.toBe(balanced)
+  })
+
+  it('never corrects the source pixels, so corrections cannot compound', () => {
+    const { container, getByRole } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    const stage = container.querySelector('.probe-stage') as HTMLElement
+    // Tap the same spot twice with a white reference active. If the source were
+    // being corrected in place, the second read would differ from the first.
+    fireEvent.click(getByRole('button', { name: /correct.*hair/i }))
+    fireEvent.pointerDown(stage, { clientX: 40, clientY: 40 })
+    const first = (container.querySelectorAll('.probe-chip')[1] as HTMLElement).style.background
+    fireEvent.click(getByRole('button', { name: /correct.*hair/i }))
+    fireEvent.pointerDown(stage, { clientX: 40, clientY: 40 })
+    const second = (container.querySelectorAll('.probe-chip')[1] as HTMLElement).style.background
+    expect(second).toBe(first)
+  })
+
   it('moves the hair marker when the hair is corrected', () => {
     const { container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)

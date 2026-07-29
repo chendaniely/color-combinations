@@ -43,7 +43,12 @@ const FOREHEAD_UP = 0.42   // of eye-to-chin, above the eyes: above brows, below
 // or a high forehead all put skin where the hairline nominally is, and reading
 // skin as hair corrupts the contrast axis silently. Backed off from the crown
 // estimate (1.0) so hair is sampled rather than the background behind the head.
-const HAIR_UP = 0.88
+// Raised from 0.88 after the owner checked a real face: "it's RIGHT at the
+// hairline, could be a bit higher to be safe." This is close to the ceiling —
+// the crown estimate is 1.0, and the whole patch (not just its centre) has to
+// stay below it or the probe reads the background behind the head instead of
+// hair. tests/facePlanAnatomy asserts both bounds.
+const HAIR_UP = 0.92
 
 export function planProbes(
   face: FaceGeometry, imageWidth: number, imageHeight: number,

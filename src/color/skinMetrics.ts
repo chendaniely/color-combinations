@@ -52,16 +52,34 @@ function linearToSrgb(v: number): number {
   return clamp255(c * 255)
 }
 
+// The per-channel gains that make the reference read as neutral.
+function channelGains(whiteRef: RGB): [number, number, number] {
+  const refLinear = whiteRef.map(srgbToLinear)
+  const peak = Math.max(...refLinear)
+  return refLinear.map((v) => peak / Math.max(1e-6, v)) as [number, number, number]
+}
+
 // Von Kries-style: scale each channel so the reference would read as neutral.
 // Simpler than a full chromatic-adaptation transform (Bradford/CAT02), but it
 // is the correction the visitor consented to by holding up a white object, and
 // the residual error is far below what anyone can see.
 export function whiteBalance(rgb: RGB, whiteRef: RGB | null): RGB {
   if (!whiteRef) return rgb
-  const refLinear = whiteRef.map(srgbToLinear)
-  const peak = Math.max(...refLinear)
-  return rgb.map((v, i) =>
-    linearToSrgb(srgbToLinear(v) * (peak / Math.max(1e-6, refLinear[i])))) as RGB
+  const gains = channelGains(whiteRef)
+  return rgb.map((v, i) => linearToSrgb(srgbToLinear(v) * gains[i])) as RGB
+}
+
+// The same correction as a per-channel lookup table, for applying to a whole
+// image. The correction depends only on a channel's own value, so 3x256
+// precomputed entries give exactly the same answer as whiteBalance() while
+// replacing ~4 million Math.pow calls on a 1200px photo with array lookups.
+export function whiteBalanceTable(whiteRef: RGB): Uint8ClampedArray[] {
+  const gains = channelGains(whiteRef)
+  return gains.map((gain) => {
+    const table = new Uint8ClampedArray(256)
+    for (let v = 0; v < 256; v++) table[v] = linearToSrgb(srgbToLinear(v) * gain)
+    return table
+  })
 }
 
 function undertoneOf(hue: number): Undertone {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { colorDistance } from '../src/color/colorDistance'
-import { labOf, readSkin, whiteBalance } from '../src/color/skinMetrics'
+import { labOf, readSkin, whiteBalance, whiteBalanceTable } from '../src/color/skinMetrics'
 import type { RGB } from '../src/core/colorMath'
 
 // Fixtures spanning the tonal range. A regression that degrades deeper tones
@@ -84,6 +84,38 @@ describe('whiteBalance accuracy under a simulated cast', () => {
         expect(readSkin(observed, null, whiteObserved).undertone).toBe(truth)
       }
     }
+  })
+})
+
+describe('whiteBalanceTable', () => {
+  const REFS: RGB[] = [[240, 210, 180], [200, 220, 255], [255, 255, 255], [120, 100, 70]]
+
+  it('gives byte-identical results to whiteBalance for every input value', () => {
+    // The table is only worth having if it is exactly the same correction —
+    // the photo preview and the measured reading must never disagree.
+    for (const ref of REFS) {
+      const [tr, tg, tb] = whiteBalanceTable(ref)
+      for (let v = 0; v < 256; v++) {
+        const direct = whiteBalance([v, v, v], ref)
+        expect([tr[v], tg[v], tb[v]]).toEqual(direct)
+      }
+    }
+  })
+
+  it('maps the reference itself to a neutral grey', () => {
+    for (const ref of REFS) {
+      const [tr, tg, tb] = whiteBalanceTable(ref)
+      const corrected = [tr[ref[0]], tg[ref[1]], tb[ref[2]]]
+      // All three channels should land on the same value — that IS the
+      // definition of the correction having worked.
+      expect(Math.max(...corrected) - Math.min(...corrected)).toBeLessThanOrEqual(1)
+    }
+  })
+
+  it('returns one 256-entry table per channel', () => {
+    const tables = whiteBalanceTable([240, 210, 180])
+    expect(tables).toHaveLength(3)
+    for (const t of tables) expect(t).toHaveLength(256)
   })
 })
 
