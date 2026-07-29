@@ -90,6 +90,26 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
     onPaletteChange?.(new Set(shown.map((c) => c.id)))
   }, [shown, onPaletteChange])
 
+  // Write the guessed season into state once, so the URL carries it.
+  //
+  // `state.you.season` used to be set ONLY when the visitor picked from the
+  // dropdown. So after a capture the screen said "Deep Autumn — our guess"
+  // while the state held null, and the shared link was a bare `#/you` — the
+  // motivating use case for deep links ("I found my season, show a friend")
+  // silently did nothing unless the visitor happened to re-select their own
+  // season by hand. Found by asserting on the real clipboard contents.
+  //
+  // It cannot be done where the reading is set: classifySeason needs the PCCS
+  // tone bands, which are code-split and not loaded yet at that point. Here
+  // they are, so here is where the guess becomes real.
+  //
+  // Fires at most once per reading — the condition is false immediately after.
+  // `guess` is still computed separately, so the dropdown's "— our guess"
+  // marker keeps meaning "what we worked out" rather than "what is selected".
+  useEffect(() => {
+    if (season === null && guess !== null) dispatch({ type: 'setSeason', season: guess })
+  }, [season, guess, dispatch])
+
   const reasonFor = (id: number) =>
     scored.find((s) => s.color.id === id)?.reasons.join('; ') ?? ''
 
