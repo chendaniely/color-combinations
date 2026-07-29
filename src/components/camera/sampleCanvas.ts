@@ -12,12 +12,14 @@ export const PATCH_RADIUS = 6
 // whole frame so a white object at the edge stays visible and tappable.
 export type CanvasFit = 'cover' | 'contain'
 
-export function sampleCanvasAt(
-  canvas: HTMLCanvasElement, clientX: number, clientY: number,
-  radius = PATCH_RADIUS, fit: CanvasFit = 'cover',
-): RGB | null {
-  const ctx = canvas.getContext('2d')
-  if (!ctx || !canvas.width || !canvas.height) return null
+// Map a pointer position to a source pixel coordinate. The single source of
+// truth for this mapping — callers that need the colour go through
+// sampleCanvasAt, callers that need to place a marker use this directly, and
+// the two can never drift apart.
+export function canvasPointAt(
+  canvas: HTMLCanvasElement, clientX: number, clientY: number, fit: CanvasFit = 'cover',
+): { x: number; y: number } | null {
+  if (!canvas.width || !canvas.height) return null
   const rect = canvas.getBoundingClientRect()
   // canvas.width/height are the source pixels; rect is the displayed box. Both
   // fits scale uniformly and centre the result, so inverting is the same
@@ -25,8 +27,20 @@ export function sampleCanvasAt(
   // independent x/y stretch, which would be `fill`.)
   const scale = fit === 'contain' ? Math.min : Math.max
   const k = scale(rect.width / canvas.width, rect.height / canvas.height)
-  const cx = (clientX - rect.left - rect.width / 2) / k + canvas.width / 2
-  const cy = (clientY - rect.top - rect.height / 2) / k + canvas.height / 2
+  return {
+    x: (clientX - rect.left - rect.width / 2) / k + canvas.width / 2,
+    y: (clientY - rect.top - rect.height / 2) / k + canvas.height / 2,
+  }
+}
+
+export function sampleCanvasAt(
+  canvas: HTMLCanvasElement, clientX: number, clientY: number,
+  radius = PATCH_RADIUS, fit: CanvasFit = 'cover',
+): RGB | null {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+  const point = canvasPointAt(canvas, clientX, clientY, fit)
+  if (!point) return null
   const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  return averagePatch(img.data, canvas.width, canvas.height, cx, cy, radius)
+  return averagePatch(img.data, canvas.width, canvas.height, point.x, point.y, radius)
 }

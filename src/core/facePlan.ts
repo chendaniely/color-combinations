@@ -24,19 +24,26 @@ function midpoint(a: Point, b: Point): Point {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
 }
 
-// The eye line sits at the vertical midpoint between the crown and the chin —
-// the standard facial proportion. We anchor to it because the DETECTOR'S BOX
-// TOP IS NOT THE TOP OF THE HEAD: BlazeFace returns a box that starts around
-// the brow line, so anything measured down from it lands a whole zone too low.
-// (That was the 2026-07-28 bug: "forehead" on the glabella, "hair" on the
-// forehead, so hair colour was read from skin. See tests/facePlanAnatomy.)
+// EVERY PROBE IS DERIVED FROM KEYPOINTS, NEVER FROM THE BOUNDING BOX.
 //
-// The box BOTTOM is trustworthy — it sits at or just under the chin — so the
-// eye-to-chin distance is the scale everything else is derived from.
+// The box is the wrong ruler in both directions. Its top is not the top of the
+// head — BlazeFace starts it around the brow line, so measuring down from it
+// put "forehead" on the glabella and "hair" on the forehead, reading skin as
+// hair (the 2026-07-28 bug). And its bottom is only loosely at the chin: a box
+// running 25px past it inflated the head estimate enough to push the hair probe
+// off the crown into the background. Keypoints do not wobble like that.
+//
+// Scale comes from the eye-to-mouth distance. The mouth sits about two thirds
+// of the way from the eye line to the chin, and the eye line sits at the
+// vertical midpoint between crown and chin, so:
+//     eye-to-chin  ≈  eye-to-crown  ≈  1.5 × eye-to-mouth
+const CHIN_FROM_MOUTH = 1.5
 const FOREHEAD_UP = 0.42   // of eye-to-chin, above the eyes: above brows, below hairline
-// Comfortably above the hairline (~0.55) but back from the crown (~1.0), so a
-// tightly-framed head still leaves room for the whole patch inside the image.
-const HAIR_UP = 0.75
+// Well up into the hair, not near the hairline: a fringe, a receding hairline
+// or a high forehead all put skin where the hairline nominally is, and reading
+// skin as hair corrupts the contrast axis silently. Backed off from the crown
+// estimate (1.0) so hair is sampled rather than the background behind the head.
+const HAIR_UP = 0.88
 
 export function planProbes(
   face: FaceGeometry, imageWidth: number, imageHeight: number,
@@ -46,8 +53,9 @@ export function planProbes(
   // A patch about a sixth of the eye span keeps cheeks clear of nose and ear.
   const radius = Math.max(1, Math.round(eyeSpan / 6))
 
-  const chinY = face.box.y + face.box.height
-  const eyeToChin = Math.max(1, chinY - eyeMid.y)
+  const eyeToMouth = Math.max(1, face.mouth.y - eyeMid.y)
+  const eyeToChin = eyeToMouth * CHIN_FROM_MOUTH
+  const chinY = eyeMid.y + eyeToChin
   const cheekY = eyeMid.y + (face.mouth.y - eyeMid.y) * 0.55
 
   const candidates: Probe[] = [

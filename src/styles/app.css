@@ -418,9 +418,13 @@ main { flex: 1; min-height: 0; position: relative; }
   width: 16px; height: 16px; border-radius: 50%;
   border: 2px solid var(--paper-hi); pointer-events: none;
 }
-/* Hair reads differently from skin so a probe in the wrong zone is obvious. */
+/* Each kind reads differently, so a probe in the wrong zone is obvious. */
 .probe-dot.is-skin { box-shadow: 0 0 0 2px var(--accent); }
 .probe-dot.is-hair { box-shadow: 0 0 0 2px var(--link); }
+.probe-dot.is-white {
+  box-shadow: 0 0 0 2px var(--ink); background: rgba(255,255,255,0.35);
+  border-style: dashed;
+}
 .probe-dot b {
   position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
   font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
