@@ -1401,3 +1401,28 @@ rather than testing it.
   vitest run, so `copy.ts` still reports 0% and `exportPng.ts` 13.88% even
   though both are thoroughly tested by Playwright. Recorded in the config so a
   future reader treats a low number as "go and check", not "this is untested".
+
+**Sixth pass — measured and mostly rejected:**
+
+- **The console is clean, and now stays clean.** Nothing had ever checked
+  whether the app complains while running. React logs key warnings, controlled/
+  uncontrolled switches and invalid DOM nesting to `console.error`, none of
+  which fails a test or is visible to an owner who does not open devtools. A
+  walk through every view, the sampler, a copy, and all four granularities
+  produces zero errors and zero warnings, and a test now holds that line.
+- **d3 submodule imports: measured, rejected, recorded.** Replacing
+  `import * as d3 from 'd3'` with six submodule imports saved **0.68 kB raw /
+  0.18 kB gzipped out of 443 kB** — 0.15%, because Rollup already tree-shakes
+  d3 effectively. Six new direct dependencies and a hand-rolled namespace
+  object for that is a bad trade. The number is now a comment in
+  `chordRender.ts` so the experiment is not repeated.
+- **A crossfade misclick, fixed.** During the 200ms granularity fade two wheels
+  exist and both carry pointer handlers; a click on the outgoing one dispatches
+  from the previous geometry. The outgoing group is now inert.
+- **`redAnchorAngle`'s silent assumption is now a loud one.** It anchors Red at
+  12 o'clock by taking the min/max angle of Red's nodes as one block, which is
+  only right while a family's nodes are contiguous. Nothing enforced it; an
+  interleaved future dataset would have rotated every level with no error
+  anywhere. A test now asserts contiguity at all three levels, built from the
+  public dataset API rather than by widening chord.ts to expose a private
+  helper.
