@@ -1673,9 +1673,121 @@ Fold the feedback in before Stage 2 — the result page depends on the vocabular
 
 # STAGE 2 — Palettes, seasons and the result page
 
-*(Tasks 11–17: `data/curated/seasons.json` + seeder + validation; `src/color/personalPalette.ts` (the four rules); `src/core/combinationMatch.ts` (ranking + floor stops); `PaletteTabs.tsx` (segmented control + provenance lines); `MatchedCombinations.tsx` (ranked plates, floor control, outlined outsiders); the → Match / → Browse doorways and About text; then the documentation sweep and the v1.5.0 release.)*
+**Checkpoint passed 2026-07-28.** Owner: "ok i think this is looking good now.
+anything else are smaller ui element changes i can fix later on." Vocabulary
+confirmed: warm/cool, deep/light, high contrast, ITA and L* all read fine, so
+the result page keeps the same terms rather than re-teaching them.
 
-**Stage 2 is deliberately left to be written after the checkpoint.** The result page's copy, vocabulary and control shapes depend on what the owner concludes at the checkpoint, and writing detailed tasks now would mean rewriting them then. The spec sections *Palette one*, *Palette two*, *The result page* and *Documentation* are complete and authoritative; the tasks get written against them once Stage 1 has been seen.
+Everything stage 1 deferred is logged in `TODO.md` and is NOT in scope here.
+
+---
+
+### Task 11: The season dataset, its seeder, and its validator
+
+**Files:**
+- Create: `data/curated/seasons.json`, `scripts/seed-seasons.ts`, `src/core/seasons.ts`
+- Modify: `package.json` (a `seed-seasons` script), `src/core/types.ts`
+- Test: `tests/seasons.test.ts`
+
+**Interfaces:**
+- Produces: `SeasonId` (string), `interface Season { id: SeasonId; name: string; undertone: Undertone; depth: Depth; chroma: ContrastBand; colorIds: number[] }`, `validateSeasons(data: unknown, knownColorIds: Set<number>): Season[]`, `classifySeason(reading: SkinReading): SeasonId`, `seasonById(id: SeasonId): Season`, `SEASONS: Season[]`.
+
+- [ ] **Step 1: Write the failing test** — `tests/seasons.test.ts` asserting: twelve seasons with unique ids; every `colorId` resolves against the real dataset; no season is empty; every undertone/depth/chroma triple `classifySeason` can emit maps to exactly one season; `validateSeasons` throws on a duplicate id, an unknown colour id, an empty palette and a wrong `schemaVersion`. **This test is the point of the feature being data** — the file is meant to be hand-edited, so the guard matters more here than for generated data.
+- [ ] **Step 2: Run it** — `npx vitest run tests/seasons.test.ts`, expect module-not-found.
+- [ ] **Step 3: Write `scripts/seed-seasons.ts`** — generates the first version from the hue/L*/chroma regions in `docs/superpowers/specs/2026-07-28-personal-color-harmony-comparison.html`. Runs once via `npm run seed-seasons`; NOT part of the build. Header comment in the emitted JSON must state that it is hand-curated, has no published source, and is not regenerated.
+- [ ] **Step 4: Run the seeder, commit the output as data.**
+- [ ] **Step 5: Write `src/core/seasons.ts`** — loads and validates the JSON, classifies, looks up. Pure: the palettes are data, so no colour science is needed and this belongs in the kernel.
+- [ ] **Step 6: Run** `npx vitest run tests/seasons.test.ts tests/core-purity.test.ts` — expect PASS.
+- [ ] **Step 7: Commit.**
+
+---
+
+### Task 12: The four scoring rules
+
+**Files:** Create `src/color/personalPalette.ts`; Test `tests/personalPalette.test.ts`
+
+**Interfaces:**
+- Consumes: `labOf` from `src/color/skinMetrics.ts`, `SkinReading`, the dataset.
+- Produces: `interface Scored { color: ColorRecord; keep: boolean; reasons: string[]; fails: string[] }`, `scorePalette(reading: SkinReading, colors: ColorRecord[]): Scored[]`, `measuredPalette(reading: SkinReading): ColorRecord[]`.
+
+Constants are in **Global Constraints** above and must be copied exactly. Each kept colour carries the sentences the page prints — *"deeper than your skin by 31 — your face stays distinct"* — because that traceability is why this method was chosen over the season lists.
+
+- [ ] **Step 1: Write the failing test.** Assert against the REAL dataset, not a fixture: a warm/deep/high-contrast reading keeps a plausible count (30–80 of 157); every kept colour has at least one reason and no fails; every rejected colour has at least one fail; the sallow band is rejected for every reading; a colour within 15 L* of the skin is always rejected. Add a fixture per tonal band (light/medium/deep × warm/cool) asserting **every one gets a non-empty palette** — the honest failure mode here is a cool-toned visitor getting nothing.
+- [ ] **Step 2: Run it**, expect module-not-found.
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Run** the test plus `tests/core-purity.test.ts`.
+- [ ] **Step 5: Commit.**
+
+---
+
+### Task 13: Ranking combinations, and the four-stop floor
+
+**Files:** Create `src/core/combinationMatch.ts`; Test `tests/combinationMatch.test.ts`
+
+**Interfaces:**
+- Produces: `interface RankedCombination { combination: CombinationRecord; yours: number; total: number; fraction: number; outsiders: number[] }`, `rankCombinations(combos: CombinationRecord[], palette: Set<number>): RankedCombination[]`, `passesFloor(r: RankedCombination, floor: FloorStop): boolean`, `FLOOR_LABELS: Record<FloorStop, string>`.
+
+Pure set arithmetic, no colour science — the kernel. `outsiders` is what the plate outlines.
+
+- [ ] **Step 1: Write the failing test.** Ranked descending by fraction, ties broken by combination id for stability. Floor stops against the real dataset must reproduce the spec's table for a 53-colour palette: **13 / 118 / 148 / 239** of 338. Assert `outsiders` lists exactly the colour ids outside the palette. Assert a 2-colour combination with one match is `fraction === 0.5` and passes stop 2 but not stop 1.
+- [ ] **Step 2: Run it**, expect module-not-found.
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Run** the test plus `tests/core-purity.test.ts`.
+- [ ] **Step 5: Commit.**
+
+---
+
+### Task 14: The result page — reading, season row, palette toggle
+
+**Files:** Create `src/components/you/PaletteTabs.tsx`; Modify `src/components/you/YouView.tsx`, `src/styles/app.css`; Test `tests/paletteTabs.test.tsx`
+
+Layout B from `docs/superpowers/specs/2026-07-28-personal-color-result-layout.html`. Top to bottom: `ReadingStrip` (done, Stage 1) → season `<select>` defaulted to our guess → segmented control `Measured for you · N` / `<Season> (traditional) · N` → an always-visible provenance line differing per tab → the colours, full width, each named.
+
+- [ ] **Step 1: Write the failing test.** The season select lists all twelve with our guess selected; choosing another dispatches `setSeason` and changes the second tab's label and count; the toggle switches lists; **the provenance line is always present and differs between tabs**; the traditional tab is labelled `(traditional)`. Assert the disclosure sentence about Wada's palette leaning warm (109/48) appears when the measured palette is small.
+- [ ] **Step 2: Run it**, expect module-not-found.
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Run** the test plus `tests/appSmoke.test.tsx`.
+- [ ] **Step 5: Commit.**
+
+---
+
+### Task 15: Ranked combinations with the floor control
+
+**Files:** Create `src/components/you/MatchedCombinations.tsx`; Modify `src/components/you/YouView.tsx`, `src/styles/app.css`; Test `tests/matchedCombinations.test.tsx`
+
+Four labelled stops reading like the existing size chips, defaulting to **half or more**. Plates reuse `PlateCard`; colours outside the palette are outlined.
+
+- [ ] **Step 1: Write the failing test.** Default floor is stop 2; changing it dispatches `setFloor` and changes how many plates render; plates are in descending match order; outsider colours carry the outline class; an empty result renders an explanatory note rather than blank space.
+- [ ] **Step 2: Run it**, expect module-not-found.
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Run** the test plus the full suite.
+- [ ] **Step 5: Commit.**
+
+---
+
+### Task 16: The doorways, and the honesty text
+
+**Files:** Modify `src/components/you/YouView.tsx`, `src/components/AboutPanel.tsx`, `src/copy.ts`; Test `tests/youDoorways.test.tsx`
+
+- [ ] **Step 1: Write the failing test.** "Build a palette" seeds Match from the visible palette and switches view; "Browse these" sets a Browse filter and switches view; the About panel states plainly that the measured palette comes from your face while the season palette comes from a table we wrote.
+- [ ] **Step 2: Run it**, expect failure.
+- [ ] **Step 3: Implement.** The About wording is a spec requirement, not decoration — see *Palette two*.
+- [ ] **Step 4: Run** the full suite.
+- [ ] **Step 5: Commit.**
+
+---
+
+### Task 17: Documentation sweep and the v1.5.0 release
+
+**Files:** `README.md`, `CLAUDE.md`, `CHANGELOG.md`, `TODO.md`, `TODO-completed.md`, `package.json`
+
+- [ ] **Step 1: `CLAUDE.md`** — replace the package whitelist with the four properties from the spec; add `src/face/` to the architecture rules; amend the data rule to name `data/curated/` alongside `data/processed/` (generated vs authored).
+- [ ] **Step 2: `README.md`** — a **You** entry under Features; the new **Privacy** section in the manner of Analytics; the `public/mediapipe/` copy step in setup; and a short note for a non-JS reader on how to edit `data/curated/seasons.json`, since that is the one maintenance task this feature hands the owner.
+- [ ] **Step 3: `CHANGELOG.md`** — a v1.5.0 entry pairing what changed with the owner's guiding prompts, quoted verbatim from `PROMPTS.md`. Keep the human-guided framing; this release is an unusually good example of it.
+- [ ] **Step 4: `TODO-completed.md`** — move the finished items across with commit hashes.
+- [ ] **Step 5: Bump `package.json` to 1.5.0.**
+- [ ] **Step 6: Verify** `make test` and `make build`, then commit.
+- [ ] **Step 7: Owner browser checklist** — a real face in real light with and without a white object; a deep skin tone and a light one; hat and no hat; the no-face fallback; the tab at 375px.
 
 ---
 
