@@ -1457,3 +1457,25 @@ rather than testing it.
   had scrolled (`stage.y` was -422). Element-relative clicks scroll into view
   first — a reminder that in a real browser, unlike jsdom, position is a thing
   that can be wrong.
+
+**Eighth pass — sweeping for what's left, and finding little:**
+
+- **The codebase is clean by the obvious measures**: one TODO marker (a
+  legitimate cross-reference), zero `any` types, four non-null assertions in all
+  of `src/`, and README/Makefile agreeing in both directions — every documented
+  command exists, every target is documented.
+- **The season palettes are lopsided, and that is data the owner can fix.**
+  Sizes run 7 to 35, median 15: Cool Summer and Soft Summer have 7 colours each,
+  Clear Spring has 35. Part of that is the source (109 warm colours to 48 cool),
+  but a 5× spread means the thinnest seasons offer a visitor very little. Logged
+  rather than "fixed" — `seasons.json` is hand-authored precisely so it can be
+  re-curated by the owner or another agent without touching TypeScript.
+- **The guard on it was too weak to be worth much.** It asserted only that a
+  season was non-empty, so a season holding one colour would have passed. Now a
+  floor of 5 and a max/min spread of 8 — a floor, not an endorsement of 7.
+- The CI workflow parses and wires up as intended: lint + unit + build in one
+  job, the browser suite in another, deploy waiting on both.
+
+**Assessment: the passes have converged.** Passes one through seven each turned
+up multiple real defects; this one turned up one weak test and one curation
+observation. Continuing would be looking for the sake of looking.

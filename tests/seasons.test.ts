@@ -37,11 +37,27 @@ describe('the curated season dataset', () => {
     }
   })
 
-  it('leaves no season empty', () => {
-    // An empty season would render as a blank palette with no explanation.
+  // Was `> 0`, which a season holding a single colour would have passed. The
+  // real distribution (2026-07-29) runs 7 to 35, median 15: Cool Summer and
+  // Soft Summer sit at 7, Clear Spring at 35. That spread is expected rather
+  // than wrong — the book runs 109 warm colours to 48 cool, so the cool
+  // seasons genuinely have fewer candidates to draw on. The floor is set below
+  // the real minimum so it catches a season being gutted, not normal curation.
+  it('gives every season enough colours to be worth showing', () => {
     for (const s of SEASONS) {
-      expect(s.colorIds.length, `season ${s.id} is empty`).toBeGreaterThan(0)
+      expect(s.colorIds.length, `season ${s.id} has too few colours to be useful`)
+        .toBeGreaterThanOrEqual(5)
     }
+  })
+
+  it('keeps the thinnest season within reach of the others', () => {
+    const sizes = SEASONS.map((s) => s.colorIds.length)
+    const min = Math.min(...sizes)
+    const max = Math.max(...sizes)
+    // A 5x spread is what the book's warm bias produces. Much beyond that and
+    // the curation has drifted rather than the source being lopsided.
+    expect(max / min, `season sizes range ${min}–${max}, which looks like drift`)
+      .toBeLessThanOrEqual(8)
   })
 
   it('lists each colour at most once per season', () => {

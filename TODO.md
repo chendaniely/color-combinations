@@ -69,6 +69,19 @@ a check that needs a person. See `TODO-completed.md` for what went.
       element changes i can fix later on"; those specific tweaks were never
       enumerated. Add them as they come up.
 
+## Curated data worth a second opinion
+
+- [ ] **The season palettes are lopsided, and `seasons.json` exists precisely so
+      that can be corrected.** Measured 2026-07-29: sizes run 7 to 35, median
+      15. Cool Summer and Soft Summer have 7 colours each; Clear Spring has 35.
+      Some of that is the source — the book runs 109 warm colours to 48 cool, so
+      cool seasons genuinely have fewer candidates — but a 5× spread means the
+      thinnest seasons offer a visitor very little. This is hand-authored data
+      (see CLAUDE.md), so it can be re-curated by the owner or handed to another
+      agent to analyse without touching any TypeScript. A test now guards
+      against a season being gutted (floor of 5, max/min spread of 8), which is
+      a floor, not an endorsement of 7.
+
 ## You tab — known limits
 
 - [ ] The selfie preview is not mirrored, so you appear the wrong way round
