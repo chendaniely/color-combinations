@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { colorDistance } from '../src/color/colorDistance'
 import { labOf, readSkin, whiteBalance } from '../src/color/skinMetrics'
 import type { RGB } from '../src/core/colorMath'
 
@@ -28,6 +29,60 @@ describe('whiteBalance', () => {
     for (const v of c) {
       expect(v).toBeLessThanOrEqual(255)
       expect(v).toBeGreaterThanOrEqual(0)
+    }
+  })
+})
+
+// Does the correction actually RECOVER the true colour, not merely change it?
+// An illuminant multiplies linear light, so we simulate a cast physically and
+// measure what is left over after correcting.
+describe('whiteBalance accuracy under a simulated cast', () => {
+  const dec = (c: number) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  const enc = (c: number) => (c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)))
+  // Apply per-channel linear gains, the way a light source does.
+  const under = (rgb: RGB, gain: RGB): RGB =>
+    rgb.map((v, i) => clamp(enc(dec(v / 255) * gain[i]) * 255)) as RGB
+
+  const WHITE_REFLECTANCE = 0.85
+  const CASTS: [string, RGB][] = [
+    ['tungsten', [1.0, 0.78, 0.52]],
+    ['blue shade', [0.72, 0.86, 1.0]],
+    ['extreme tungsten', [1.0, 0.55, 0.25]],
+    ['extreme blue', [0.45, 0.70, 1.0]],
+  ]
+  const SKINS: [string, RGB][] = [
+    ['deep warm', [161, 103, 63]],
+    ['mid warm', [198, 145, 105]],
+    ['light cool', [237, 196, 189]],
+    ['deep neutral', [101, 67, 51]],
+  ]
+
+  for (const [castName, gain] of CASTS) {
+    for (const [skinName, skin] of SKINS) {
+      it(`recovers ${skinName} skin under ${castName}`, () => {
+        const observed = under(skin, gain)
+        const whiteObserved = under([255, 255, 255].map((v) => v * WHITE_REFLECTANCE) as RGB, gain)
+        const corrected = whiteBalance(observed, whiteObserved)
+
+        const before = colorDistance(skin, observed)
+        const after = colorDistance(skin, corrected)
+        // OKLab distance: 0.02 is a small but visible step; the residual must
+        // be well inside that, and far better than doing nothing.
+        expect(after).toBeLessThan(0.02)
+        expect(after).toBeLessThan(before)
+      })
+    }
+  }
+
+  it('preserves the undertone verdict through every cast', () => {
+    for (const [, gain] of CASTS) {
+      for (const [, skin] of SKINS) {
+        const truth = readSkin(skin, null, null).undertone
+        const observed = under(skin, gain)
+        const whiteObserved = under([255, 255, 255].map((v) => v * WHITE_REFLECTANCE) as RGB, gain)
+        expect(readSkin(observed, null, whiteObserved).undertone).toBe(truth)
+      }
     }
   })
 })
