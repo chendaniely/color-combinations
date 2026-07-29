@@ -1,5 +1,50 @@
 # TODO — completed
 
+## v1.7.0 — the seasons get a real source (2026-07-29)
+
+Owner: *"are there standard colors for the season?"* — and, when Claude
+proposed hand-picking example swatches, *"i don't think i will know how to
+decide between them. maybe it is best to do it rules based? ... this is like
+the blind leading the blind here."*
+
+- [x] Established that no official season colours exist: every school sells its
+      own swatch book, they disagree, none publish the recipe. Recorded in
+      `docs/color-analysis-sources.md` so nobody re-runs the search (`4d9b2d4`).
+- [x] Found the real ruleset — PCCS, Japan Color Research Institute, 1964 —
+      and that **Sanzo Wada founded that institute in 1927**, six years before
+      the book. Sourced to the Agency for Cultural Affairs record (`4d9b2d4`).
+- [x] Citation registry `data/reference/sources.json`: fourteen sources, each
+      naming the specific claim it supports, plus `make check-links` on the
+      owner's condition that links be ones a human can navigate to. Caught
+      chromology.co.uk answering 200 to curl and 403 to fetch the same day
+      (`6229927`).
+- [x] PCCS hue circle and tone system as data, with two source corrections
+      recorded rather than smoothed over: ja.wikipedia gives `dull` and
+      `grayish` identical coordinates, and the published bands leave gaps that
+      would let a colour belong to no tone. Both now fail at load (`e03ef0d`).
+- [x] Lab ↔ PCCS mapping, the one remaining modelling judgement, isolated in
+      one documented file. Even hue spacing was tried first and put yellow on
+      step 6 instead of the published step 8 (`3cbcd41`).
+- [x] `pccs-grid.json` — 24 hues × 12 tones as hex, a thing that is otherwise
+      hard to find. Drawn at each tone's canonical position, not its band
+      midpoint, which had rendered `bright` as a washed-out pink (`3cbcd41`).
+- [x] Seasons computed from rules, not curated. Four sourced parents, twelve
+      sub-seasons marked `sourced: false`, and validators that reject the file
+      if either flag flips (`0be1fd8`).
+- [x] Fit shown to the visitor, with the ideal colour beside the nearest one
+      the book actually has, and the caveat the owner asked for. Clear Winter:
+      one very-close match against twenty-five that are not (`0be1fd8`).
+- [x] Fixed: sub-seasons were scored against their parent, making all three
+      siblings of a season identical and the twelve decorative (`0be1fd8`).
+- [x] Fixed: the new datasets were bundled into the main chunk, growing it
+      444 kB → 531 kB and timing out the browse accessibility audit — a screen
+      with no seasons on it. Now lazy-loaded, with a browser test that was
+      verified by genuinely undoing the split (`0be1fd8`, `1802245`).
+- [x] `data/curated/seasons.json` and `scripts/seed-seasons.ts` deleted. The
+      file's own admission that its palettes were invented is quoted in
+      `docs/color-analysis-sources.md` rather than deleted with it (`0be1fd8`).
+
+
 ## v1.6.0 — consolidation: defects, refactor, real-browser tests (2026-07-29)
 
 Owner: *"let's go in and clear up all defects. let's take a pass and see if

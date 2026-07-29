@@ -23,6 +23,28 @@ a check that needs a person. See `TODO-completed.md` for what went.
       • shareable deep links (serialize the state object into the URL);
       • save / name / export a built outfit palette.
 
+## Deferred from v1.7.0
+
+- [ ] **The lens dropdown.** A control at the top reading "viewing the book
+      through: [Deep Autumn ▾]", where Browse dims non-members, the wheel
+      emphasises member ribbons, and plates carry a fit badge. Owner asked for
+      it on 2026-07-29 — *"if i have a drop down on the top that allows you to
+      pick a color combination and the entire site reacts to the new set of
+      colors?"* — and chose to ship the datasets first. The schemas were
+      designed for it: a lens is a named subset of the corpus with a score per
+      colour, which is exactly what `season-colors.json` already is. Seasons
+      would be the first lens; a sampled photo, a saved palette and an
+      accessibility filter are the obvious next ones.
+      NOT the same thing as swapping the corpus, which was considered and
+      rejected: 22 modules read `combinations`, and no other published colour
+      book has any. See the reframe in
+      `docs/superpowers/specs/2026-07-29-pccs-season-datasets-design.md`.
+
+- [ ] **The hue mapping is the weakest link.** `src/color/pccsMap.ts` anchors
+      the PCCS circle on the sRGB primaries as stand-ins for the psychological
+      unique hues. It is documented as an approximation and is the first thing
+      to revisit if the seasons ever look wrong at the blue-green end.
+
 ## Owner's next feature idea
 
 - [ ] **Match > Colors is empty, and the ways to find a colour should live

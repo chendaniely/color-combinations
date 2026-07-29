@@ -97,7 +97,10 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
       </p>
       <p className="muted">
         Data: <a href="https://sanzo-wada.dmbk.io" target="_blank" rel="noreferrer">sanzo-wada.dmbk.io</a>.
-        Site by Daniel, vibe-coded with Claude.
+        {' '}Where the season colours come from, with sources:{' '}
+        <a href="https://github.com/chendaniely/color-combinations/blob/main/docs/color-analysis-sources.md"
+          target="_blank" rel="noreferrer">color-analysis-sources.md</a>.
+        {' '}Site by Daniel, vibe-coded with Claude.
       </p>
     </Panel>
   )
