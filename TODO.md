@@ -22,6 +22,25 @@ Move finished items to TODO-completed.md with the commit hash.
       is page views only, on purpose. Add one only when there's a specific
       question worth answering, not for a dashboard's sake
 
+- [ ] **OWNER: check the You tab on a real face** (deferred at the owner's
+      request when v1.5.0 was merged — the feature shipped without ever having
+      been pointed at an actual human). Everything below is unverified against
+      reality; every photo used in development was a synthetic gradient:
+      - a real face, with something white in shot and without
+      - a deep skin tone and a light one — the palette rules were tuned on
+        fixtures and the whole feature is a judgement about skin, so this is
+        the one that matters most
+      - hat / no hat, and the "no face found" fallback
+      - does the automatic white reference pick the object you're holding, or a
+        lit wall behind you?
+      - does the hair probe land in hair, on a parting, or on the background?
+      - a phone camera applies its own tone mapping before we see any pixels;
+        von Kries scaling cannot fully undo that, so real-world white balance
+        will be worse than the test numbers suggest
+      - the info-tip card at 375px (the one part browser automation could not
+        confirm — the viewport would not resize)
+      - the whole tab at 375px
+
 - [ ] **You tab (v1.5.0 stage 1)** — owner review passed with "anything else are
       smaller ui element changes i can fix later on"; those specific tweaks are
       not yet enumerated here. Add them as they come up.
