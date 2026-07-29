@@ -218,11 +218,14 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--paper-1); border: 1px solid var(--hairline); border-radius: var(--radius);
   list-style: none; padding: var(--s1); box-shadow: 0 8px 30px rgb(47 42 38 / 0.1);
 }
-.search-results button {
+/* Each result IS the option row — it no longer wraps a button, so these
+   styles moved from `.search-results button` onto the <li> itself. */
+.search-results li {
   display: flex; align-items: center; gap: var(--s2); width: 100%;
-  background: none; border: none; padding: var(--s1) var(--s2); font-size: 0.85rem; text-align: left;
+  padding: var(--s1) var(--s2); font-size: 0.85rem; text-align: left;
+  cursor: pointer; border-radius: var(--radius);
 }
-.search-results [aria-selected='true'] button, .search-results button:hover { background: var(--paper-2); }
+.search-results li[aria-selected='true'] { background: var(--paper-2); }
 .search-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
 
 /* Footer */
@@ -809,6 +812,13 @@ main { flex: 1; min-height: 0; position: relative; }
   position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
   border: 2px solid var(--paper-hi); box-shadow: 0 0 0 1.5px var(--ink);
   pointer-events: none;
+}
+/* Announced, never shown. The disc is a two-dimensional control, so it cannot
+   honestly be a single role="slider" with one aria-valuenow — instead its
+   position is reported here as text whenever it changes. */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0; padding: 0; margin: -1px;
 }
 .pick-bright { display: flex; align-items: center; gap: var(--s2); width: var(--pick-disc-size); }
 .pick-bright input { flex: 1; min-width: 0; accent-color: var(--link); }

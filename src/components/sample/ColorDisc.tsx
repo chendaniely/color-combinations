@@ -54,6 +54,15 @@ export function ColorDisc({ hsv, onChange }: {
         aria-label="Color wheel — arrow keys adjust hue and saturation"
         onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); pick(e) }}
         onPointerMove={(e) => { if (e.currentTarget.hasPointerCapture(e.pointerId)) pick(e) }}
+        // The Pointer Events spec releases capture implicitly on pointerup, so
+        // this is belt-and-braces rather than a fix — but an unreleased capture
+        // swallows every later pointer event on the page, which is a bad enough
+        // failure to be worth two lines.
+        onPointerUp={(e) => {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId)
+          }
+        }}
         onKeyDown={onKeyDown}>
         {/* brightness is exactly multiplicative on RGB, which is what V means —
             so the disc IS the color space, not a picture of it */}
@@ -62,6 +71,13 @@ export function ColorDisc({ hsv, onChange }: {
           left: `${50 + dx * 50}%`, top: `${50 + dy * 50}%`, background: hex,
         }} />
       </div>
+      {/* Arrow-key movement on the disc used to be completely silent: it is a
+          role="group", so there was no value for a screen reader to report.
+          A 2D control has no honest single aria-valuenow, so its position is
+          announced as text instead. */}
+      <p className="visually-hidden" role="status" aria-live="polite">
+        {`Hue ${Math.round(hsv.h)} degrees, saturation ${Math.round(hsv.s * 100)} percent, ${hex}`}
+      </p>
       <label className="pick-bright">
         <span className="pick-label">Bright</span>
         <input type="range" min={0} max={100} value={Math.round(hsv.v * 100)}

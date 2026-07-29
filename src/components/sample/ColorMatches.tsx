@@ -5,6 +5,7 @@ import { rgbToHex, type RGB } from '../../core/colorMath'
 import { ancestorAtLevel, keyName } from '../../core/dataset'
 import type { MatchLevel } from '../../core/state'
 import { dataset } from '../../data'
+import { useRovingFocus } from '../useRovingFocus'
 
 const NEAR_COUNT = 12
 const LEVELS: { level: MatchLevel; label: string }[] = [
@@ -29,6 +30,8 @@ export function ColorMatches({ rgb, onMatch, onBrowse, onBack }: {
   const sel = dataset.colorById.get(selId)!
   const key = keyAt(selId, level)
   const gaveHex = rgbToHex(rgb)
+  const grid = useRovingFocus()
+  const seg = useRovingFocus()
 
   return (
     <div className="cap-result">
@@ -38,9 +41,11 @@ export function ColorMatches({ rgb, onMatch, onBrowse, onBack }: {
       </div>
 
       <p className="cap-seg-h">Nearest book colors — tap to choose</p>
-      <div className="match-grid" role="listbox" aria-label="Nearest book colors">
+      <div className="match-grid" role="listbox" aria-label="Nearest book colors"
+        ref={grid.ref} onKeyDown={grid.onKeyDown}>
         {near.map((n) => (
           <button key={n.color.id} type="button" role="option" aria-selected={n.color.id === selId}
+            {...grid.itemProps(n.color.id === selId)}
             className={`match-cell${n.color.id === selId ? ' on' : ''}`}
             onClick={() => setSelId(n.color.id)}>
             <span className="match-tile" style={{ background: n.color.hex }} />
@@ -51,9 +56,11 @@ export function ColorMatches({ rgb, onMatch, onBrowse, onBack }: {
       </div>
 
       <p className="cap-seg-h">Use {sel.name} as</p>
-      <div className="cap-seg" role="radiogroup" aria-label="Match level">
+      <div className="cap-seg" role="radiogroup" aria-label="Match level"
+        ref={seg.ref} onKeyDown={seg.onKeyDown}>
         {LEVELS.map(({ level: lv, label }) => (
           <button key={lv} type="button" role="radio" aria-checked={level === lv}
+            {...seg.itemProps(level === lv)}
             className={`cap-opt${level === lv ? ' on' : ''}`} onClick={() => setLevel(lv)}>
             <span className="cap-opt-lv">{label}</span>
             <span className="cap-opt-val">{keyName(dataset, keyAt(selId, lv))}</span>
