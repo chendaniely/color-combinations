@@ -22,24 +22,31 @@ Move finished items to TODO-completed.md with the commit hash.
       is page views only, on purpose. Add one only when there's a specific
       question worth answering, not for a dashboard's sake
 
-- [ ] **OWNER: check the You tab on a real face** (deferred at the owner's
-      request when v1.5.0 was merged — the feature shipped without ever having
-      been pointed at an actual human). Everything below is unverified against
-      reality; every photo used in development was a synthetic gradient:
-      - a real face, with something white in shot and without
-      - a deep skin tone and a light one — the palette rules were tuned on
-        fixtures and the whole feature is a judgement about skin, so this is
-        the one that matters most
-      - hat / no hat, and the "no face found" fallback
-      - does the automatic white reference pick the object you're holding, or a
-        lit wall behind you?
-      - does the hair probe land in hair, on a parting, or on the background?
-      - a phone camera applies its own tone mapping before we see any pixels;
-        von Kries scaling cannot fully undo that, so real-world white balance
-        will be worse than the test numbers suggest
-      - the info-tip card at 375px (the one part browser automation could not
-        confirm — the viewport would not resize)
-      - the whole tab at 375px
+- [x] ~~OWNER: check the You tab on a real face~~ — done 2026-07-29, shortly
+      after v1.5.0 went live. Owner: *"it's been pointed to a human, i think
+      it's okay for now. i think my camera and lightening isn't great"*. So the
+      flow works on an actual face, with the caveat below.
+- [ ] **You tab — still only ever seen ONE face.** The scoring rules were tuned
+      against fixtures spanning light to deep and warm to cool, but only one
+      real person has used it. The check that matters most is still open: a deep
+      skin tone and a light one, side by side. This is a feature whose entire
+      output is a judgement about skin, and the reason we rejected the
+      zero-dependency approach was that it degraded on deeper tones — so this is
+      a correctness question, not politeness.
+- [ ] **You tab — the app is silent about photo quality.** Owner, first real
+      use: *"i think my camera and lightening isn't great"*. Right now a poor
+      photo produces a confident-looking reading; the only signals are the
+      "rough reading" badge (which fires solely when there is no white
+      reference) and the visitor's own judgement. Worth considering: warn when
+      the frame is very dark, blown out, low-contrast, or when the skin probes
+      disagree with each other badly — all cheap to detect from samples we
+      already take, and the honest thing to surface before showing a palette
+      built on them.
+- [ ] **You tab — the hair sample is never checked against the skin sample.**
+      Related to the above and still the cheapest guard available: if the hair
+      reading is within a small ΔE of the skin reading it is almost certainly
+      skin, and the contrast axis is silently wrong. Report "no hair visible"
+      instead.
 
 - [ ] **You tab (v1.5.0 stage 1)** — owner review passed with "anything else are
       smaller ui element changes i can fix later on"; those specific tweaks are
