@@ -1066,3 +1066,96 @@ worked example" over both options offered):**
   this rather than letting it read as a bug.
 
 **Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
+
+### Session 15 continued — stage 1 implementation
+
+**Owner prompt (kickoff):**
+
+> start go go go full YOLO auto
+
+**Owner prompt (first bug — the review screen):**
+
+> after i take the photo i see the circles that are used to reference my face.
+> but the original photo is not there. i don't think it's capturing my colors
+> correctly from the photo
+
+**Owner prompt (diagnosed the probe placement from the dots alone):**
+
+> where are the dots supposed to be? i see them on my forehead, between the
+> eyebrows, both cheeks and then my chin. i think it's tagging the wrong color
+> for my hair
+
+**Owner prompt (asked for the white marker, and spotted the deeper issue):**
+
+> we should also have a circle for where it's capturing the white
+
+> the hair ist sill a bit off. it's been at my hair line. not where my actual
+> hair is. but this bug is surfacing a UI/UX issue, when i correct the
+> location/sample of the color, the circle should move to that location (or at
+> least have a new circle for corrected location -- i say this because skin has
+> 4 points, so it might be hard to knwo which point to move)
+
+**Owner prompt (asked for proof, not assurance):**
+
+> can you confirm its whitebalance correcting correctly?
+
+**Owner prompt (wanted the correction visible, not just numeric):**
+
+> when i am picking the white balance. i think the photo should correct so the
+> skin and hair colors update as well. this way i have a good sense if the white
+> balance is being adjusted properly
+
+**Owner prompt (hair, after the keypoint rework):**
+
+> the hair is right. it's RIGHT at the hairline, could be a bit higher to be
+> safe. but it seems okay for now
+
+**Owner prompt (asked for photography-style controls):**
+
+> for correcting white balance can we also provide a ui slider? i still cant
+> seem to color correct it properly. i'm used to white balance correcting
+> filters from photography software
+
+**Owner prompt (final bug of stage 1):**
+
+> when i click the "corect the ..." buttons the line that pops up shfts the
+> image. and then when i click on the photo, the circle and where i click do not
+> line up
+
+**Owner prompt (checkpoint passed):**
+
+> ok i think this is looking good now. anything else are smaller ui element
+> changes i can fix later on
+
+**What happened:** stage 1 shipped in ten TDD commits (`68c849e..c480404`),
+then six rounds of owner review found five real defects that 335 passing tests
+had not:
+
+- The captured canvas was transplanted from `FaceCapture` into `ProbeReview` and
+  inherited its `display: none`, so on the camera path the photo was drawn
+  correctly and rendered invisible.
+- The probe dots were positioned in a coordinate space that did not match how
+  the canvas was laid out, so they were never over the pixels sampled.
+- **BlazeFace's bounding box top is the BROW LINE, not the top of the head.**
+  Every probe derived from it sat a zone too low — "forehead" on the glabella,
+  "hair" on the forehead, so hair colour was read from skin. Probes now derive
+  entirely from keypoints; the box proved the wrong ruler in both directions.
+- White balance was scaling gamma-encoded sRGB when an illuminant multiplies
+  LINEAR light. Fine under mild casts, but worst-case ΔE 3.02 and three flipped
+  undertone verdicts across 48 simulated cast/skin pairs. Linear: ΔE 0.95, one.
+- Flexbox was shrinking the photo box to make room for the correction hint,
+  breaking the aspect ratio, which made `object-fit: contain` letterbox the
+  image and put taps 37px away from their dots.
+
+The owner's own diagnosis was load-bearing throughout — naming the five dot
+positions identified the box-top error precisely, and "the circle should move to
+that location" exposed that corrections were discarding position and keeping
+only colour.
+
+Only the last defect needed a browser to find; the rest are now covered by
+`facePlanAnatomy`, `probeReviewDisplay`, `whiteBalance` and the white-balance
+accuracy fixtures. That jsdom cannot catch layout bugs at all is logged in
+`TODO.md` as a real coverage limit of this screen.
+
+**Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`
