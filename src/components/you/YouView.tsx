@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Action, AppState } from '../../core/state'
 import { FaceCapture, type CaptureResult } from '../sample/FaceCapture'
 import { ProbeReview } from '../sample/ProbeReview'
+import { PaletteTabs } from './PaletteTabs'
 import { ReadingStrip } from './ReadingStrip'
 
 // The You tab. Stage 1: capture -> review -> the reading. The two palettes and
@@ -54,6 +55,10 @@ export function YouView({ state, dispatch }: {
 
       {reading && <ReadingStrip reading={reading} />}
 
+      {reading && (
+        <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch} />
+      )}
+
       <div className="you-actions">
         <button className="cam-btn primary" onClick={() => setCapturing(true)}>
           {reading ? 'Take another photo' : 'Take a photo'}
@@ -65,11 +70,6 @@ export function YouView({ state, dispatch }: {
         )}
       </div>
 
-      {reading && (
-        <p className="you-next">
-          Next: your palettes and the combinations that suit you.
-        </p>
-      )}
     </div>
   )
 }
