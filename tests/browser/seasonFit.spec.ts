@@ -107,7 +107,9 @@ test.describe('the season display', () => {
     await page.getByRole('tab', { name: /·/ }).last().click()
     // The owner's instruction, and the reason the fit panel exists at all.
     await expect(page.locator('.fit-caveat')).toContainText(/nearest match/i)
-    await expect(page.locator('.fit-caveat')).toContainText(/not exact season colours/i)
+    await expect(page.locator('.fit-caveat')).toContainText(/not exact season/i)
+    // The crowding number, which is the panel's real finding.
+    await expect(page.locator('.fit-caveat')).toContainText(/different colours|own distinct colour/i)
   })
 
   test('credits PCCS and the institute Wada founded', async ({ page }) => {

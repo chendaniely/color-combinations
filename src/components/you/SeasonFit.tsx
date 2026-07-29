@@ -20,7 +20,12 @@ export function SeasonFit({ sub, data }: { sub: SubSeason; data: SeasonData }) {
   const nameOf = (id: number) => dataset.data.colors.find((c) => c.id === id)?.name ?? ''
   const hexOf = (id: number) => dataset.data.colors.find((c) => c.id === id)?.hex ?? '#000'
 
-  const good = pairs.filter((p) => p.band === 'very close' || p.band === 'close').length
+  // The headline number is how many DISTINCT colours serve these ideals, not
+  // how many are a good match. Measured across all twelve seasons, only one
+  // ideal of 142 has no close match — so "12 of 12 are a good match" is true
+  // and sounds like a triumph, while hiding that 2 to 4 colours are each doing
+  // the work of several. The crowding is the real limit of a 157-colour book.
+  const distinct = new Set(pairs.map((p) => p.colorId)).size
 
   return (
     <section className="season-fit" aria-label={`How well the book covers ${sub.name}`}>
@@ -28,7 +33,7 @@ export function SeasonFit({ sub, data }: { sub: SubSeason; data: SeasonData }) {
 
       <ol className="fit-pairs">
         {pairs.map((p) => (
-          <li key={p.colorId} className={`fit-${p.band.replace(' ', '-')}`}>
+          <li key={p.hue} className={`fit-${p.band.replace(' ', '-')}`}>
             <i className="fit-ideal" style={{ background: p.idealHex }}
               aria-hidden="true" />
             <span className="fit-arrow" aria-hidden="true">→</span>
@@ -43,10 +48,16 @@ export function SeasonFit({ sub, data }: { sub: SubSeason; data: SeasonData }) {
       {/* Required, not decorative. The owner's instruction: be clear this is
           the closest match to the book's palette, so things will not map 100%. */}
       <p className="fit-caveat">
-        Left is the ideal {sub.name} colour; right is the <b>nearest match in
-        Wada's book</b>. {good} of {pairs.length} are a good match. These are the
-        nearest matches in the book, not exact season colours — the book was
-        printed in 1933 for pigments, not for personal colour analysis.
+        One row per ideal {sub.name} colour, around the hue circle. Left is the
+        ideal; right is the <b>nearest match in Wada's book</b>.
+        {distinct < pairs.length
+          ? <> These {pairs.length} ideals are served by just <b>{distinct} different
+            colours</b> — where one appears twice, the book has nothing else near
+            either ideal.</>
+          : <> All {pairs.length} ideals get their own distinct colour.</>}
+        {' '}These are the nearest matches in the book, <b>not exact season
+        colours</b>: it was printed in 1933 for pigments, not for personal colour
+        analysis.
       </p>
     </section>
   )

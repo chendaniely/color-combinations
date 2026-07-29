@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { fitBand } from '../src/color/colorDistance'
-import { idealCells, seasonCells, seasonMembers } from '../src/color/seasonFit'
+import { idealCells, idealPairs, seasonCells, seasonMembers } from '../src/color/seasonFit'
 import { labToPccs, toneOf } from '../src/color/pccsMap'
 import { validatePccsGrid, validatePccsHues, validatePccsTones } from '../src/core/pccs'
 import { isTemperature, parentOf, validateSeasonRules } from '../src/core/seasons'
@@ -114,6 +114,71 @@ describe('ideal cells', () => {
       expect(ideal.length).toBeLessThanOrEqual(all.length)
       for (const c of ideal) expect(c.tone).toBe(sub.dominantTone)
     }
+  })
+})
+
+// The panel exists to show where the book falls short, so the thing it must
+// never do is under-report that. The first implementation deduplicated pairs by
+// book colour, which dropped three of Clear Spring's ten rows — and since
+// dropping a duplicate always drops the worse pairing, it removed exactly the
+// evidence the panel is for.
+//
+// Two rows below record what measuring then showed, because the first reading of
+// that screenshot was itself wrong. "10 rows, all a good match" next to "14 of
+// 44 members not close" is NOT a contradiction: an ideal is matched against the
+// whole book, while a member belongs to the season by its PARENT's rule and may
+// sit far from this sub-season. Both numbers were right. The real limit is
+// crowding, not absence.
+describe('ideal pairs report the gap rather than hiding it', () => {
+  it('gives exactly one row per ideal colour', () => {
+    for (const sub of rules.subSeasons) {
+      const ideal = idealCells(rules, sub, grid)
+      const pairs = idealPairs(rules, sub, grid, colors)
+      expect(pairs.length, `${sub.id} lost rows`).toBe(ideal.length)
+    }
+  })
+
+  it('covers every hue of the ideal set, with no hue reported twice', () => {
+    for (const sub of rules.subSeasons) {
+      const pairs = idealPairs(rules, sub, grid, colors)
+      const pairHues = pairs.map((p) => p.hue)
+      expect(new Set(pairHues).size, `${sub.id} repeats a hue`).toBe(pairHues.length)
+      expect([...pairHues], `${sub.id} is not in hue order`)
+        .toEqual([...pairHues].sort((a, b) => a - b))
+    }
+  })
+
+  // The behaviour the dedup destroyed. Two ideals may legitimately land on the
+  // same book colour, and both rows must survive to say so.
+  it('keeps both rows when two ideals share their nearest colour', () => {
+    const shared = rules.subSeasons.flatMap((sub) => {
+      const pairs = idealPairs(rules, sub, grid, colors)
+      const counts = new Map<number, number>()
+      for (const p of pairs) counts.set(p.colorId, (counts.get(p.colorId) ?? 0) + 1)
+      return [...counts.values()].filter((n) => n > 1)
+    })
+    expect(shared.length, 'no season reuses a colour, so dedup could not be detected')
+      .toBeGreaterThan(0)
+  })
+
+  // The measurement that decides what the panel should SAY. Across all twelve
+  // seasons only one ideal of 142 lacks a close match, so a "N of N are a good
+  // match" summary would be true and would sound like a triumph. The real limit
+  // is crowding: 2 to 4 colours in each season each serve several ideals. The
+  // panel therefore reports distinct colours, and this pins the fact that makes
+  // that the right choice.
+  it('is limited by crowding rather than by missing matches', () => {
+    let crowded = 0
+    let poorlyMatched = 0
+    for (const sub of rules.subSeasons) {
+      const pairs = idealPairs(rules, sub, grid, colors)
+      if (new Set(pairs.map((p) => p.colorId)).size < pairs.length) crowded++
+      poorlyMatched += pairs.filter((p) => p.band === 'not close').length
+    }
+    expect(crowded, 'no season is crowded, so the summary should not emphasise it')
+      .toBe(rules.subSeasons.length)
+    expect(poorlyMatched, 'ideals now lack matches, so the summary wording needs revisiting')
+      .toBe(0)
   })
 })
 

@@ -57,6 +57,9 @@ export function idealCells(rules: SeasonRules, sub: SubSeason, grid: PccsCell[])
 export interface IdealPair {
   /** The season's ideal colour, from the rendered PCCS grid. */
   idealHex: string
+  /** Which step of the PCCS hue circle this ideal sits on. */
+  hue: number
+  hueAbbr: string
   /** The nearest colour Wada's book actually has. */
   colorId: number
   distance: number
@@ -66,12 +69,21 @@ export interface IdealPair {
 /**
  * Pairs each of a season's ideal colours with the nearest one the book
  * actually contains. This is the display that makes the gap visible instead of
- * implied — an ideal with nothing near it shows a "not close" match rather
- * than quietly vanishing.
+ * implied.
  *
- * Deduplicated by book colour, keeping the best pairing, because several
- * ideals crowding onto one real colour IS the gap and repeating that colour
- * four times would disguise it as abundance.
+ * ONE ROW PER IDEAL, and deliberately NOT deduplicated by book colour.
+ *
+ * The first version deduped, keeping the best pairing per colour, on the
+ * reasoning that repeating a colour would "disguise crowding as abundance".
+ * That was backwards, and a screenshot caught it: for Clear Spring it reported
+ * "7 of 7 are a good match" while the palette above it showed 14 of 44 as not
+ * close. Dropping a duplicate always drops the WORSE pairing, so every
+ * poorly-served ideal vanished and the panel that exists to show the gap
+ * reported none.
+ *
+ * Repetition is the honest signal. If four ideals all resolve to Sulphine
+ * Yellow, the book has one colour for that whole region, and four rows saying
+ * so is the fact.
  */
 export function idealPairs(
   rules: SeasonRules,
@@ -79,7 +91,7 @@ export function idealPairs(
   grid: PccsCell[],
   colors: ColorRecord[],
 ): IdealPair[] {
-  const byColor = new Map<number, IdealPair>()
+  const pairs: IdealPair[] = []
   for (const cell of idealCells(rules, sub, grid)) {
     const target = hexToRgb(cell.hex)
     let best: { id: number; d: number } | null = null
@@ -88,17 +100,19 @@ export function idealPairs(
       if (!best || d < best.d) best = { id: color.id, d }
     }
     if (!best) continue
-    const existing = byColor.get(best.id)
-    if (!existing || best.d < existing.distance) {
-      byColor.set(best.id, {
-        idealHex: cell.hex,
-        colorId: best.id,
-        distance: best.d,
-        band: fitBand(best.d),
-      })
-    }
+    pairs.push({
+      idealHex: cell.hex,
+      hue: cell.hue,
+      hueAbbr: cell.hueAbbr,
+      colorId: best.id,
+      distance: best.d,
+      band: fitBand(best.d),
+    })
   }
-  return [...byColor.values()].sort((a, b) => a.distance - b.distance)
+  // Around the hue circle, not by quality: this is a survey of the season's
+  // whole range, and sorting by fit would cluster the failures at the bottom
+  // where they read as an afterthought.
+  return pairs.sort((a, b) => a.hue - b.hue)
 }
 
 /**
