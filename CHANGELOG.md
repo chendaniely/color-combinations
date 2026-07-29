@@ -28,6 +28,48 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.7.1 — 2026-07-29 — Working the backlog
+
+A tidying release. The owner pointed at the list of deferred items:
+
+> let's loop over the TODOs and address them. clear out the tech dept and ideas
+
+Fifty items. Nine were genuinely actionable and are now done; three turned out
+to be *questions* rather than tasks and got answers instead of ticks; one had
+already been finished a release ago and nobody had crossed it off. The rest are
+features, product calls, or things that need a person — and are still there,
+because pretending otherwise would be the opposite of what this file is for.
+
+**The one that mattered was not on the list.** Writing the single test the
+backlog asked for — "check the shade filter actually narrows the results" —
+turned up a crash: an unrecognised colour-group id took the whole Browse page
+down rather than showing an empty result. Unreachable today, because every
+filter value comes from a dropdown. It would have become reachable the instant
+the site learns to put state in the URL, which is the very next thing on the
+list. Fixed, along with a companion function so labels can render whatever
+state holds.
+
+**Overlays now hand focus back.** They already trapped focus properly, but
+opening one announced "Close" as the first thing a screen reader said, and
+dismissing one dropped you at the top of the page — so a keyboard user had to
+tab through the entire header to get back to where they were. Both fixed.
+
+**Two questions answered with measurements rather than opinions.** A different
+colour-difference formula (CIEDE2000) was on the list as a possible upgrade: it
+was tested over 512 colours spanning the whole spectrum and **declined**, since
+it reorders near-identical candidates without giving better answers. And the
+low test-coverage numbers on three screens turned out to be a reporting blind
+spot — the real-browser suite already exercises all three thoroughly.
+
+**Also:** one control had three different names in three places and now has
+two, the second being "the wheel", which is deliberately what visitors call it.
+`make check` runs everything and keeps the full log, closing a process note
+about how a previous bug hid for months behind a truncated test summary.
+
+Nothing about the site looks different. That is what a tidying release is.
+
+---
+
 ## v1.7.0 — 2026-07-29 — The seasons stop being made up
 
 The twelve season palettes on the You tab were invented. This release replaces

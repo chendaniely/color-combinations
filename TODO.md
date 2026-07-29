@@ -2,6 +2,10 @@
 
 Move finished items to TODO-completed.md with the commit hash.
 
+**Order of work (owner, 2026-07-29):** bugs and tech debt first, then ONE
+feature, then another debt loop before the next feature. Never a batch of
+features. See "The release cadence" in CLAUDE.md for why.
+
 The v1.6.0 consolidation pass (2026-07-29) cleared the defect half of this
 file; everything below is either a genuine idea, a known limit we accepted, or
 a check that needs a person. See `TODO-completed.md` for what went.
