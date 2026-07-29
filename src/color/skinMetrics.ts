@@ -4,6 +4,7 @@
 import { converter } from 'culori'
 import type { RGB } from '../core/colorMath'
 import type { ContrastBand, Depth, SkinReading, Undertone } from '../core/types'
+import { whiteBalance } from './whiteBalance'
 
 const toLab = converter('lab')
 
@@ -31,55 +32,6 @@ export function labOf(rgb: RGB): { L: number; C: number; h: number } {
   const { l, a, b } = lab(rgb)
   const h = ((Math.atan2(b, a) * 180) / Math.PI + 360) % 360
   return { L: l, C: Math.hypot(a, b), h }
-}
-
-// sRGB is gamma-encoded; an illuminant multiplies LINEAR light. Correcting has
-// to happen in linear space or the power curve distorts the correction.
-//
-// This is measured, not assumed. Scaling the gamma-encoded values directly is
-// close enough under mild casts (mean dE 0.41) but breaks down under strong
-// ones — worst dE 3.02, above the perceptible threshold, and it flipped the
-// undertone verdict on 3 of 48 simulated cast/skin pairs. Doing it in linear
-// light: worst dE 0.95, one flip, and that one is a skin tone sitting 2 degrees
-// from the warm/cool boundary where any residual would tip it.
-function srgbToLinear(v: number): number {
-  const c = v / 255
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-}
-
-function linearToSrgb(v: number): number {
-  const c = v <= 0.0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - 0.055
-  return clamp255(c * 255)
-}
-
-// The per-channel gains that make the reference read as neutral.
-function channelGains(whiteRef: RGB): [number, number, number] {
-  const refLinear = whiteRef.map(srgbToLinear)
-  const peak = Math.max(...refLinear)
-  return refLinear.map((v) => peak / Math.max(1e-6, v)) as [number, number, number]
-}
-
-// Von Kries-style: scale each channel so the reference would read as neutral.
-// Simpler than a full chromatic-adaptation transform (Bradford/CAT02), but it
-// is the correction the visitor consented to by holding up a white object, and
-// the residual error is far below what anyone can see.
-export function whiteBalance(rgb: RGB, whiteRef: RGB | null): RGB {
-  if (!whiteRef) return rgb
-  const gains = channelGains(whiteRef)
-  return rgb.map((v, i) => linearToSrgb(srgbToLinear(v) * gains[i])) as RGB
-}
-
-// The same correction as a per-channel lookup table, for applying to a whole
-// image. The correction depends only on a channel's own value, so 3x256
-// precomputed entries give exactly the same answer as whiteBalance() while
-// replacing ~4 million Math.pow calls on a 1200px photo with array lookups.
-export function whiteBalanceTable(whiteRef: RGB): Uint8ClampedArray[] {
-  const gains = channelGains(whiteRef)
-  return gains.map((gain) => {
-    const table = new Uint8ClampedArray(256)
-    for (let v = 0; v < 256; v++) table[v] = linearToSrgb(srgbToLinear(v) * gain)
-    return table
-  })
 }
 
 function undertoneOf(hue: number): Undertone {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { colorDistance } from '../src/color/colorDistance'
-import { labOf, readSkin, whiteBalance, whiteBalanceTable } from '../src/color/skinMetrics'
+import { labOf, readSkin } from '../src/color/skinMetrics'
+import { whiteBalance, whiteBalanceTable } from '../src/color/whiteBalance'
 import type { RGB } from '../src/core/colorMath'
 
 // Fixtures spanning the tonal range. A regression that degrades deeper tones

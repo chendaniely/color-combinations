@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { readSkin, whiteBalance, whiteBalanceTable } from '../../color/skinMetrics'
+import { readSkin } from '../../color/skinMetrics'
+import {
+  CONTROL_LIMIT, controlsToWhiteRef, NEUTRAL, whiteBalance, whiteBalanceTable,
+  whiteRefToControls, type WhiteBalanceControls,
+} from '../../color/whiteBalance'
 import { rgbToHex, type RGB } from '../../core/colorMath'
 import type { ProbeKind } from '../../core/facePlan'
 import { medianColor, robustColor, samplesInPatch } from '../../core/robustSample'
@@ -41,11 +45,18 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
     capture.whiteRef
       ? { rgb: capture.whiteRef.rgb, cx: capture.whiteRef.cx, cy: capture.whiteRef.cy }
       : null)
+  // The correction itself. Eyedropping a white object SETS these; the sliders
+  // then nudge them — the pairing every photo editor uses, because one tap on a
+  // white object is a guess you want to be able to refine. null = no correction.
+  const [controls, setControls] = useState<WhiteBalanceControls | null>(
+    capture.whiteRef ? whiteRefToControls(capture.whiteRef.rgb) : null)
   const [correcting, setCorrecting] = useState<Correcting>(null)
 
   const skin = medianColor(skinMarks.map((m) => m.rgb))
   const hair = hairMark?.rgb ?? null
-  const whiteRef = whiteMark?.rgb ?? null
+  // One source of truth: whatever the sliders say, expressed as the white
+  // reference the rest of the pipeline already understands.
+  const whiteRef = controls ? controlsToWhiteRef(controls) : null
 
   // Paint the photo into our OWN canvas, white-balanced, so the visitor can see
   // the correction working on the whole frame rather than trusting a number.
@@ -60,17 +71,17 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
     if (!display || !source || !target) return
     const { width, height } = capture.canvas
     const frame = source.getImageData(0, 0, width, height)
-    if (whiteMark) {
+    if (whiteRef) {
       // Per-channel lookup: identical to whiteBalance(), minus ~4 million
       // Math.pow calls on a full-size photo.
-      const [tr, tg, tb] = whiteBalanceTable(whiteMark.rgb)
+      const [tr, tg, tb] = whiteBalanceTable(whiteRef)
       const d = frame.data
       for (let i = 0; i < d.length; i += 4) {
         d[i] = tr[d[i]]; d[i + 1] = tg[d[i + 1]]; d[i + 2] = tb[d[i + 2]]
       }
     }
     target.putImageData(frame, 0, 0)
-  }, [capture.canvas, whiteMark])
+  }, [capture.canvas, whiteRef])
 
   function correctAt(e: React.PointerEvent<HTMLDivElement>) {
     if (!correcting) return
@@ -88,9 +99,15 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
     const mark: Mark = { rgb, cx: point.x, cy: point.y }
     // A corrected skin reading replaces the automatic set: the visitor pointing
     // at one spot is a stronger signal than four guesses averaged together.
-    if (correcting === 'skin') setSkinMarks([mark])
-    else if (correcting === 'hair') setHairMark(mark)
-    else setWhiteMark(mark)
+    if (correcting === 'skin') {
+      setSkinMarks([mark])
+    } else if (correcting === 'hair') {
+      setHairMark(mark)
+    } else {
+      // The eyedropper sets the sliders, exactly as it does in photo software.
+      setWhiteMark(mark)
+      setControls(whiteRefToControls(rgb))
+    }
     setCorrecting(null)
   }
 
@@ -169,11 +186,47 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
         </p>
       )}
 
+      {/* Nudge the correction by hand. The eyedropper above sets these; these
+          refine it — the same division of labour as a photo editor, and the
+          only way to fix a cast when nothing in the frame is truly white. */}
+      <div className="probe-wb">
+        <div className="probe-wb-head">
+          <b>White balance</b>
+          <button type="button" className="probe-wb-reset"
+            onClick={() => { setControls(null); setWhiteMark(null) }}>
+            Reset
+          </button>
+        </div>
+        <label className="probe-slider">
+          <span>Temperature</span>
+          <input type="range" min={-CONTROL_LIMIT} max={CONTROL_LIMIT} step={0.01}
+            value={controls?.temp ?? 0}
+            aria-label="Temperature, blue to amber"
+            onChange={(e) => setControls({
+              ...(controls ?? NEUTRAL), temp: Number(e.target.value),
+            })} />
+          <small>blue — amber</small>
+        </label>
+        <label className="probe-slider">
+          <span>Tint</span>
+          <input type="range" min={-CONTROL_LIMIT} max={CONTROL_LIMIT} step={0.01}
+            value={controls?.tint ?? 0}
+            aria-label="Tint, green to magenta"
+            onChange={(e) => setControls({
+              ...(controls ?? NEUTRAL), tint: Number(e.target.value),
+            })} />
+          <small>green — magenta</small>
+        </label>
+      </div>
+
       <div className="probe-fixes">
         <button type="button" onClick={() => setCorrecting('skin')}>Correct the skin</button>
         <button type="button" onClick={() => setCorrecting('hair')}>Correct the hair</button>
         <button type="button" onClick={() => setCorrecting('white')}>Correct the white</button>
-        <button type="button" onClick={() => setWhiteMark(null)}>There’s nothing white in this shot</button>
+        <button type="button"
+          onClick={() => { setWhiteMark(null); setControls(null) }}>
+          There’s nothing white in this shot
+        </button>
       </div>
 
       {!whiteRef && (

@@ -147,6 +147,56 @@ describe('ProbeReview white marker', () => {
     expect(second).toBe(first)
   })
 
+  it('offers temperature and tint sliders', () => {
+    const { getByLabelText } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    expect(getByLabelText(/temperature/i)).toBeTruthy()
+    expect(getByLabelText(/tint/i)).toBeTruthy()
+  })
+
+  it('seeds the sliders from the eyedropped white, as photo software does', () => {
+    const { getByLabelText } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    // The auto-found reference is warm-ish, so temperature must not sit at 0.
+    const temp = getByLabelText(/temperature/i) as HTMLInputElement
+    expect(Number(temp.value)).not.toBe(0)
+  })
+
+  it('repaints the photo when a slider moves', () => {
+    const { container, getByLabelText } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    const ctx = (container.querySelector('canvas') as HTMLCanvasElement)
+      .getContext('2d') as unknown as { putImageData: { mock: { calls: unknown[] } } }
+    const before = ctx.putImageData.mock.calls.length
+    fireEvent.change(getByLabelText(/temperature/i), { target: { value: '0.5' } })
+    expect(ctx.putImageData.mock.calls.length).toBeGreaterThan(before)
+  })
+
+  it('a slider change feeds through to the confirmed reading', () => {
+    const onConfirm = vi.fn()
+    const { getByLabelText, getByRole } = render(
+      <ProbeReview capture={withWhite()} onConfirm={onConfirm} onRetake={vi.fn()} />)
+    fireEvent.change(getByLabelText(/temperature/i), { target: { value: '-0.7' } })
+    fireEvent.click(getByRole('button', { name: /continue/i }))
+    const cool = onConfirm.mock.calls[0][0].skin
+
+    cleanup()
+    const onConfirm2 = vi.fn()
+    const r2 = render(
+      <ProbeReview capture={withWhite()} onConfirm={onConfirm2} onRetake={vi.fn()} />)
+    fireEvent.change(r2.getByLabelText(/temperature/i), { target: { value: '0.7' } })
+    fireEvent.click(r2.getByRole('button', { name: /continue/i }))
+    expect(onConfirm2.mock.calls[0][0].skin).not.toBe(cool)
+  })
+
+  it('Reset clears both the correction and the marker', () => {
+    const { container, getByRole, getByLabelText } = render(
+      <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)
+    fireEvent.click(getByRole('button', { name: /^reset$/i }))
+    expect(Number((getByLabelText(/temperature/i) as HTMLInputElement).value)).toBe(0)
+    expect(container.querySelector('.probe-dot.is-white')).toBeNull()
+  })
+
   it('moves the hair marker when the hair is corrected', () => {
     const { container, getByRole } = render(
       <ProbeReview capture={withWhite()} onConfirm={vi.fn()} onRetake={vi.fn()} />)

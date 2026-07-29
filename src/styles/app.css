@@ -440,6 +440,28 @@ main { flex: 1; min-height: 0; position: relative; }
 .probe-read small {
   display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-muted);
 }
+/* Hand-nudged white balance, next to the eyedropper that seeds it. */
+.probe-wb {
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  padding: var(--s3); margin-bottom: var(--s3);
+}
+.probe-wb-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: var(--s2); font-size: 0.85rem;
+}
+.probe-wb-reset {
+  border: 0; background: transparent; color: var(--link); font: inherit;
+  font-size: 0.75rem; cursor: pointer; padding: 0;
+}
+.probe-slider { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--s2);
+  align-items: center; margin-bottom: var(--s2); }
+.probe-slider span { font-size: 0.78rem; color: var(--ink-muted); }
+.probe-slider small {
+  grid-column: 2; font-size: 0.65rem; color: var(--ink-faint);
+  display: flex; justify-content: space-between; margin-top: -4px;
+}
+.probe-slider input[type="range"] { width: 100%; accent-color: var(--link); }
+
 .probe-fixes { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s3); }
 .probe-fixes button {
   padding: var(--s1) var(--s3); border: 1px solid var(--hairline); border-radius: 999px;
