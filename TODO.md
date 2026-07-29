@@ -107,16 +107,24 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Curated data worth a second opinion
 
-- [ ] **The season palettes are lopsided, and `seasons.json` exists precisely so
-      that can be corrected.** Measured 2026-07-29: sizes run 7 to 35, median
-      15. Cool Summer and Soft Summer have 7 colours each; Clear Spring has 35.
-      Some of that is the source — the book runs 109 warm colours to 48 cool, so
-      cool seasons genuinely have fewer candidates — but a 5× spread means the
-      thinnest seasons offer a visitor very little. This is hand-authored data
-      (see CLAUDE.md), so it can be re-curated by the owner or handed to another
-      agent to analyse without touching any TypeScript. A test now guards
-      against a season being gutted (floor of 5, max/min spread of 8), which is
-      a floor, not an endorsement of 7.
+- [ ] **The season palettes are still lopsided, but for a different and better
+      reason.** This entry used to describe hand-curated lists in
+      `data/curated/seasons.json`, a file v1.7.0 deleted. Re-measured
+      2026-07-29 against the computed data: sizes now run **15 to 57**, a 3.8×
+      spread (was 7 to 35, 5×). Membership is per-PARENT, so the three
+      sub-seasons of a season share a pool: Summer 15, Autumn 18, Spring 44,
+      Winter 57.
+      The cause is now structural rather than editorial, which is progress —
+      it can be reasoned about. Summer gets 15 because its PCCS tones are the
+      muted ones (`lt, p, sf, d`) and the book holds eleven usable muted
+      colours. Winter gets 57 because its tones include the vivid and deep ones
+      and the cool half of the hue circle has 14 of the 24 hues.
+      Two dials exist if this is worth rebalancing, both in
+      `data/curated/season-rules.json` and neither requiring TypeScript: the
+      warm/cool hue split (currently 10 warm to 14 cool, and OUR judgement), and
+      each parent's tone set (currently sourced, so changing it needs a reason
+      better than balance). Prefer leaving it: the imbalance is a true fact
+      about a 1933 pigment book, and the fit panel now says so out loud.
 
 ## You tab — known limits
 
@@ -208,9 +216,6 @@ a check that needs a person. See `TODO-completed.md` for what went.
 - [ ] Consider unifying the goggles control with the size chips into one filter
       bar (v1 keeps them adjacent but separate; size chips are OR within a
       dimension, goggles are AND across dimensions).
-- [ ] Memoize `allowedFor(state.access)` in `BrowseView`/`MatchPage` for
-      uniformity with `ChordWheel`/`App` (they `useMemo` it). Negligible perf,
-      pattern consistency only.
 
 ## Analytics
 
@@ -228,19 +233,12 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Code and process
 
-- [ ] `redAnchorAngle` (`src/core/chord.ts`) assumes each broad family's nodes
-      are angularly contiguous (true for today's curated `fine` order). If a
-      future dataset interleaves families, the levels 0–2 min/max block-centre
-      would silently drift off-top — add a validation check or make the anchor
-      contiguity-robust if the grouping data ever changes.
 - [ ] Revisit wheel orientation/ordering later (owner: "we can always go back to
       the rotation, color order, and orientation at a later time"): options
       considered but not taken were an RYB primary-triangle wheel and a
       pure-hue Colors level. Current choice is family-order + red-at-12.
 - [ ] Gradient source→target highlight strokes on wheel hover — the highlight
       stroke is currently the source-node colour only.
-- [ ] `src/components/BrowseView.tsx`: add a test asserting the shade predicate
-      actually narrows `combos.length`.
 - [ ] One control still has three names — `ColorDisc` in code, `.pick-*` in
       CSS, "the wheel" in the copy.
 - [ ] The colour disc is a two-dimensional control and ARIA has no role for
@@ -256,14 +254,14 @@ a check that needs a person. See `TODO-completed.md` for what went.
       layers underneath them are at ~100%; these are thin React shells, so the
       question is whether a browser test of each flow is worth more than
       mocking them into submission in jsdom.
-- [ ] Overlay a11y beyond the modal basics: `Overlay.tsx` gives every screen a
-      focus trap, Escape and `aria-modal`, but does not move initial focus to
-      the dialog or restore it to the trigger on close. The browser's default
-      behaviour is reasonable; explicit management would be better.
 - [ ] Process: git tags do NOT travel with `git push` unless pushed explicitly.
       `v1.3.2` sat unpushed for weeks and `v1.3.3` was never tagged; both were
-      repaired on 2026-07-28. Consider `git config --global push.followTags
-      true`.
+      repaired on 2026-07-28. **`push.followTags` is now set repo-local**
+      (2026-07-29), which covers this working copy. It lives in `.git/config`,
+      which is NOT committed, so a fresh clone does not inherit it — set it
+      globally (`git config --global push.followTags true`) if you want the
+      habit everywhere. Left as the owner's call rather than changing a global
+      setting unasked.
 - [ ] Process: never pipe a test run through `tail` or `grep` alone — it
       truncates failures and can mask a non-zero exit. This is how the v1.4.0
       flaky test lost its name for months. Capture full output to a file.

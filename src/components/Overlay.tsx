@@ -38,17 +38,50 @@ export function Overlay({ label, onClose, closeLabel = 'Close', className, child
   useEffect(() => {
     const el = ref.current
     if (!el) return
+
+    // Where focus was before we opened, so it can be put back. Captured before
+    // showModal(), which moves focus itself.
+    const opener = document.activeElement as HTMLElement | null
+
     // jsdom (29) still ships no showModal, so tests exercise this through the
     // polyfill in tests/setup.ts; the real modal semantics are asserted by the
     // Playwright suite instead, where an actual browser implements them.
     if (!el.open) el.showModal()
-    return () => { if (el.open) el.close() }
+
+    // Move focus onto the dialog itself. showModal() focuses the first tabbable
+    // child, which here is the × button — so a screen reader user's first news
+    // of the dialog is the word "Close". Focusing the dialog makes it announce
+    // its own label first, then lets Tab walk the content in order.
+    //
+    // UNCONDITIONAL, and that matters: the first version guarded this with
+    // `if (!el.contains(document.activeElement))`, which never fired, because
+    // showModal has already put focus inside by this point. jsdom's polyfill
+    // moves no focus at all, so the guard looked correct there and the real
+    // browser had to say otherwise.
+    //
+    // An element marked `autofocus` still wins — nothing uses one today, but
+    // silently overriding an explicit request would be the same mistake in the
+    // other direction.
+    if (!el.querySelector('[autofocus]')) el.focus()
+
+    return () => {
+      if (el.open) el.close()
+      // Restore focus to whatever opened this. Without it, dismissing an
+      // overlay drops focus to the top of <body> and a keyboard user has to
+      // Tab back through the whole header to get where they were.
+      // `isConnected` guards the case where the trigger itself unmounted.
+      if (opener?.isConnected) opener.focus()
+    }
   }, [])
 
   return createPortal(
     <dialog
       ref={ref}
       aria-label={label}
+      // A <dialog> is not focusable on its own, so el.focus() above would be a
+      // no-op without this. -1 keeps it out of the Tab order while still
+      // allowing programmatic focus.
+      tabIndex={-1}
       className={className ? `cam-overlay ${className}` : 'cam-overlay'}
       // Escape fires `cancel`. Prevent the browser's own close so React stays
       // the single owner of the open/closed state — otherwise the element

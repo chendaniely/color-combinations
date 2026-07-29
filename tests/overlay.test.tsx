@@ -55,6 +55,54 @@ describe('Overlay', () => {
     expect(screen.queryByRole('button')).toBeNull()
   })
 
+  // Focus MOVEMENT is testable in jsdom even though focus TRAPPING is not: the
+  // component calls focus() itself rather than relying on the browser, which is
+  // the whole point of the change. Trapping stays a browser test.
+  it('moves focus into the dialog, not onto its close button', () => {
+    render(<Overlay label="Test" onClose={() => {}}><button>Inside</button></Overlay>)
+    const dialog = screen.getByRole('dialog')
+    // Letting the browser choose lands on the first tabbable child — the × —
+    // so a screen reader's first news of the dialog is the word "Close".
+    expect(document.activeElement).toBe(dialog)
+    expect(document.activeElement).not.toBe(screen.getByRole('button', { name: 'Close' }))
+  })
+
+  it('is focusable programmatically without joining the Tab order', () => {
+    render(<Overlay label="Test" onClose={() => {}}>body</Overlay>)
+    // A <dialog> is not focusable by default, so the focus() above would be a
+    // silent no-op without tabIndex=-1.
+    expect(screen.getByRole('dialog').getAttribute('tabindex')).toBe('-1')
+  })
+
+  it('returns focus to whatever opened it', () => {
+    // The defect: dismissing an overlay dropped focus to the top of <body>, so
+    // a keyboard user had to Tab back through the entire header.
+    const trigger = document.createElement('button')
+    document.body.appendChild(trigger)
+    trigger.focus()
+    expect(document.activeElement).toBe(trigger)
+
+    const { unmount } = render(<Overlay label="Test" onClose={() => {}}>body</Overlay>)
+    expect(document.activeElement).not.toBe(trigger)
+
+    unmount()
+    expect(document.activeElement).toBe(trigger)
+    trigger.remove()
+  })
+
+  it('does not throw when the thing that opened it has itself gone away', () => {
+    const trigger = document.createElement('button')
+    document.body.appendChild(trigger)
+    trigger.focus()
+
+    const { unmount } = render(<Overlay label="Test" onClose={() => {}}>body</Overlay>)
+    // A trigger can legitimately unmount while the overlay is up — a doorway
+    // button replaced by the screen it opened. Restoring focus to a detached
+    // node must be a no-op, not a crash.
+    trigger.remove()
+    expect(() => unmount()).not.toThrow()
+  })
+
   it('keeps the caller\'s class alongside the shared one', () => {
     render(<Overlay label="Test" onClose={() => {}} className="probe-review">body</Overlay>)
     const dialog = screen.getByRole('dialog')

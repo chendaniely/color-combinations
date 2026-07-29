@@ -82,3 +82,45 @@ test.describe('modal overlays behave like modals', () => {
     expect(box.width).toBeGreaterThan(1000)
   })
 })
+
+// Focus management, which jsdom can only half-check: it verifies that Overlay
+// CALLS focus(), while only a real browser runs showModal()'s own focus
+// behaviour that ours has to override.
+test.describe('focus goes somewhere sensible, and comes back', () => {
+  test('lands on the dialog itself rather than on its Close button', async ({ page }) => {
+    await openPicker(page)
+    await expect(page.getByRole('dialog', { name: 'Pick a color' })).toBeVisible()
+
+    // showModal()'s own default is the first tabbable child — the × — so the
+    // first thing announced would be "Close". Overlay overrides that.
+    const focused = await page.evaluate(() => ({
+      tag: document.activeElement?.tagName ?? null,
+      label: document.activeElement?.getAttribute('aria-label') ?? null,
+    }))
+    expect(focused.tag).toBe('DIALOG')
+    expect(focused.label).toBe('Pick a color')
+  })
+
+  test('returns to the control that opened it when dismissed', async ({ page }) => {
+    await openSampler(page)
+    // Remember what the browser considers focused before opening the picker.
+    const before = await page.evaluate(() =>
+      document.activeElement?.getAttribute('aria-label')
+      ?? document.activeElement?.textContent?.trim() ?? null)
+
+    await openPicker(page)
+    await expect(page.getByRole('dialog', { name: 'Pick a color' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog', { name: 'Pick a color' })).toBeHidden()
+
+    // The defect: focus fell to the top of <body>, so a keyboard user had to
+    // Tab through the whole header to get back to where they were.
+    const after = await page.evaluate(() => ({
+      isBody: document.activeElement === document.body,
+      name: document.activeElement?.getAttribute('aria-label')
+        ?? document.activeElement?.textContent?.trim() ?? null,
+    }))
+    expect(after.isBody, 'focus was dropped on <body> instead of restored').toBe(false)
+    if (before) expect(after.name).toBe(before)
+  })
+})
