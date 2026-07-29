@@ -55,12 +55,11 @@ a check that needs a person. See `TODO-completed.md` for what went.
       parts that are not: per-level arc counts on the wheel at all 4
       granularities; the hover dim + centre label (rebuilt 2026-07-20 — is the
       flicker gone, does the dimming read right); the crossfade between
-      granularity levels; the size-chip filter live toggle; clipboard copies
-      actually landing on the clipboard; PNG download for a few combos
-      including the 5-colour No. 331 (longest name — check it doesn't overflow
-      the canvas); layout at 375px width (bottom sheets for detail panels);
-      `prefers-reduced-motion` actually suppressing the crossfade; the mobile
-      touch-scrub on the wheel (press/drag to preview, LIFT to open — confirm
+      granularity levels; the size-chip filter live toggle; PNG download for
+      the 5-colour No. 331 specifically (longest name — check it doesn't
+      overflow the canvas; that a PNG downloads at all is now tested); the
+      mobile touch-scrub on the wheel (press/drag to preview, LIFT to open —
+      confirm
       hold-drag-then-lift opens the right combo, a quick tap still opens first
       time at all 4 granularities, dragging off past the wheel's edge and
       lifting cancels, and the page never scrolls under the drag); and a

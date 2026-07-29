@@ -5,6 +5,35 @@
 Owner: *"let's go in and clear up all defects. let's take a pass and see if
 things also need to be refactored."*
 
+**Third and fourth passes (owner: "keep looping over and doing passes untill you don't find anything more")**
+
+- [x] The site failed WCAG AA in its own chrome while shipping a feature that
+      judges the book's colours against WCAG AA. axe found serious
+      colour-contrast violations on three screens; `--ink-muted` was at 4.24 and
+      `--ink-faint` at 2.02 where small text needs 4.5. All three ink steps
+      re-solved together for distinct ratios (13.15 / 7.79 / 5.07) so the
+      hierarchy survived — darkening `--ink-faint` alone would have made it
+      identical to `--ink-muted` (`f23392c`).
+- [x] Nine-screen axe audit added, plus a tenth at phone width (`f23392c`,
+      `9678856`).
+- [x] Five TypeScript strictness flags enabled after measuring each one; the
+      two rejected ones have their numbers recorded in `tsconfig.json` so
+      nobody re-litigates them (`f23392c`).
+- [x] `transform.ts` typed `fineId` as `string` when the expression was
+      `string | undefined`. Now fails at ingest naming the slug and the file to
+      edit, instead of a runtime message about colour 42 (`f23392c`).
+- [x] Dead CSS rule `.you-next` (`f23392c`).
+- [x] The wheel scrolled sideways by 14px at 375px — `.wheel-controls`
+      shrink-to-fit inside a centred column overflowed both sides. Every view
+      is now checked for horizontal overflow at phone width (`9678856`).
+- [x] `prefers-reduced-motion` verified for the first time, including that
+      suppressing the animation does not leave the panel stuck at its opening
+      opacity (`9678856`).
+- [x] Tap targets checked against WCAG 2.2's 24x24 minimum, allowing for the
+      padded `::before` hit area on `.infotip-btn` (`9678856`).
+- [x] Clipboard copy and PNG download covered in the browser, closing two
+      manual checklist items (`363a3d0`).
+
 **Second pass (owner: "before we push... any more refactoring... other libraries")**
 
 - [x] The project had NO linter. oxlint added, wired into `make lint` and CI,
