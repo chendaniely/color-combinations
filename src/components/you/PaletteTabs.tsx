@@ -139,6 +139,20 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
             rule; <b>{activeSeason.name}</b> is our own subdivision of it.</>}
       </p>
 
+      {/* A neutral undertone matches no season: the four parents are warm or
+          cool, nothing in between. So depth and contrast alone decide, and the
+          answer is genuinely less certain than for a warm or cool reading.
+          Saying so beats presenting the same confident label — and it points at
+          the override, which is the useful thing to do about it. */}
+      {which === 'season' && reading.undertone === 'neutral' && (
+        <p className="you-note">
+          Your undertone reads <b>neutral</b> — between warm and cool. The seasons
+          are all one or the other, so this one was chosen by your depth and
+          contrast alone, and a season from the other side may suit you just as
+          well. Worth trying both in the dropdown above.
+        </p>
+      )}
+
       <div className="you-swatches">
         {shown.map((c) => (
           <div key={c.id} className="you-swatch" title={reasonFor(c.id) || c.name}>

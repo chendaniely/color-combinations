@@ -157,3 +157,32 @@ describe('the colours', () => {
     expect(container.textContent).toMatch(/leans warm|109/i)
   })
 })
+
+// A neutral undertone matches none of the four seasons, which are all warm or
+// cool. Depth and contrast alone decide, so the answer is genuinely less certain
+// and the page says so. Found by hunting: skinMetrics really does return
+// 'neutral', and before this the site presented that case with exactly the same
+// confidence as a clear warm or cool reading.
+describe('a neutral undertone is flagged as less certain', () => {
+  const NEUTRAL: SkinReading = { ...WARM_DEEP, undertone: 'neutral' }
+
+  it('says so on the season tab, and points at the override', async () => {
+    const { container } = await setup(NEUTRAL)
+    fireEvent.click(screen.getAllByRole('tab')[1])
+    const text = container.textContent!
+    expect(text).toMatch(/undertone reads\s*neutral/i)
+    expect(text).toMatch(/depth and\s*contrast alone/i)
+    expect(text).toMatch(/dropdown/i)
+  })
+
+  it('does not nag a clearly warm reading with it', async () => {
+    const { container } = await setup(WARM_DEEP)
+    fireEvent.click(screen.getAllByRole('tab')[1])
+    expect(container.textContent).not.toMatch(/undertone reads\s*neutral/i)
+  })
+
+  it('stays off the measured tab, which does not use seasons at all', async () => {
+    const { container } = await setup(NEUTRAL)
+    expect(container.textContent).not.toMatch(/undertone reads\s*neutral/i)
+  })
+})
