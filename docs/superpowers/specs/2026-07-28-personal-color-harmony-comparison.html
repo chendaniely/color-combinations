@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personal color analysis — Way 1 vs Way 2 (2026-07-28)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=EB+Garamond:ital@0;1&display=swap">
+<style>
+  :root{
+    --paper-1:#f8f6f2;--paper-2:#f0ebe2;--ink:#2f2a26;--muted:#7e7468;--faint:#b8aea2;
+    --hairline:#e8ddd2;--accent:#f26522;--link:#236192;
+    --serif:'EB Garamond',Georgia,serif;--ui:'Atkinson Hyperlegible',system-ui,sans-serif;
+    --border:#e8ddd2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 24px 64px;background:var(--paper-1);color:var(--ink);
+       font-family:var(--ui);line-height:1.55;max-width:1180px;margin-inline:auto}
+  h1{font-family:var(--serif);font-weight:500;font-size:30px;margin:0 0 4px}
+  h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:32px 0 6px}
+  h3{font-size:16px;margin:0 0 4px}
+  .subtitle{color:var(--muted);margin:0 0 20px;font-size:14px}
+  .deck{color:var(--muted);font-size:13px;margin:0 0 28px;padding-bottom:20px;
+        border-bottom:1px solid var(--hairline)}
+  .options{display:grid;gap:12px;margin-top:20px}
+  .option{display:flex;gap:14px;border:1px solid var(--hairline);border-radius:10px;
+          padding:14px;background:var(--paper-2)}
+  .letter{font-family:var(--serif);font-size:22px;color:var(--accent);flex:0 0 24px}
+  .option p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .chosen{outline:2px solid var(--link);outline-offset:2px}
+  .chosen .letter{color:var(--link)}
+  .mockup{border:1px solid var(--hairline);border-radius:10px;overflow:hidden;
+          margin:0 0 26px;background:#fff}
+  .mockup-header{background:var(--paper-2);padding:9px 14px;font-size:12px;font-weight:700;
+                 border-bottom:1px solid var(--hairline)}
+</style>
+</head>
+<body>
+<h1>Way 1 vs Way 2, run for real on all 157 book colours</h1>
+<p class="deck">Brainstorm mockup, 2026-07-28. Two invented but plausible faces, every colour in the book scored by both methods. The measured rules and the season lists overlapped on only 9 and 8 colours respectively — which is why the owner chose to ship both, clearly labelled. Spec: 2026-07-28-personal-color-analysis-design.md</p>
+
+<style>
+.persona{border:1px solid var(--border,#3334);border-radius:10px;padding:18px;margin:0 0 22px}
+.phead{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.chip{width:44px;height:44px;border-radius:8px;flex:0 0 auto;border:1px solid #0002}
+.phead h3{margin:0 0 4px}
+.phead h3 small{font-weight:400;opacity:.65}
+.meas{margin:0;font-size:13px;line-height:1.5;opacity:.85;font-family:ui-monospace,Menlo,monospace}
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:800px){.split2{grid-template-columns:1fr}}
+.way{border:1px solid var(--border,#3334);border-radius:8px;padding:14px;min-width:0}
+.wayhead{font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;
+         align-items:baseline;gap:8px;flex-wrap:wrap}
+.cnt{font-family:ui-monospace,Menlo,monospace;font-size:12px;opacity:.7;font-weight:400}
+.sw{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:14px;min-height:26px}
+.sw i{width:26px;height:26px;border-radius:4px;border:1px solid #0002;display:block}
+.reasons{margin:0 0 12px;padding:0;list-style:none;font-size:13px;line-height:1.5}
+.reasons li{margin-bottom:7px;padding-left:22px;position:relative}
+.reasons li.flat{padding-left:0;opacity:.85;font-style:italic}
+.dot{position:absolute;left:0;top:3px;width:14px;height:14px;border-radius:3px;
+     border:1px solid #0002;display:block}
+.reasons.out li{opacity:.7}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.55;
+       margin:0 0 6px;font-weight:700}
+.note{border-left:3px solid #F26522;padding:10px 14px;margin:18px 0;font-size:14px;
+      line-height:1.55;background:#F2652211;border-radius:0 6px 6px 0}
+</style>
+
+<h2>Way 1 vs Way 2 — run for real on all 157 book colours</h2>
+<p class="subtitle">Two invented but plausible faces. Every colour in the book scored
+by both methods. Hover any swatch for its name.</p>
+
+<div class="persona">
+  <div class="phead">
+    <span class="chip" style="background:#a1673f"></span>
+    <span class="chip" style="background:#1a1110"></span>
+    <div>
+      <h3>Persona A <small>deep warm skin, black hair</small></h3>
+      <p class="meas">skin L* 49 · hue 59° · ITA -2°
+         &nbsp;|&nbsp; hair L* 6 &nbsp;|&nbsp; contrast 43
+         <br><b>warm · deep · high contrast</b>
+         → season sticker: <b>Deep Autumn</b></p>
+    </div>
+  </div>
+  <div class="split2">
+    <div class="way">
+      <div class="wayhead">Way 1 — measured rules <span class="cnt">53 of 157</span></div>
+      <div class="sw"><i style="background:#ffb3f0" title="Hermosa Pink #ffb3f0"></i><i style="background:#ffa6d9" title="Corinthian Pink #ffa6d9"></i><i style="background:#e6adcf" title="Cameo Pink #e6adcf"></i><i style="background:#ff7399" title="Coral Red #ff7399"></i><i style="background:#ff788c" title="Fresh Color #ff788c"></i><i style="background:#ff5ec4" title="Eosine Pink #ff5ec4"></i><i style="background:#a10b2b" title="Carmine Red #a10b2b"></i><i style="background:#a10045" title="Red #a10045"></i><i style="background:#6c2b11" title="Brown #6c2b11"></i><i style="background:#681916" title="Hay's Russet #681916"></i><i style="background:#740909" title="Vandyke Red #740909"></i><i style="background:#6f0043" title="Pansy Purple #6f0043"></i><i style="background:#730f1f" title="Pale Burnt Lake #730f1f"></i><i style="background:#5c2c45" title="Vistoris Lake #5c2c45"></i><i style="background:#f5f5b8" title="Sulpher Yellow #f5f5b8"></i><i style="background:#fff59e" title="Pale Lemon Yellow #fff59e"></i><i style="background:#faed8f" title="Naples Yellow #faed8f"></i><i style="background:#ebd999" title="Ivory Buff #ebd999"></i><i style="background:#ffbf99" title="Light Pinkish Cinnamon #ffbf99"></i><i style="background:#f2ad78" title="Pinkish Cinnamon #f2ad78"></i><i style="background:#ffbf6e" title="Cinnamon Buff #ffbf6e"></i><i style="background:#ffb852" title="Cream Yellow #ffb852"></i><i style="background:#fa9442" title="Golden Yellow #fa9442"></i><i style="background:#f59994" title="Vinaceous Cinnamon #f59994"></i><i style="background:#d99e73" title="Ochraceous Salmon #d99e73"></i><i style="background:#c3a55c" title="Isabella Color #c3a55c"></i><i style="background:#c2975a" title="Maple #c2975a"></i><i style="background:#bcd382" title="Olive Buff #bcd382"></i><i style="background:#c4bf33" title="Pyrite Yellow #c4bf33"></i><i style="background:#d1bd19" title="Olive Ocher #d1bd19"></i><i style="background:#e0b81f" title="Yellow Ocher #e0b81f"></i><i style="background:#ff7340" title="Apricot Orange #ff7340"></i><i style="background:#baa600" title="Sulphine Yellow #baa600"></i><i style="background:#5e4017" title="Pale Raw Umber #5e4017"></i><i style="background:#503d00" title="Sepia #503d00"></i><i style="background:#651300" title="Madder Brown #651300"></i><i style="background:#522000" title="Mars Brown / Tobacco #522000"></i><i style="background:#b5ffc2" title="Turquoise Green #b5ffc2"></i><i style="background:#b3e8c2" title="Glaucous Green #b3e8c2"></i><i style="background:#b3d9a3" title="Dark Greenish Glaucous #b3d9a3"></i><i style="background:#99b333" title="Olive Yellow #99b333"></i><i style="background:#85b857" title="Rainette Green #85b857"></i><i style="background:#23c17c" title="Light Porcelain Green #23c17c"></i><i style="background:#405416" title="Lincoln Green #405416"></i><i style="background:#324e2a" title="Blackish Olive #324e2a"></i><i style="background:#94ff94" title="Cobalt Green #94ff94"></i><i style="background:#6bffb3" title="Venice Green #6bffb3"></i><i style="background:#00592e" title="Dusky Green #00592e"></i><i style="background:#cc85d1" title="Laelia Pink #cc85d1"></i><i style="background:#7e3075" title="Veronia Purple #7e3075"></i><i style="background:#53225c" title="Dark Slate Purple #53225c"></i><i style="background:#6b2e63" title="Taupe Brown #6b2e63"></i><i style="background:#531745" title="Violet Carmine #531745"></i></div>
+      <p class="label">why these are in</p>
+      <ul class="reasons"><li><i class="dot" style="background:#ffb3f0"></i><b>Hermosa Pink</b> — leans warm, the way your skin does; lighter than your skin by 33 — your face stays distinct</li><li><i class="dot" style="background:#ffa6d9"></i><b>Corinthian Pink</b> — leans warm, the way your skin does; lighter than your skin by 29 — your face stays distinct</li><li><i class="dot" style="background:#e6adcf"></i><b>Cameo Pink</b> — leans warm, the way your skin does; lighter than your skin by 28 — your face stays distinct</li></ul>
+      <p class="label">why others are out</p>
+      <ul class="reasons out"><li><i class="dot" style="background:#d1b0b3"></i><b>Fawn</b> — too washed-out for your colouring</li><li><i class="dot" style="background:#b08699"></i><b>Light Brown Drab</b> — only 11 apart from your skin — your face melts into it</li><li><i class="dot" style="background:#ff616b"></i><b>Grenadine Pink</b> — only 13 apart from your skin — your face melts into it</li></ul>
+    </div>
+    <div class="way">
+      <div class="wayhead">Way 2 — Deep Autumn list <span class="cnt">18 of 157</span></div>
+      <div class="sw"><i style="background:#b85e00" title="Raw Sienna #b85e00"></i><i style="background:#c9303e" title="Etruscan Red #c9303e"></i><i style="background:#a93400" title="Burnt Sienna #a93400"></i><i style="background:#a7374b" title="Ochre Red #a7374b"></i><i style="background:#a10b2b" title="Carmine Red #a10b2b"></i><i style="background:#a90636" title="Pompeian Red #a90636"></i><i style="background:#6c2b11" title="Brown #6c2b11"></i><i style="background:#681916" title="Hay's Russet #681916"></i><i style="background:#740909" title="Vandyke Red #740909"></i><i style="background:#730f1f" title="Pale Burnt Lake #730f1f"></i><i style="background:#c2612c" title="Cinnamon Rufous #c2612c"></i><i style="background:#8c6510" title="Orange Citrine #8c6510"></i><i style="background:#9b5348" title="Sudan Brown #9b5348"></i><i style="background:#5e4017" title="Pale Raw Umber #5e4017"></i><i style="background:#503d00" title="Sepia #503d00"></i><i style="background:#651300" title="Madder Brown #651300"></i><i style="background:#522000" title="Mars Brown / Tobacco #522000"></i><i style="background:#362304" title="Vandyke Brown #362304"></i></div>
+      <p class="label">why these are in</p>
+      <ul class="reasons">
+        <li class="flat">Because I wrote a box in colour space labelled
+        “Deep Autumn” and these fell inside it. That is the entire reason.
+        There is no source to cite.</li>
+      </ul>
+      <p class="label">overlap with Way 1</p>
+      <ul class="reasons"><li class="flat">9 colours appear in both lists.</li></ul>
+    </div>
+  </div>
+</div>
+
+<div class="persona">
+  <div class="phead">
+    <span class="chip" style="background:#edc4bd"></span>
+    <span class="chip" style="background:#6b5545"></span>
+    <div>
+      <h3>Persona B <small>light cool skin, ash-brown hair</small></h3>
+      <p class="meas">skin L* 82 · hue 34° · ITA 75°
+         &nbsp;|&nbsp; hair L* 38 &nbsp;|&nbsp; contrast 45
+         <br><b>cool · light · high contrast</b>
+         → season sticker: <b>Clear Winter</b></p>
+    </div>
+  </div>
+  <div class="split2">
+    <div class="way">
+      <div class="wayhead">Way 1 — measured rules <span class="cnt">22 of 157</span></div>
+      <div class="sw"><i style="background:#3d0079" title="Violet Red #3d0079"></i><i style="background:#65a98f" title="Artemesia Green #65a98f"></i><i style="background:#5c8a73" title="Andover Green #5c8a73"></i><i style="background:#56aa69" title="Pistachio Green #56aa69"></i><i style="background:#4f8fe6" title="Olympic Blue #4f8fe6"></i><i style="background:#008aa1" title="Antwarp Blue #008aa1"></i><i style="background:#0057ba" title="Helvetia Blue #0057ba"></i><i style="background:#00592e" title="Dusky Green #00592e"></i><i style="background:#202d85" title="Violet Blue #202d85"></i><i style="background:#003e83" title="Vandar Poel's Blue #003e83"></i><i style="background:#0d2b52" title="Dark Tyrian Blue #0d2b52"></i><i style="background:#06004f" title="Dull Violet Black #06004f"></i><i style="background:#000831" title="Deep Indigo #000831"></i><i style="background:#cc85d1" title="Laelia Pink #cc85d1"></i><i style="background:#b875eb" title="Lilac #b875eb"></i><i style="background:#6e66d4" title="Dull Blue Violet #6e66d4"></i><i style="background:#7e3075" title="Veronia Purple #7e3075"></i><i style="background:#53225c" title="Dark Slate Purple #53225c"></i><i style="background:#6b2e63" title="Taupe Brown #6b2e63"></i><i style="background:#531745" title="Violet Carmine #531745"></i><i style="background:#340059" title="Cotinga Purple #340059"></i><i style="background:#2d0060" title="Dusky Madder Violet #2d0060"></i></div>
+      <p class="label">why these are in</p>
+      <ul class="reasons"><li><i class="dot" style="background:#3d0079"></i><b>Violet Red</b> — leans cool, the way your skin does; deeper than your skin by 65 — your face stays distinct</li><li><i class="dot" style="background:#65a98f"></i><b>Artemesia Green</b> — leans cool, the way your skin does; deeper than your skin by 18 — your face stays distinct</li><li><i class="dot" style="background:#5c8a73"></i><b>Andover Green</b> — leans cool, the way your skin does; deeper than your skin by 29 — your face stays distinct</li></ul>
+      <p class="label">why others are out</p>
+      <ul class="reasons out"><li><i class="dot" style="background:#ffb3f0"></i><b>Hermosa Pink</b> — only 1 apart from your skin — your face melts into it</li><li><i class="dot" style="background:#ffa6d9"></i><b>Corinthian Pink</b> — pulls the opposite temperature to your skin</li><li><i class="dot" style="background:#e6adcf"></i><b>Cameo Pink</b> — pulls the opposite temperature to your skin</li></ul>
+    </div>
+    <div class="way">
+      <div class="wayhead">Way 2 — Clear Winter list <span class="cnt">20 of 157</span></div>
+      <div class="sw"><i style="background:#ff5ec4" title="Eosine Pink #ff5ec4"></i><i style="background:#ff4dc9" title="Spinel Red #ff4dc9"></i><i style="background:#d94d99" title="Old Rose #d94d99"></i><i style="background:#cc1a97" title="Indian Lake #cc1a97"></i><i style="background:#b319ab" title="Rosolanc Purple #b319ab"></i><i style="background:#b90078" title="Pomegranite Purple #b90078"></i><i style="background:#6f0043" title="Pansy Purple #6f0043"></i><i style="background:#4f8fe6" title="Olympic Blue #4f8fe6"></i><i style="background:#0d75ff" title="Blue #0d75ff"></i><i style="background:#0057ba" title="Helvetia Blue #0057ba"></i><i style="background:#202d85" title="Violet Blue #202d85"></i><i style="background:#003e83" title="Vandar Poel's Blue #003e83"></i><i style="background:#cc85d1" title="Laelia Pink #cc85d1"></i><i style="background:#b875eb" title="Lilac #b875eb"></i><i style="background:#9161f2" title="Light Mauve #9161f2"></i><i style="background:#9c52f2" title="Aconite Violet #9c52f2"></i><i style="background:#6e66d4" title="Dull Blue Violet #6e66d4"></i><i style="background:#4d52de" title="Dark Soft Violet #4d52de"></i><i style="background:#7e3075" title="Veronia Purple #7e3075"></i><i style="background:#3400a3" title="Red Violet #3400a3"></i></div>
+      <p class="label">why these are in</p>
+      <ul class="reasons">
+        <li class="flat">Because I wrote a box in colour space labelled
+        “Clear Winter” and these fell inside it. That is the entire reason.
+        There is no source to cite.</li>
+      </ul>
+      <p class="label">overlap with Way 1</p>
+      <ul class="reasons"><li class="flat">8 colours appear in both lists.</li></ul>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+<b>What the numbers actually show.</b> The two methods disagree badly — they
+overlap on only 9 and 8 colours respectively. So this isn't a cosmetic choice;
+you'd be shipping meaningfully different advice. Way 1 returns more for Persona A
+and about the same for Persona B, but the counts aren't the point: both are
+tunable to any size. The difference that can't be tuned away is <b>where the
+numbers come from</b>. Way 1's come from your face. Way 2's come from me.
+</div>
+
+<div class="note">
+<b>A separate finding worth knowing.</b> Sanzo Wada's palette leans warm —
+109 of the 157 colours read warm, only 48 cool. Whatever we build, cool-toned
+visitors will get a smaller personal palette than warm-toned ones. That's the
+book, not the method. We should say so on the page rather than let it look
+like a bug.
+</div>
+
+<h3>So — which do you want?</h3>
+<div class="options">
+  <div class="option" data-choice="way1-sticker">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Way 1 filters, season is a sticker <span style="opacity:.6;font-weight:400">(what you said you were leaning to)</span></h3>
+      <p>The palette is chosen by the measured rules. We <em>also</em> print your
+      best-guess 12-season name on the result, clearly marked as a summary of the
+      same measurements — so someone who's had a real consultation can compare
+      notes. One palette, one label, everything traceable to your face.</p>
+    </div>
+  </div>
+  <div class="option chosen" data-choice="both-tabs">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Both palettes, shown side by side</h3>
+      <p>The result page shows the measured palette <em>and</em> the traditional
+      season palette as two separate lists, and is honest that they're built
+      differently. More to look at, more to explain, and we'd have to defend the
+      12 invented season lists in the About text — but it's the most useful page
+      for someone who already knows their season.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="way1-only">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Way 1 only, no season at all</h3>
+      <p>Purest version. We never say "Deep Autumn", we just show your colours and
+      why. Nothing on the page that I can't source. Loses the hook for anyone
+      who came looking for their season.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

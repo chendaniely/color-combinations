@@ -346,6 +346,295 @@ main { flex: 1; min-height: 0; position: relative; }
   box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 0 0 6px rgba(242,101,34,0.18);
   pointer-events: none;
 }
+/* The You tab's face guide — an oval rather than .cam-reticle's small circle,
+   because the visitor is framing a whole face, not aiming at one point. */
+.face-oval {
+  position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+  width: 62%; height: 74%; border: 2px dashed var(--paper-hi); border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.25); opacity: 0.75; pointer-events: none;
+}
+.face-sources { display: flex; gap: var(--s2); margin-bottom: var(--s3); }
+.face-sources button {
+  padding: var(--s1) var(--s4); border: 1px solid var(--hairline);
+  border-radius: 999px; background: transparent; color: var(--ink-muted);
+  font: inherit; font-size: 0.85rem; cursor: pointer;
+}
+.face-sources button[aria-selected="true"] {
+  background: var(--link); border-color: var(--link); color: var(--paper-hi); font-weight: 700;
+}
+/* The You tab. */
+.you-view { max-width: 720px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s12); }
+.you-intro h1 { font-family: var(--font-display); font-weight: 500; margin: 0 0 var(--s3); }
+.you-intro p { color: var(--ink-muted); margin: 0 0 var(--s3); }
+.you-privacy { font-size: 0.85rem; border-left: 2px solid var(--link); padding-left: var(--s3); }
+.you-actions { display: flex; gap: var(--s2); margin-top: var(--s6); }
+.you-next { margin-top: var(--s6); color: var(--ink-faint); font-size: 0.85rem; }
+
+.reading-strip {
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  padding: var(--s4); margin-top: var(--s6);
+  /* Positioned so a tooltip can span it on a narrow screen (see below). */
+  position: relative;
+}
+.reading-swatches { display: flex; gap: var(--s6); margin-bottom: var(--s4); }
+.reading-swatch { display: flex; align-items: center; gap: var(--s2); }
+.reading-swatch i {
+  width: 40px; height: 40px; border-radius: var(--radius);
+  border: 1px solid var(--hairline); display: block;
+}
+.reading-swatch b { display: block; font-size: 0.85rem; }
+.reading-swatch small {
+  display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-muted);
+}
+.reading-axes { display: flex; flex-wrap: wrap; gap: var(--s6); margin: 0 0 var(--s4); }
+.reading-axes div { margin: 0; }
+.reading-axes dt { font-size: 1rem; font-weight: 700; text-transform: capitalize; }
+.reading-axes dd {
+  margin: 0; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-muted);
+}
+/* "What does this word mean?" — tap target sized for a finger, since this is
+   primarily a phone feature. */
+.infotip { position: relative; display: inline-block; vertical-align: middle; }
+/* isolation keeps the 44px hit area from sitting above neighbouring controls. */
+.infotip-btn { position: relative; isolation: isolate; }
+.infotip-btn {
+  width: 18px; height: 18px; border-radius: 50%; padding: 0;
+  border: 1px solid var(--ink-faint); background: transparent; color: var(--ink-muted);
+  font-family: var(--font-ui); font-size: 0.68rem; font-style: italic; font-weight: 700;
+  line-height: 1; cursor: pointer; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+.infotip-btn:hover, .infotip-btn[aria-expanded="true"] {
+  border-color: var(--link); color: var(--link);
+}
+/* The visible circle stays 18px so it doesn't shout, but the HIT AREA is
+   extended to 44px — the size a fingertip actually needs. Without this the
+   control is decorative on the device the feature is mostly used on. */
+.infotip-btn::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
+.infotip-body {
+  position: absolute; z-index: 20; top: calc(100% + 8px);
+  /* Clamp to the viewport so a tip near the right edge cannot run off-screen:
+     centred on the button, but never past 8px from either side. */
+  left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: min(19rem, calc(100vw - 2 * var(--s4)));
+  background: var(--paper-hi); border: 1px solid var(--hairline);
+  border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+  padding: var(--s3); font-size: 0.8rem; font-weight: 400; line-height: 1.5;
+  color: var(--ink); text-transform: none; letter-spacing: normal; text-align: left;
+}
+.infotip-body b { font-weight: 700; }
+/* On a phone a tip centred on its button runs off the edge — a 304px card
+   centred on a right-hand term overflows a 390px screen by ~130px. Below this
+   width the tip stops tracking the button and becomes a full-width card spanning
+   the reading strip instead, which is both reachable and easier to read.
+   NOTE: this is the one part of the info tips that browser automation could not
+   verify (the viewport would not resize); it is on the owner's 375px checklist. */
+@media (max-width: 560px) {
+  .infotip { position: static; }
+  .infotip-body {
+    left: var(--s4); right: var(--s4); transform: none;
+    width: auto; max-width: none;
+  }
+}
+
+.reading-badge {
+  display: inline-block; margin: 0; padding: var(--s1) var(--s3); border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700;
+}
+.reading-badge.ok { background: rgba(35,97,146,0.1); color: var(--link); }
+.reading-badge.rough { background: rgba(242,101,34,0.12); color: var(--accent); }
+.reading-caveat {
+  font-size: 0.82rem; color: var(--ink-muted);
+  border-left: 2px solid var(--accent); padding-left: var(--s3); margin: var(--s3) 0 0;
+}
+
+/* The result page: season row, palette toggle, colours. */
+.you-palettes { margin-top: var(--s8); }
+.you-season-row {
+  display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+.you-season-row label {
+  font-size: 0.7rem; letter-spacing: var(--tracking-label);
+  text-transform: uppercase; color: var(--ink-muted); font-weight: 700;
+}
+.you-season-row select {
+  padding: var(--s1) var(--s3); border: 1px solid var(--hairline);
+  border-radius: var(--radius); background: transparent; color: inherit;
+  font: inherit; font-size: 0.9rem;
+}
+.you-season-hint { font-size: 0.75rem; color: var(--ink-faint); flex: 1 1 14rem; }
+
+.you-tabs {
+  display: inline-flex; border: 1px solid var(--hairline);
+  border-radius: 999px; overflow: hidden; margin-bottom: var(--s3); flex-wrap: wrap;
+}
+.you-tabs button {
+  padding: var(--s2) var(--s4); border: 0; background: transparent;
+  color: var(--ink-muted); font: inherit; font-size: 0.82rem;
+}
+.you-tabs button[aria-selected='true'] {
+  background: var(--link); color: var(--paper-hi); font-weight: 700;
+}
+
+/* Where this palette came from — never behind a disclosure. */
+.you-provenance {
+  font-size: 0.82rem; color: var(--ink-muted); line-height: 1.55;
+  border-left: 2px solid var(--link); padding-left: var(--s3);
+  margin: 0 0 var(--s4); max-width: 46rem;
+}
+.you-provenance.season { border-left-color: var(--accent); }
+
+.you-swatches {
+  display: grid; gap: var(--s2);
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+}
+.you-swatch { display: flex; flex-direction: column; gap: var(--s1); }
+.you-swatch i {
+  height: 44px; border-radius: var(--radius); border: 1px solid var(--hairline);
+  display: block;
+}
+.you-swatch span { font-size: 0.68rem; color: var(--ink-muted); line-height: 1.3; }
+.you-note {
+  margin-top: var(--s4); font-size: 0.82rem; color: var(--ink-muted);
+  border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
+}
+
+/* Out of the You tab and into the rest of the site. */
+.you-doorways {
+  margin-top: var(--s8); padding-top: var(--s6);
+  border-top: 1px solid var(--hairline);
+}
+.you-doorways p { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--s3); }
+.you-doorway-buttons { display: flex; gap: var(--s2); flex-wrap: wrap; }
+
+/* Ranked combinations, and the floor that decides where the list stops. */
+.you-combos { margin-top: var(--s8); }
+.you-combos h2 {
+  font-family: var(--font-display); font-weight: 500; font-size: 1.3rem;
+  margin-bottom: var(--s2);
+}
+.you-combos-lede {
+  color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--s4);
+  max-width: 46rem;
+}
+.you-floor { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s4); }
+.you-floor button {
+  padding: var(--s1) var(--s3); border: 1px solid var(--hairline);
+  border-radius: 999px; background: transparent; color: var(--ink-muted);
+  font: inherit; font-size: 0.78rem;
+}
+.you-floor button[aria-checked='true'] {
+  background: var(--ink); border-color: var(--ink); color: var(--paper-1); font-weight: 700;
+}
+.you-floor em { font-style: normal; font-family: var(--font-mono); opacity: 0.7; }
+.you-combo-grid {
+  display: grid; gap: var(--s4);
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+.you-combo small {
+  display: block; margin-top: var(--s1); font-size: 0.68rem; color: var(--ink-faint);
+  font-family: var(--font-mono);
+}
+/* A colour in the plate that is NOT in the visitor's palette. Dashed rather
+   than tinted, so the colour itself still reads true. */
+.plate-bar.is-outsider {
+  box-shadow: inset 0 0 0 2px var(--paper-hi), inset 0 0 0 3px var(--ink);
+  opacity: 0.72;
+}
+
+/* Fixed-height slot for the "tap your skin" instruction. Reserved whether or
+   not the text is showing, so it can never reflow the photo mid-aim. */
+.probe-hint {
+  min-height: 1.4em; margin: var(--s2) 0; font-size: 0.85rem;
+  color: var(--accent); text-align: center; flex: 0 0 auto;
+}
+
+/* ProbeReview — the "here's what we measured" step.
+   Unlike .cam-stage this takes the photo's own aspect ratio and contains the
+   image rather than cropping it: the visitor has to be able to see the white
+   object they are confirming, and the probe dots have to land on the pixels
+   that were actually sampled. */
+.probe-stage {
+  position: relative; width: 100%; max-width: 420px;
+  background: var(--ink); border-radius: var(--radius); overflow: hidden;
+  /* MUST NOT SHRINK. The overlay is a height-constrained flex column, so by
+     default flexbox squashes this box to make room for anything that appears
+     below it — which silently breaks the aspect-ratio set inline from the
+     photo's own dimensions. Once the box aspect stops matching the image
+     aspect, object-fit: contain starts letterboxing, the image no longer fills
+     the element, and the probe dots (positioned as a percentage of this box)
+     drift away from the pixels they represent. Measured drift when the
+     "tap your skin" line appeared: 37px across, 21px down. */
+  flex: 0 0 auto;
+}
+.probe-canvas {
+  width: 100%; height: 100%; object-fit: contain; touch-action: none; display: block;
+}
+.probe-dot {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--paper-hi); pointer-events: none;
+}
+/* Each kind reads differently, so a probe in the wrong zone is obvious. */
+.probe-dot.is-skin { box-shadow: 0 0 0 2px var(--accent); }
+.probe-dot.is-hair { box-shadow: 0 0 0 2px var(--link); }
+.probe-dot.is-white {
+  box-shadow: 0 0 0 2px var(--ink); background: rgba(255,255,255,0.35);
+  border-style: dashed;
+}
+.probe-dot b {
+  position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--paper-hi); text-shadow: 0 1px 2px rgba(0,0,0,0.9); white-space: nowrap;
+}
+.probe-reads { display: flex; flex-wrap: wrap; gap: var(--s4); margin: var(--s3) 0; }
+.probe-read { display: flex; align-items: center; gap: var(--s2); }
+.probe-chip {
+  width: 34px; height: 34px; border-radius: var(--radius);
+  border: 1px solid var(--hairline); display: block;
+}
+.probe-read b { display: block; font-size: 0.85rem; }
+.probe-read small {
+  display: block; font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-muted);
+}
+/* Hand-nudged white balance, next to the eyedropper that seeds it. */
+.probe-wb {
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  padding: var(--s3); margin-bottom: var(--s3);
+}
+.probe-wb-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: var(--s2); font-size: 0.85rem;
+}
+.probe-wb-reset {
+  border: 0; background: transparent; color: var(--link); font: inherit;
+  font-size: 0.75rem; cursor: pointer; padding: 0;
+}
+.probe-slider { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--s2);
+  align-items: center; margin-bottom: var(--s2); }
+.probe-slider span { font-size: 0.78rem; color: var(--ink-muted); }
+.probe-slider small {
+  grid-column: 2; font-size: 0.65rem; color: var(--ink-faint);
+  display: flex; justify-content: space-between; margin-top: -4px;
+}
+.probe-slider input[type="range"] { width: 100%; accent-color: var(--link); }
+
+.probe-fixes { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s3); }
+.probe-fixes button {
+  padding: var(--s1) var(--s3); border: 1px solid var(--hairline); border-radius: 999px;
+  background: transparent; color: var(--ink-muted); font: inherit; font-size: 0.78rem;
+  cursor: pointer;
+}
+.probe-fixes button:hover { border-color: var(--link); color: var(--link); }
+.probe-note {
+  font-size: 0.8rem; color: var(--ink-muted); border-left: 2px solid var(--accent);
+  padding-left: var(--s3); margin: 0 0 var(--s3);
+}
 .cam-tap { position: absolute; transform: translate(-50%, -50%);
   width: 30px; height: 30px; border: 2px solid var(--paper-hi); border-radius: 50%;
   box-shadow: 0 0 0 2px var(--accent); pointer-events: none; }

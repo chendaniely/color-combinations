@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personal color analysis — result page layouts (2026-07-28)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=EB+Garamond:ital@0;1&display=swap">
+<style>
+  :root{
+    --paper-1:#f8f6f2;--paper-2:#f0ebe2;--ink:#2f2a26;--muted:#7e7468;--faint:#b8aea2;
+    --hairline:#e8ddd2;--accent:#f26522;--link:#236192;
+    --serif:'EB Garamond',Georgia,serif;--ui:'Atkinson Hyperlegible',system-ui,sans-serif;
+    --border:#e8ddd2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px 24px 64px;background:var(--paper-1);color:var(--ink);
+       font-family:var(--ui);line-height:1.55;max-width:1180px;margin-inline:auto}
+  h1{font-family:var(--serif);font-weight:500;font-size:30px;margin:0 0 4px}
+  h2{font-family:var(--serif);font-weight:500;font-size:24px;margin:32px 0 6px}
+  h3{font-size:16px;margin:0 0 4px}
+  .subtitle{color:var(--muted);margin:0 0 20px;font-size:14px}
+  .deck{color:var(--muted);font-size:13px;margin:0 0 28px;padding-bottom:20px;
+        border-bottom:1px solid var(--hairline)}
+  .options{display:grid;gap:12px;margin-top:20px}
+  .option{display:flex;gap:14px;border:1px solid var(--hairline);border-radius:10px;
+          padding:14px;background:var(--paper-2)}
+  .letter{font-family:var(--serif);font-size:22px;color:var(--accent);flex:0 0 24px}
+  .option p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .chosen{outline:2px solid var(--link);outline-offset:2px}
+  .chosen .letter{color:var(--link)}
+  .mockup{border:1px solid var(--hairline);border-radius:10px;overflow:hidden;
+          margin:0 0 26px;background:#fff}
+  .mockup-header{background:var(--paper-2);padding:9px 14px;font-size:12px;font-weight:700;
+                 border-bottom:1px solid var(--hairline)}
+</style>
+</head>
+<body>
+<h1>The result page — two columns or a toggle?</h1>
+<p class="deck">Brainstorm mockup, 2026-07-28. Real output for a deep-warm-skin persona: all 53 measured colours and every matching plate, no truncation. Layout B (the toggle) was chosen — this is a camera feature, so the phone is the primary case, and there two columns collapse to a stack. Spec: 2026-07-28-personal-color-analysis-design.md</p>
+<style>
+.mockup-body{padding:16px}
+.reading{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding-bottom:14px;
+  border-bottom:1px solid #8884;margin-bottom:12px}
+.rswatch{display:flex;align-items:center;gap:7px;font-size:12px}
+.rswatch i{width:34px;height:34px;border-radius:7px;border:1px solid #0002;display:block}
+.rswatch b{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.6}
+.rswatch span{font-family:ui-monospace,Menlo,monospace;opacity:.75}
+.rnums{display:flex;gap:18px;flex-wrap:wrap}
+.rnums div{display:flex;flex-direction:column}
+.rnums b{font-size:14px}
+.rnums span{font-size:11px;opacity:.65;font-family:ui-monospace,Menlo,monospace}
+.badge{margin-left:auto;font-size:11px;padding:4px 9px;border-radius:999px;font-weight:700}
+.badge.ok{background:#2361921a;color:#236192;border:1px solid #23619244}
+.seasonrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.seasonrow label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;opacity:.6;font-weight:700}
+.seasonrow select{padding:5px 9px;border-radius:6px;border:1px solid #8886;background:transparent;
+  color:inherit;font:inherit;font-size:13px}
+.hint{font-size:11px;opacity:.6;flex:1 1 220px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+.cols section{min-width:0}
+h4{margin:0 0 3px;font-size:15px;display:flex;align-items:baseline;gap:8px}
+h4 em{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;opacity:.6}
+h5{margin:16px 0 7px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;opacity:.6}
+.prov{font-size:11.5px;margin:0 0 10px;padding-left:9px;border-left:2px solid}
+.prov.ok{border-color:#236192;opacity:.85}
+.prov.warn{border-color:#F26522;opacity:.85}
+.swgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.swgrid.wide{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+.sc{display:flex;flex-direction:column;gap:3px}
+.sc i{height:34px;border-radius:5px;border:1px solid #0002;display:block}
+.sc span{font-size:9.5px;opacity:.7;line-height:1.25;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.more{font-size:11px;opacity:.5;margin:7px 0 0}
+.plates{display:flex;gap:9px;flex-wrap:wrap}
+.plate{width:74px}
+.plate .bars{display:flex;height:44px;border-radius:5px;overflow:hidden;border:1px solid #0002}
+.plate u{display:block;height:100%}
+.plate small{font-size:9px;opacity:.55;display:block;margin-top:3px;font-family:ui-monospace,Menlo,monospace}
+.seg{display:inline-flex;border:1px solid #8886;border-radius:8px;overflow:hidden;margin-bottom:12px}
+.seg button{padding:7px 13px;border:0;background:transparent;color:inherit;font:inherit;
+  font-size:12.5px;cursor:pointer}
+.seg button.on{background:#236192;color:#fff;font-weight:700}
+.doorways{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
+</style>
+<h2>The result page — which layout?</h2>
+<p class="subtitle">Both layouts now show ALL 53 measured colours and all matching plates — no truncation, so the real height difference is visible.</p>
+
+<div class="mockup"><div class="mockup-header">Layout A — two columns, always both visible</div>
+<div class="mockup-body">
+
+<div class="reading">
+  <div class="rswatch"><i style="background:#a1673f"></i><b>skin</b><span>#a1673f</span></div>
+  <div class="rswatch"><i style="background:#1a1110"></i><b>hair</b><span>#1a1110</span></div>
+  <div class="rnums">
+    <div><b>warm</b><span>hue 59° · ITA -2°</span></div>
+    <div><b>deep</b><span>L* 49</span></div>
+    <div><b>high contrast</b><span>gap 43</span></div>
+  </div>
+  <div class="badge ok">✓ white-balanced</div>
+</div>
+<div class="seasonrow">
+  <label>Your season</label>
+  <select><option>Deep Autumn — our guess</option><option>True Autumn</option>
+  <option>Soft Autumn</option><option>Warm Spring</option><option>Deep Winter</option>
+  <option>…all twelve</option></select>
+  <span class="hint">Been analysed professionally? Pick yours and the second list follows it.</span>
+</div>
+<div class="cols">
+  <section>
+    <h4>Measured for you <em>53</em></h4>
+    <p class="prov ok">From your face — hue, lightness and contrast, by the four rules.</p>
+    <div class="swgrid"><div class="sc"><i style="background:#ffb3f0"></i><span>Hermosa Pink</span></div><div class="sc"><i style="background:#ffa6d9"></i><span>Corinthian Pink</span></div><div class="sc"><i style="background:#e6adcf"></i><span>Cameo Pink</span></div><div class="sc"><i style="background:#ff7399"></i><span>Coral Red</span></div><div class="sc"><i style="background:#ff788c"></i><span>Fresh Color</span></div><div class="sc"><i style="background:#ff5ec4"></i><span>Eosine Pink</span></div><div class="sc"><i style="background:#a10b2b"></i><span>Carmine Red</span></div><div class="sc"><i style="background:#a10045"></i><span>Red</span></div><div class="sc"><i style="background:#6c2b11"></i><span>Brown</span></div><div class="sc"><i style="background:#681916"></i><span>Hay's Russet</span></div><div class="sc"><i style="background:#740909"></i><span>Vandyke Red</span></div><div class="sc"><i style="background:#6f0043"></i><span>Pansy Purple</span></div><div class="sc"><i style="background:#730f1f"></i><span>Pale Burnt Lake</span></div><div class="sc"><i style="background:#5c2c45"></i><span>Vistoris Lake</span></div><div class="sc"><i style="background:#f5f5b8"></i><span>Sulpher Yellow</span></div><div class="sc"><i style="background:#fff59e"></i><span>Pale Lemon Yellow</span></div><div class="sc"><i style="background:#faed8f"></i><span>Naples Yellow</span></div><div class="sc"><i style="background:#ebd999"></i><span>Ivory Buff</span></div><div class="sc"><i style="background:#ffbf99"></i><span>Light Pinkish Cinnamon</span></div><div class="sc"><i style="background:#f2ad78"></i><span>Pinkish Cinnamon</span></div><div class="sc"><i style="background:#ffbf6e"></i><span>Cinnamon Buff</span></div><div class="sc"><i style="background:#ffb852"></i><span>Cream Yellow</span></div><div class="sc"><i style="background:#fa9442"></i><span>Golden Yellow</span></div><div class="sc"><i style="background:#f59994"></i><span>Vinaceous Cinnamon</span></div><div class="sc"><i style="background:#d99e73"></i><span>Ochraceous Salmon</span></div><div class="sc"><i style="background:#c3a55c"></i><span>Isabella Color</span></div><div class="sc"><i style="background:#c2975a"></i><span>Maple</span></div><div class="sc"><i style="background:#bcd382"></i><span>Olive Buff</span></div><div class="sc"><i style="background:#c4bf33"></i><span>Pyrite Yellow</span></div><div class="sc"><i style="background:#d1bd19"></i><span>Olive Ocher</span></div><div class="sc"><i style="background:#e0b81f"></i><span>Yellow Ocher</span></div><div class="sc"><i style="background:#ff7340"></i><span>Apricot Orange</span></div><div class="sc"><i style="background:#baa600"></i><span>Sulphine Yellow</span></div><div class="sc"><i style="background:#5e4017"></i><span>Pale Raw Umber</span></div><div class="sc"><i style="background:#503d00"></i><span>Sepia</span></div><div class="sc"><i style="background:#651300"></i><span>Madder Brown</span></div><div class="sc"><i style="background:#522000"></i><span>Mars Brown / Tobacco</span></div><div class="sc"><i style="background:#b5ffc2"></i><span>Turquoise Green</span></div><div class="sc"><i style="background:#b3e8c2"></i><span>Glaucous Green</span></div><div class="sc"><i style="background:#b3d9a3"></i><span>Dark Greenish Glaucous</span></div><div class="sc"><i style="background:#99b333"></i><span>Olive Yellow</span></div><div class="sc"><i style="background:#85b857"></i><span>Rainette Green</span></div><div class="sc"><i style="background:#23c17c"></i><span>Light Porcelain Green</span></div><div class="sc"><i style="background:#405416"></i><span>Lincoln Green</span></div><div class="sc"><i style="background:#324e2a"></i><span>Blackish Olive</span></div><div class="sc"><i style="background:#94ff94"></i><span>Cobalt Green</span></div><div class="sc"><i style="background:#6bffb3"></i><span>Venice Green</span></div><div class="sc"><i style="background:#00592e"></i><span>Dusky Green</span></div><div class="sc"><i style="background:#cc85d1"></i><span>Laelia Pink</span></div><div class="sc"><i style="background:#7e3075"></i><span>Veronia Purple</span></div><div class="sc"><i style="background:#53225c"></i><span>Dark Slate Purple</span></div><div class="sc"><i style="background:#6b2e63"></i><span>Taupe Brown</span></div><div class="sc"><i style="background:#531745"></i><span>Violet Carmine</span></div></div>
+    
+    <h5>Combinations using only these — 13</h5>
+    <div class="plates"><div class="plate"><div class="bars"><u style="background:#503d00;width:50.0%"></u><u style="background:#7e3075;width:50.0%"></u></div><small>No. 24</small></div><div class="plate"><div class="bars"><u style="background:#fa9442;width:50.0%"></u><u style="background:#5e4017;width:50.0%"></u></div><small>No. 26</small></div><div class="plate"><div class="bars"><u style="background:#baa600;width:50.0%"></u><u style="background:#b5ffc2;width:50.0%"></u></div><small>No. 36</small></div><div class="plate"><div class="bars"><u style="background:#f2ad78;width:50.0%"></u><u style="background:#6bffb3;width:50.0%"></u></div><small>No. 78</small></div><div class="plate"><div class="bars"><u style="background:#ebd999;width:50.0%"></u><u style="background:#00592e;width:50.0%"></u></div><small>No. 94</small></div><div class="plate"><div class="bars"><u style="background:#a10b2b;width:50.0%"></u><u style="background:#f5f5b8;width:50.0%"></u></div><small>No. 104</small></div><div class="plate"><div class="bars"><u style="background:#fff59e;width:50.0%"></u><u style="background:#324e2a;width:50.0%"></u></div><small>No. 109</small></div><div class="plate"><div class="bars"><u style="background:#6c2b11;width:33.333333333333336%"></u><u style="background:#d99e73;width:33.333333333333336%"></u><u style="background:#405416;width:33.333333333333336%"></u></div><small>No. 121</small></div><div class="plate"><div class="bars"><u style="background:#730f1f;width:33.333333333333336%"></u><u style="background:#e0b81f;width:33.333333333333336%"></u><u style="background:#99b333;width:33.333333333333336%"></u></div><small>No. 124</small></div><div class="plate"><div class="bars"><u style="background:#a10b2b;width:33.333333333333336%"></u><u style="background:#bcd382;width:33.333333333333336%"></u><u style="background:#85b857;width:33.333333333333336%"></u></div><small>No. 200</small></div><div class="plate"><div class="bars"><u style="background:#fff59e;width:33.333333333333336%"></u><u style="background:#f59994;width:33.333333333333336%"></u><u style="background:#405416;width:33.333333333333336%"></u></div><small>No. 203</small></div><div class="plate"><div class="bars"><u style="background:#5c2c45;width:25.0%"></u><u style="background:#fff59e;width:25.0%"></u><u style="background:#405416;width:25.0%"></u><u style="background:#94ff94;width:25.0%"></u></div><small>No. 290</small></div><div class="plate"><div class="bars"><u style="background:#ff5ec4;width:25.0%"></u><u style="background:#681916;width:25.0%"></u><u style="background:#fff59e;width:25.0%"></u><u style="background:#324e2a;width:25.0%"></u></div><small>No. 336</small></div></div>
+  </section>
+  <section>
+    <h4>Deep Autumn list <em>18</em></h4>
+    <p class="prov warn">From a table we wrote. Traditional, not measured.</p>
+    <div class="swgrid"><div class="sc"><i style="background:#b85e00"></i><span>Raw Sienna</span></div><div class="sc"><i style="background:#c9303e"></i><span>Etruscan Red</span></div><div class="sc"><i style="background:#a93400"></i><span>Burnt Sienna</span></div><div class="sc"><i style="background:#a7374b"></i><span>Ochre Red</span></div><div class="sc"><i style="background:#a10b2b"></i><span>Carmine Red</span></div><div class="sc"><i style="background:#a90636"></i><span>Pompeian Red</span></div><div class="sc"><i style="background:#6c2b11"></i><span>Brown</span></div><div class="sc"><i style="background:#681916"></i><span>Hay's Russet</span></div><div class="sc"><i style="background:#740909"></i><span>Vandyke Red</span></div><div class="sc"><i style="background:#730f1f"></i><span>Pale Burnt Lake</span></div><div class="sc"><i style="background:#c2612c"></i><span>Cinnamon Rufous</span></div><div class="sc"><i style="background:#8c6510"></i><span>Orange Citrine</span></div><div class="sc"><i style="background:#9b5348"></i><span>Sudan Brown</span></div><div class="sc"><i style="background:#5e4017"></i><span>Pale Raw Umber</span></div><div class="sc"><i style="background:#503d00"></i><span>Sepia</span></div><div class="sc"><i style="background:#651300"></i><span>Madder Brown</span></div><div class="sc"><i style="background:#522000"></i><span>Mars Brown / Tobacco</span></div><div class="sc"><i style="background:#362304"></i><span>Vandyke Brown</span></div></div>
+    
+    <h5>Combinations using only these — 1</h5>
+    <div class="plates"><div class="plate"><div class="bars"><u style="background:#6c2b11;width:50.0%"></u><u style="background:#362304;width:50.0%"></u></div><small>No. 110</small></div></div>
+  </section>
+</div>
+<div class="doorways"><button class="mock-button">→ Build a palette</button>
+<button class="mock-button">→ Browse these</button></div>
+</div></div>
+
+<div class="mockup"><div class="mockup-header">Layout B — one list at a time, switched</div>
+<div class="mockup-body">
+
+<div class="reading">
+  <div class="rswatch"><i style="background:#a1673f"></i><b>skin</b><span>#a1673f</span></div>
+  <div class="rswatch"><i style="background:#1a1110"></i><b>hair</b><span>#1a1110</span></div>
+  <div class="rnums">
+    <div><b>warm</b><span>hue 59° · ITA -2°</span></div>
+    <div><b>deep</b><span>L* 49</span></div>
+    <div><b>high contrast</b><span>gap 43</span></div>
+  </div>
+  <div class="badge ok">✓ white-balanced</div>
+</div>
+<div class="seasonrow">
+  <label>Your season</label>
+  <select><option>Deep Autumn — our guess</option><option>True Autumn</option>
+  <option>Soft Autumn</option><option>Warm Spring</option><option>Deep Winter</option>
+  <option>…all twelve</option></select>
+  <span class="hint">Been analysed professionally? Pick yours and the second list follows it.</span>
+</div>
+<div class="seg"><button class="on">Measured for you · 53</button><button>Deep Autumn (traditional) · 18</button></div>
+<p class="prov ok">From your face — hue, lightness and contrast, by the four rules.
+<a href="#">How this was worked out</a></p>
+<div class="swgrid wide"><div class="sc"><i style="background:#ffb3f0"></i><span>Hermosa Pink</span></div><div class="sc"><i style="background:#ffa6d9"></i><span>Corinthian Pink</span></div><div class="sc"><i style="background:#e6adcf"></i><span>Cameo Pink</span></div><div class="sc"><i style="background:#ff7399"></i><span>Coral Red</span></div><div class="sc"><i style="background:#ff788c"></i><span>Fresh Color</span></div><div class="sc"><i style="background:#ff5ec4"></i><span>Eosine Pink</span></div><div class="sc"><i style="background:#a10b2b"></i><span>Carmine Red</span></div><div class="sc"><i style="background:#a10045"></i><span>Red</span></div><div class="sc"><i style="background:#6c2b11"></i><span>Brown</span></div><div class="sc"><i style="background:#681916"></i><span>Hay's Russet</span></div><div class="sc"><i style="background:#740909"></i><span>Vandyke Red</span></div><div class="sc"><i style="background:#6f0043"></i><span>Pansy Purple</span></div><div class="sc"><i style="background:#730f1f"></i><span>Pale Burnt Lake</span></div><div class="sc"><i style="background:#5c2c45"></i><span>Vistoris Lake</span></div><div class="sc"><i style="background:#f5f5b8"></i><span>Sulpher Yellow</span></div><div class="sc"><i style="background:#fff59e"></i><span>Pale Lemon Yellow</span></div><div class="sc"><i style="background:#faed8f"></i><span>Naples Yellow</span></div><div class="sc"><i style="background:#ebd999"></i><span>Ivory Buff</span></div><div class="sc"><i style="background:#ffbf99"></i><span>Light Pinkish Cinnamon</span></div><div class="sc"><i style="background:#f2ad78"></i><span>Pinkish Cinnamon</span></div><div class="sc"><i style="background:#ffbf6e"></i><span>Cinnamon Buff</span></div><div class="sc"><i style="background:#ffb852"></i><span>Cream Yellow</span></div><div class="sc"><i style="background:#fa9442"></i><span>Golden Yellow</span></div><div class="sc"><i style="background:#f59994"></i><span>Vinaceous Cinnamon</span></div><div class="sc"><i style="background:#d99e73"></i><span>Ochraceous Salmon</span></div><div class="sc"><i style="background:#c3a55c"></i><span>Isabella Color</span></div><div class="sc"><i style="background:#c2975a"></i><span>Maple</span></div><div class="sc"><i style="background:#bcd382"></i><span>Olive Buff</span></div><div class="sc"><i style="background:#c4bf33"></i><span>Pyrite Yellow</span></div><div class="sc"><i style="background:#d1bd19"></i><span>Olive Ocher</span></div><div class="sc"><i style="background:#e0b81f"></i><span>Yellow Ocher</span></div><div class="sc"><i style="background:#ff7340"></i><span>Apricot Orange</span></div><div class="sc"><i style="background:#baa600"></i><span>Sulphine Yellow</span></div><div class="sc"><i style="background:#5e4017"></i><span>Pale Raw Umber</span></div><div class="sc"><i style="background:#503d00"></i><span>Sepia</span></div><div class="sc"><i style="background:#651300"></i><span>Madder Brown</span></div><div class="sc"><i style="background:#522000"></i><span>Mars Brown / Tobacco</span></div><div class="sc"><i style="background:#b5ffc2"></i><span>Turquoise Green</span></div><div class="sc"><i style="background:#b3e8c2"></i><span>Glaucous Green</span></div><div class="sc"><i style="background:#b3d9a3"></i><span>Dark Greenish Glaucous</span></div><div class="sc"><i style="background:#99b333"></i><span>Olive Yellow</span></div><div class="sc"><i style="background:#85b857"></i><span>Rainette Green</span></div><div class="sc"><i style="background:#23c17c"></i><span>Light Porcelain Green</span></div><div class="sc"><i style="background:#405416"></i><span>Lincoln Green</span></div><div class="sc"><i style="background:#324e2a"></i><span>Blackish Olive</span></div><div class="sc"><i style="background:#94ff94"></i><span>Cobalt Green</span></div><div class="sc"><i style="background:#6bffb3"></i><span>Venice Green</span></div><div class="sc"><i style="background:#00592e"></i><span>Dusky Green</span></div><div class="sc"><i style="background:#cc85d1"></i><span>Laelia Pink</span></div><div class="sc"><i style="background:#7e3075"></i><span>Veronia Purple</span></div><div class="sc"><i style="background:#53225c"></i><span>Dark Slate Purple</span></div><div class="sc"><i style="background:#6b2e63"></i><span>Taupe Brown</span></div><div class="sc"><i style="background:#531745"></i><span>Violet Carmine</span></div></div>
+
+<h5>Combinations using only these — 13</h5>
+<div class="plates"><div class="plate"><div class="bars"><u style="background:#503d00;width:50.0%"></u><u style="background:#7e3075;width:50.0%"></u></div><small>No. 24</small></div><div class="plate"><div class="bars"><u style="background:#fa9442;width:50.0%"></u><u style="background:#5e4017;width:50.0%"></u></div><small>No. 26</small></div><div class="plate"><div class="bars"><u style="background:#baa600;width:50.0%"></u><u style="background:#b5ffc2;width:50.0%"></u></div><small>No. 36</small></div><div class="plate"><div class="bars"><u style="background:#f2ad78;width:50.0%"></u><u style="background:#6bffb3;width:50.0%"></u></div><small>No. 78</small></div><div class="plate"><div class="bars"><u style="background:#ebd999;width:50.0%"></u><u style="background:#00592e;width:50.0%"></u></div><small>No. 94</small></div><div class="plate"><div class="bars"><u style="background:#a10b2b;width:50.0%"></u><u style="background:#f5f5b8;width:50.0%"></u></div><small>No. 104</small></div><div class="plate"><div class="bars"><u style="background:#fff59e;width:50.0%"></u><u style="background:#324e2a;width:50.0%"></u></div><small>No. 109</small></div><div class="plate"><div class="bars"><u style="background:#6c2b11;width:33.333333333333336%"></u><u style="background:#d99e73;width:33.333333333333336%"></u><u style="background:#405416;width:33.333333333333336%"></u></div><small>No. 121</small></div><div class="plate"><div class="bars"><u style="background:#730f1f;width:33.333333333333336%"></u><u style="background:#e0b81f;width:33.333333333333336%"></u><u style="background:#99b333;width:33.333333333333336%"></u></div><small>No. 124</small></div><div class="plate"><div class="bars"><u style="background:#a10b2b;width:33.333333333333336%"></u><u style="background:#bcd382;width:33.333333333333336%"></u><u style="background:#85b857;width:33.333333333333336%"></u></div><small>No. 200</small></div><div class="plate"><div class="bars"><u style="background:#fff59e;width:33.333333333333336%"></u><u style="background:#f59994;width:33.333333333333336%"></u><u style="background:#405416;width:33.333333333333336%"></u></div><small>No. 203</small></div><div class="plate"><div class="bars"><u style="background:#5c2c45;width:25.0%"></u><u style="background:#fff59e;width:25.0%"></u><u style="background:#405416;width:25.0%"></u><u style="background:#94ff94;width:25.0%"></u></div><small>No. 290</small></div><div class="plate"><div class="bars"><u style="background:#ff5ec4;width:25.0%"></u><u style="background:#681916;width:25.0%"></u><u style="background:#fff59e;width:25.0%"></u><u style="background:#324e2a;width:25.0%"></u></div><small>No. 336</small></div></div>
+<div class="doorways"><button class="mock-button">→ Build a palette</button>
+<button class="mock-button">→ Browse these</button></div>
+</div></div>
+<div style="border-left:3px solid #F26522;padding:10px 14px;margin:18px 0;font-size:14px;
+line-height:1.55;background:#F2652211;border-radius:0 6px 6px 0">
+<b>Note the combination counts.</b> Only <b>13</b> of the book's 348 combinations
+use nothing but Persona A's measured colours, and <b>1</b> for the season list.
+Demanding that <em>every</em> colour in a combination be "yours" is strict. We could
+instead show combinations where the <em>dominant</em> colour is yours — worth deciding
+once you've seen these.
+</div>
+<div class="options">
+  <div class="option" data-choice="layout-a">
+    <div class="letter">A</div><div class="content"><h3>Two columns</h3>
+    <p>Both lists always visible, directly comparable. Stacks vertically on a phone,
+    so the second list is a long scroll away.</p></div>
+  </div>
+  <div class="option chosen" data-choice="layout-b">
+    <div class="letter">B</div><div class="content"><h3>One at a time, switched</h3>
+    <p>A segmented control flips between them. Each list gets full width, so more
+    colours and more plates are visible at once, and it behaves the same on a phone.
+    Comparison needs a click.</p></div>
+  </div>
+</div>
+</body>
+</html>

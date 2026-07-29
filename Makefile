@@ -7,6 +7,7 @@ help: ## Show available commands
 
 install: ## Install dependencies (needs Node.js >= 20 — see README)
 	$(NPM) install
+	$(NPM) run copy-mediapipe
 
 dev: ## Run the site locally with live reload
 	$(NPM) run dev
@@ -25,5 +26,5 @@ update-data: ## Re-download source data and regenerate data/processed/
 	date +%F > data/raw/retrieved-on.txt
 	$(NPM) run ingest
 
-clean: ## Remove build output and installed dependencies
-	rm -rf dist node_modules
+clean: ## Remove build output, copied assets, and installed dependencies
+	rm -rf dist node_modules public/mediapipe

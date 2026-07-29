@@ -1,17 +1,20 @@
 {
   "name": "color-combinations",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run copy-mediapipe && tsc --noEmit && vite build",
+    "copy-mediapipe": "node scripts/copy-mediapipe.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ingest": "tsx scripts/ingest/ingest.ts"
+    "ingest": "tsx scripts/ingest/ingest.ts",
+    "seed-seasons": "tsx scripts/seed-seasons.ts"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.0",
     "culori": "^4.0.2",
     "d3": "^7.9.0",
     "react": "^19.1.0",

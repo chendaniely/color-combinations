@@ -22,6 +22,59 @@ Move finished items to TODO-completed.md with the commit hash.
       is page views only, on purpose. Add one only when there's a specific
       question worth answering, not for a dashboard's sake
 
+- [ ] **OWNER: check the You tab on a real face** (deferred at the owner's
+      request when v1.5.0 was merged — the feature shipped without ever having
+      been pointed at an actual human). Everything below is unverified against
+      reality; every photo used in development was a synthetic gradient:
+      - a real face, with something white in shot and without
+      - a deep skin tone and a light one — the palette rules were tuned on
+        fixtures and the whole feature is a judgement about skin, so this is
+        the one that matters most
+      - hat / no hat, and the "no face found" fallback
+      - does the automatic white reference pick the object you're holding, or a
+        lit wall behind you?
+      - does the hair probe land in hair, on a parting, or on the background?
+      - a phone camera applies its own tone mapping before we see any pixels;
+        von Kries scaling cannot fully undo that, so real-world white balance
+        will be worse than the test numbers suggest
+      - the info-tip card at 375px (the one part browser automation could not
+        confirm — the viewport would not resize)
+      - the whole tab at 375px
+
+- [ ] **You tab (v1.5.0 stage 1)** — owner review passed with "anything else are
+      smaller ui element changes i can fix later on"; those specific tweaks are
+      not yet enumerated here. Add them as they come up.
+- [ ] You tab — the selfie preview is not mirrored, so you appear the wrong way
+      round versus a mirror. Convention is to mirror the PREVIEW only and never
+      the captured frame (mirroring the capture would flip the probe geometry).
+      Deliberately left out of the bug fixes as a UX change, not a defect.
+- [ ] You tab — `tests/probeReview*.test.tsx` cannot catch geometry bugs: jsdom
+      performs no layout, so every rect assertion passes whether or not flexbox
+      has squashed the box. The 2026-07-28 tap-misalignment bug (37px across,
+      21px down) was invisible to 335 passing tests and only surfaced by driving
+      a real browser. Decide whether this screen warrants a real-browser check in
+      CI or stays owner-verified like the wheel.
+- [ ] You tab — the hair probe is a single point at 0.92 of eye-to-chin. Owner
+      at 0.88: "it's RIGHT at the hairline". A sturdier approach is to sample a
+      short vertical strip and take the darkest reading, which stops the result
+      depending on one constant being right for every head.
+- [ ] You tab — no sanity check that the hair sample IS hair. If it lands on a
+      fringe or a receding hairline it reads skin and silently corrupts the
+      contrast axis. Cheap guard: if the hair sample is within a small ΔE of the
+      skin sample, report "no hair visible" instead of a bogus contrast.
+- [ ] You tab — the automatic white reference picks the brightest near-neutral
+      patch outside the face box, which can be a lit wall rather than the object
+      the visitor is holding. Now mitigated by the marker and the sliders, but
+      the auto-pick itself has never been checked against a real photo.
+- [ ] You tab — white balance is von Kries per-channel scaling, not a full
+      chromatic adaptation transform. Measured against a simulated illuminant it
+      is excellent (worst ΔE 0.95), but that model cannot account for a phone's
+      own tone mapping, which applies a non-linear curve before we see any
+      pixels. Real-world accuracy is therefore worse than the test numbers.
+- [ ] You tab — the full-frame white-balance repaint (~1.4M pixels through a
+      lookup table) has been reasoned about but never profiled on a phone. If
+      dragging the temperature slider feels laggy, downscale the preview canvas.
+
 - [ ] PWA: installable web app with camera access — the **camera capture
       shipped** (photo → perceptual color match → Match/Browse; see README);
       only the **PWA / installable** part (manifest, service worker,

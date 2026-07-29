@@ -42,10 +42,43 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
         is how often Wada combined those families. The coarse wheel is a lesson
         in what harmonizes.
       </p>
+      <h3>Find colors that suit you</h3>
+      <p>
+        The <strong>You</strong> tab takes a photograph of your face and measures
+        three things: whether your colouring leans warm or cool, how deep it is,
+        and how much contrast there is between your skin and hair. It then shows
+        you two palettes — and they are <em>not</em> built the same way, which
+        matters.
+      </p>
+      <p>
+        <strong>Measured for you</strong> is worked out from your face by four
+        stated rules: colours that agree with your undertone, are far enough from
+        your skin in lightness that your face stays distinct, are as vivid as
+        your contrast can carry, and avoid a narrow band that makes almost any
+        skin look tired. Every colour will tell you why it's there.
+      </p>
+      <p>
+        <strong>The season palette</strong> — Deep Autumn, Cool Summer and the
+        rest — comes from a table <em>we wrote</em>. The twelve seasons are a
+        long tradition in personal color analysis, but the specific lists here
+        have <strong>no published source</strong>: they are our own curation.
+        They're offered because they're useful if you already know your season,
+        and they live in an editable file rather than buried in code so they can
+        be corrected. Treat them as a second opinion, not a measurement of you.
+      </p>
+      <p>
+        Your photograph <strong>never leaves your device</strong>. It isn't
+        uploaded and isn't saved — it's measured and thrown away, and only the
+        few numbers above it survive. The face detection runs on your own
+        machine, from files served by this site.
+      </p>
       <p className="muted">
         Honesty notes: bar proportions are decorative (the source data has no
         plate ratios); ten one-color entries in the source are hidden as data
-        errors; three five-color combinations appear under "4+".
+        errors; three five-color combinations appear under "4+". Wada's palette
+        leans warm — 109 of its 157 colors read warm against 48 cool — so
+        cool-toned visitors get a shorter personal palette here than warm-toned
+        ones. That's the book, not you.
       </p>
       <p className="muted">
         Data: <a href="https://sanzo-wada.dmbk.io" target="_blank" rel="noreferrer">sanzo-wada.dmbk.io</a>.

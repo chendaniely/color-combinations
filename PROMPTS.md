@@ -948,3 +948,256 @@ of the same hex-formatting helper into one. Shipped as **v1.4.0**.
 
 **Spec:** `docs/superpowers/specs/2026-07-27-color-picker-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-27-color-picker.md`
+
+## 2026-07-28 — Session 15: personal color analysis (the You tab)
+
+**Owner prompt (opened with a knowledge question, not a request to build):**
+
+> what do you know about color analysis for personal color analysis that
+> harmonize with skin tone?
+
+**Owner prompt (the feature):**
+
+> yes i do want the ability (probably a new tab) that allows the user to take a
+> photo of their face and then we pick out good matching colors from this
+> pallete to go with their face. it's almost a combination of all the other
+> features of the site that allow you to find a pactifular color, but now we are
+> using the user's face to filter colors by hue, group, color. maybe we prompt
+> the user to hold up a piece of white paper around their face so we can use it
+> as white balance.
+
+**Owner prompt (added the seasonal output):**
+
+> i'd also like the results to reutrn the seasonal anslysis as well.
+
+**Owner prompt (reopened the dependency budget, after being told a
+face-detection library was forbidden by `CLAUDE.md`):**
+
+> let's think about putting in a face detection library. as long as i can deply
+> on github pages.
+
+> let's think about the constraints for this app. we can use external libraries,
+> but it needs to still run on github pages (static site). so let's do a pass of
+> all the tools that the current site sues and if we need packages loaded to run
+> we can allow it. the original constraight was to make it so the app runs and
+> launches easily, but i may have been tto strict in my words.
+
+**Owner prompt (asked for the harmony rule to be explained without jargon):**
+
+> can we talk more about this? i don tknow what it means.
+
+**Owner prompt (asked to judge output rather than method — chose "show me a
+worked example" over both options offered):**
+
+> yes show me. i am leaning towards way 1 because there's provinance on how the
+> values are picked. but i would like it to still try to guage the person's
+> 12-color summary. this way it's still usable with someone who has done an
+> official color analysis. either that or we provide both ways. one that is the
+> mathematical rule-based, then the other is a color-analysis way
+
+**Owner prompt (after seeing both methods run over the real 157 colors):**
+
+> i actually liked how you showed both side by side. this lets everyone explore
+> different views
+
+**Owner prompt (white balance optional; privacy documented):**
+
+> i think the dectector call can be an optional capture moment. we can tell them
+> to take a photo next to something white to use as a white-balance marker. and
+> then we can sample that part of the photo. if it doesn't exist then we can
+> skip it and you do your best. i like the ability you're not capturing the
+> photo for privacy. let's make sure that's documnted in the readme as a privacy
+> statement.
+
+**Owner prompt (caught the mockup understating Layout A):**
+
+> what are the dradeoffs between layout A and B? are you showing fewer colors in
+> A to make space for 2 lists?
+
+**Owner prompt (layout):**
+
+> let's go with layout B where it's a toggle. i can see how it can be a bit
+> overwhelming if there's a lot of colors in the measured for you bit. we can
+> always change it later into the single column view
+
+**Owner prompt (improved the combinations proposal):**
+
+> we should rank but have the abilty to have a slider that sets a filter lower
+> boundry. is that what you mean? or is the rank don't filter just picking any
+> pallet where any 1 of the colors match my face?
+
+**Owner prompt (approved):**
+
+> yeah that looks good
+
+**Decisions:**
+
+- **A result page in a new tab**, not a site-wide "suits me" lens. The lens is
+  logged in `TODO.md`; the goggles filter *combinations* while this filters
+  *colors*, so it is not a drop-in.
+- **The dependency budget was replaced, not bent.** The audit found the real
+  constraint was four properties — static build, `make install` just works,
+  nothing user-derived leaves the device, weight paid by the feature that
+  incurs it — rather than a list of four packages. `@mediapipe/tasks-vision`
+  satisfies all four.
+- **BlazeFace (~3.5 MB lazy) over the 478-point Face Landmarker (~6.9 MB).**
+  The landmarker would allow a true skin mask; it stays a one-file swap behind
+  `src/face/detect.ts` if proportional probe placement disappoints.
+- **Hand-rolled skin-chroma segmentation rejected** despite costing zero bytes:
+  its thresholds under-detect deeper skin tones, which disqualifies it for a
+  feature that judges skin.
+- **Both palettes ship** — measured-by-rules *and* the traditional season list —
+  chosen after seeing them run over the real dataset, where they overlapped on
+  only 9 and 8 colors out of 157. The twelve season regions are **our
+  invention**, and the page must say so.
+- **The season is a dropdown**, our guess pre-selected. It makes the weakest
+  link in the chain a one-click correction.
+- **"Show what we read, tap to fix" is mandatory**, not skippable — it is what
+  keeps the feature from being a black box.
+- **The white reference is any white object**, not a prescribed sheet of paper,
+  and is optional; without it the result is badged a rough reading and undertone
+  is marked unverified. Contrast survives a bad white balance, undertone does
+  not.
+- **"Dominant colour is yours" was proposed by Claude and withdrawn** — the
+  dataset has no area proportions, so it would have meant "lowest colour id".
+  The owner's ranked-list-plus-floor replaced it.
+- **Wada's palette leans warm** (109 of 157 colours warm, 48 cool), so
+  cool-toned visitors get a structurally smaller palette. The page discloses
+  this rather than letting it read as a bug.
+
+**Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
+
+### Session 15 continued — stage 1 implementation
+
+**Owner prompt (kickoff):**
+
+> start go go go full YOLO auto
+
+**Owner prompt (first bug — the review screen):**
+
+> after i take the photo i see the circles that are used to reference my face.
+> but the original photo is not there. i don't think it's capturing my colors
+> correctly from the photo
+
+**Owner prompt (diagnosed the probe placement from the dots alone):**
+
+> where are the dots supposed to be? i see them on my forehead, between the
+> eyebrows, both cheeks and then my chin. i think it's tagging the wrong color
+> for my hair
+
+**Owner prompt (asked for the white marker, and spotted the deeper issue):**
+
+> we should also have a circle for where it's capturing the white
+
+> the hair ist sill a bit off. it's been at my hair line. not where my actual
+> hair is. but this bug is surfacing a UI/UX issue, when i correct the
+> location/sample of the color, the circle should move to that location (or at
+> least have a new circle for corrected location -- i say this because skin has
+> 4 points, so it might be hard to knwo which point to move)
+
+**Owner prompt (asked for proof, not assurance):**
+
+> can you confirm its whitebalance correcting correctly?
+
+**Owner prompt (wanted the correction visible, not just numeric):**
+
+> when i am picking the white balance. i think the photo should correct so the
+> skin and hair colors update as well. this way i have a good sense if the white
+> balance is being adjusted properly
+
+**Owner prompt (hair, after the keypoint rework):**
+
+> the hair is right. it's RIGHT at the hairline, could be a bit higher to be
+> safe. but it seems okay for now
+
+**Owner prompt (asked for photography-style controls):**
+
+> for correcting white balance can we also provide a ui slider? i still cant
+> seem to color correct it properly. i'm used to white balance correcting
+> filters from photography software
+
+**Owner prompt (final bug of stage 1):**
+
+> when i click the "corect the ..." buttons the line that pops up shfts the
+> image. and then when i click on the photo, the circle and where i click do not
+> line up
+
+**Owner prompt (checkpoint passed):**
+
+> ok i think this is looking good now. anything else are smaller ui element
+> changes i can fix later on
+
+**What happened:** stage 1 shipped in ten TDD commits (`68c849e..c480404`),
+then six rounds of owner review found five real defects that 335 passing tests
+had not:
+
+- The captured canvas was transplanted from `FaceCapture` into `ProbeReview` and
+  inherited its `display: none`, so on the camera path the photo was drawn
+  correctly and rendered invisible.
+- The probe dots were positioned in a coordinate space that did not match how
+  the canvas was laid out, so they were never over the pixels sampled.
+- **BlazeFace's bounding box top is the BROW LINE, not the top of the head.**
+  Every probe derived from it sat a zone too low — "forehead" on the glabella,
+  "hair" on the forehead, so hair colour was read from skin. Probes now derive
+  entirely from keypoints; the box proved the wrong ruler in both directions.
+- White balance was scaling gamma-encoded sRGB when an illuminant multiplies
+  LINEAR light. Fine under mild casts, but worst-case ΔE 3.02 and three flipped
+  undertone verdicts across 48 simulated cast/skin pairs. Linear: ΔE 0.95, one.
+- Flexbox was shrinking the photo box to make room for the correction hint,
+  breaking the aspect ratio, which made `object-fit: contain` letterbox the
+  image and put taps 37px away from their dots.
+
+The owner's own diagnosis was load-bearing throughout — naming the five dot
+positions identified the box-top error precisely, and "the circle should move to
+that location" exposed that corrections were discarding position and keeping
+only colour.
+
+Only the last defect needed a browser to find; the rest are now covered by
+`facePlanAnatomy`, `probeReviewDisplay`, `whiteBalance` and the white-balance
+accuracy fixtures. That jsdom cannot catch layout bugs at all is logged in
+`TODO.md` as a real coverage limit of this screen.
+
+**Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`
+
+### Session 15 continued — stage 2, and the v1.5.0 release
+
+**Owner prompt (checkpoint passed, stage 2 approved):**
+
+> yes let's keep going. dont' stop
+
+**Owner prompt (refining the confirmed vocabulary):**
+
+> for the wording. i'm thinking maybe we can have a little info icon next to the
+> cool/wam medium, high contrast words, something small where the hover over/
+> mouse click (or finger click on a phone) has a info pop up box that explains
+> more about the terms
+
+**Owner prompt (kickoff):**
+
+> let's gooo!
+
+**Decisions and findings:**
+
+- **Vocabulary kept, and made self-explaining.** The owner confirmed
+  warm/cool, deep/light, contrast, ITA and L* read fine, so the result page
+  reuses them rather than re-teaching. The info tips explain them on demand.
+- **Two defects the 533-test suite could not see**, both found by measuring in
+  a real browser: the info-tip tap target was 18px against the ~44px a finger
+  needs, and a 304px tip centred on a right-hand term overflows a 390px phone.
+- **`core-purity` caught a worse bug than the one it was testing for.** The
+  first `src/core/seasons.ts` imported the JSON directly; fixing that revealed
+  the validator had been checking colour ids against the seasons file itself,
+  so "references a missing colour" was vacuously true and could never fire.
+- **The spec's own numbers were wrong and were corrected.** Its 53-colour /
+  13-118-148-239 table came from the throwaway mockup script and its hand-rolled
+  sRGB→Lab; the app uses culori as the project rule requires, giving 50 and
+  12/117/143/234. Every colour that moved sits within 0.6 of a threshold. The
+  argument the table supports is unchanged, and now has a test rather than prose.
+- **The palette coverage test asserts wearability, not non-emptiness.** All 108
+  tonal bands return at least 8 colours; measured floor is 11, ceiling 70, and
+  the floor is indeed a cool reading — the expected consequence of a book that
+  runs 109 warm to 48 cool.
+
+**Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
+**Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`

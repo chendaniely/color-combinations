@@ -1,5 +1,22 @@
 # TODO — completed
 
+## v1.5.0 — the You tab (2026-07-28)
+
+- [x] Photograph your face and get the book colours that suit you — the whole
+      feature, spec `2026-07-28-personal-color-analysis-design.md`, shipped
+      across `68c849e..9990467`.
+- [x] Camera doorways beyond the sampler — the You tab adds a third camera
+      entry point with its own capture flow (`3b31d13`).
+- [x] Season→colour mapping as editable data rather than code (`d46e0bc`),
+      the owner's idea; see the learning moment written up the same day.
+- [x] The dependency budget replaced by four properties instead of a package
+      whitelist, reopened by the owner (`CLAUDE.md`, this release).
+- [x] `sampleCanvasAt` gains the `fit` parameter that TODO.md had specified —
+      `Math.min` for contain vs `Math.max` for cover (`abe4cdc`). The camera and
+      upload pickers keep the cover default; the image-upload cover-crop issue
+      logged separately is now one line away from fixable.
+
+
 Format: `- [x] item — done in <commit hash> (YYYY-MM-DD)`
 
 ## v1 (2026-07-19)
