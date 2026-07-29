@@ -313,12 +313,21 @@ Discrete stops, not a continuous drag: combinations hold 2–5 colors, so the
 fraction only takes a handful of values and a smooth slider would have dead
 zones. It reads like the size chips already on the site.
 
-| Stop | Measured (53) | Deep Autumn (18) |
+| Stop | Measured (50) | Deep Autumn |
 |---|---|---|
-| Every colour is yours | 13 | 1 |
-| All but one | 118 | 38 |
-| **Half or more** *(default)* | **148** | **42** |
-| Anything with a match | 239 | 103 |
+| Every colour is yours | 12 | 1 |
+| All but one | 117 | 38 |
+| **Half or more** *(default)* | **143** | **42** |
+| Anything with a match | 234 | 103 |
+
+> **Corrected during implementation.** These first appeared as 53 colours and
+> 13/118/148/239, computed by the throwaway mockup script using its own
+> hand-rolled sRGB→Lab conversion. The shipped code uses culori, as the project
+> rule requires, and the three colours that moved all sit within 0.6 of a
+> threshold (Carmine Red at 14.81 separation, Red at 14.86, Artemesia Green at
+> 14.72, against a cutoff of 15). The argument is unchanged — strict filtering
+> still guts the list — but the numbers now match what the code actually does.
+> Pinned by `tests/combinationMatch.test.ts`.
 
 Colors in a plate that fall outside the palette are outlined, so the visitor can
 see exactly which accent isn't theirs.
