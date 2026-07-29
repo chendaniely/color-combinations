@@ -1534,3 +1534,49 @@ observation. Continuing would be looking for the sake of looking.
   string), and exactly one colour of 157 has no combinations (Vandar Poel's
   Blue), which settles the long-open zero-width-arc question as a curiosity
   rather than a systemic gap.
+
+**Owner prompt (documentation pass):**
+
+> you mentioned documentation in the previous loop pass. let's do a full comment
+> and documentation pass. if there is anything that is conflicting let me know
+> and we can work on resolving conflicting instructions to make sure it's all
+> clear
+
+**Five conflicts found and resolved:**
+
+1. **The v1.0 spec still asserted the dominant-colour rule** — "plate
+   proportions suggest dominant garment vs accent pieces" — six releases after
+   it turned out the book records no proportions at all, and while a later spec
+   said the opposite. Two specs contradicting each other, with the older one
+   also contradicting the shipped code.
+2. **The same spec called the granularity control a "slider"** (four times). It
+   was built as a radiogroup of four buttons and always has been.
+3. **A CSS comment cited a rule that did not say what it claimed.** `app.css`
+   justified the picker disc's raw hue stops as "the same exemption CLAUDE.md
+   grants Sanzo Wada's data colors" — but that rule only exempted the book's
+   own colours. The exemption was real and reasonable (a hue wheel cannot be
+   drawn in design tokens); it just was not written down. CLAUDE.md now names
+   both exemptions.
+4. **"No router (single page)" reads as a ban on ever touching the URL** — and
+   the top item in TODO.md is shareable deep links. They do not actually
+   conflict (serialising state into `location.hash` needs no dependency), but
+   the wording invited a future session to reject the feature the site most
+   visibly lacks. Reworded to "No router library", with the distinction spelled
+   out.
+5. **Specs vs plans was never stated.** The contract says to update specs when
+   the design changes, but says nothing about plans — which name symbols that
+   no longer exist. Now explicit: specs are living and get DATED CORRECTION
+   BLOCKS rather than rewrites (a spec records what was decided on a day;
+   silently editing it destroys that), while plans and PROMPTS.md are history
+   and are never maintained.
+
+**Also clarified:** the data-file rule says one module may *import* a data file.
+The word is load-bearing — an import bundles it — and several tests legitimately
+read the same files with `readFileSync`, which bundles nothing. Stated, so
+nobody "tidies" a test into an import.
+
+**Checked and found accurate:** every command in README exists and runs; every
+Makefile target is documented; every file path named in README and CLAUDE.md
+resolves; every test file cited in a source comment exists; app state really is
+one serializable object (arrays, strings, numbers, booleans — no Sets, no DOM
+handles), so the deep-links item is as cheap as claimed.

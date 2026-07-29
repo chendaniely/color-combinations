@@ -4,6 +4,28 @@
 **Status:** v1 shipped (2026-07-19)
 **Deploy target:** GitHub Pages (fully static)
 
+> ## Corrections (added 2026-07-29, v1.6.0)
+>
+> This document is the design as it stood on 2026-07-19 and is kept that way
+> deliberately — it is a record of what was decided, not a description of the
+> current site. Two of its claims are no longer true, and are corrected here
+> rather than edited away, so the record survives and the falsehood doesn't.
+>
+> 1. **"Plate proportions suggest dominant garment vs accent pieces"**
+>    (Purpose, and the Browse hint) — **wrong, and it shipped for six
+>    releases.** The book records no proportions at all: every one of the 338
+>    multi-colour combinations is stored in ascending colour-id order, and a
+>    combination record holds only `{id, colorIds, size, excluded}`. The bar
+>    heights are a decorative taper we invented; the ordering is an artifact of
+>    sorting by id. The UI, the About panel and the README were corrected in
+>    v1.6.0 to say the proportions are the reader's to choose. See also
+>    `2026-07-28-personal-color-analysis-design.md`, which had already noted
+>    there is no genuine "dominant color" rule.
+> 2. **"Granularity slider"** (four mentions) — it was built as a
+>    **radiogroup of four buttons** (COLORS / SHADES / FAMILIES / GROUPS), not
+>    a slider, and has been for every shipped version. Read "slider" as
+>    "granularity control" throughout.
+
 ## Purpose
 
 An interactive website that visualizes the 348 color combinations from Sanzo

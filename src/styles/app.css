@@ -819,7 +819,11 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Color picker — the HSV disc.
    The hue stops and the white saturation wash below are the COLOR SPACE, not
-   design tokens — the same exemption CLAUDE.md grants Sanzo Wada's data colors.
+   design tokens: a hue wheel cannot be drawn in tokens, it has to be actual
+   hues. This is exemption 2 of the two CLAUDE.md grants to the no-hard-coded-
+   colours rule. (Until v1.6.0 this comment claimed "the same exemption
+   CLAUDE.md grants Sanzo Wada's data colors" — which that rule did not say.
+   The rule now names both exemptions explicitly.)
    Every other value here comes from tokens.css.
    The disc's size lives in --pick-disc-size and NOWHERE else: ColorDisc.tsx
    positions the pin in percentages, so this can change (or become responsive)

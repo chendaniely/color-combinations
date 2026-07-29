@@ -26,13 +26,34 @@ docs in the SAME commit:
   framing; don't reduce it to a bare list of changes.
 - The spec (`docs/superpowers/specs/`) — update if the design changes.
 
+**Specs are living; plans and PROMPTS.md are history.** This was implicit
+and bit us: the v1.0 spec still claimed plate proportions meant "dominant
+garment vs accent", six releases after that turned out to be false, and
+still called the granularity control a "slider" when it was built as a
+radiogroup. Both were corrected in v1.6.0.
+
+The way to correct a dated spec is a **dated correction block at the
+top**, not a rewrite — the document records what was decided on a day,
+and silently editing it destroys that while pretending nothing happened.
+See the top of `2026-07-19-color-combinations-explorer-design.md`.
+
+`docs/superpowers/plans/` and `PROMPTS.md` are NOT maintained. They are
+what was done and said at the time; several plans name symbols that no
+longer exist (`readableTextOn`, `TAPER`, `RADIUS`). Do not "fix" them.
+Never treat a plan as a description of the current code.
+
 ## Architecture rules (see spec for rationale)
 
 - `src/core/` is a **pure TypeScript kernel**: only relative imports of
   other core files; no React, D3, or browser globals. Enforced by
   `tests/core-purity.test.ts` — never weaken that test.
 - The app reads exactly two data files, both schema-versioned and validated
-  at load by `src/data.ts` — the ONLY module allowed to import a data file:
+  at load by `src/data.ts` — the ONLY module allowed to import a data file.
+  The word *import* is load-bearing: an `import` bundles the file into the
+  app, which is why exactly one module may do it. Tests may read the same
+  files with `readFileSync` (several do, to assert against the real book)
+  because that runs in Node and bundles nothing. Never convert such a read
+  into an import to make a test tidier.
   - `data/processed/colors-data.json` is **generated** from a vendored
     source and must never be hand-edited. Source-format knowledge lives
     ONLY in `scripts/ingest/`.
@@ -44,8 +65,17 @@ docs in the SAME commit:
     without touching TypeScript.
 - App state is one serializable object (`src/core/state.ts`).
 - Every design token (color/font/spacing/motion) lives in
-  `src/styles/tokens.css`. No hard-coded colors in components — Sanzo
-  Wada's data colors excepted.
+  `src/styles/tokens.css`. No hard-coded colors in components, with exactly
+  two exemptions, both because the colour IS the content rather than a
+  style choice:
+  1. **Sanzo Wada's data colours** — the book's own hex values.
+  2. **Colour-space renderings** — the hue stops and saturation wash of the
+     picker disc (`.pick-face` in `app.css`) and the wheel's ribbon fills.
+     A hue wheel cannot be drawn in tokens; it has to be actual hues.
+  Exemption 2 was previously claimed by a comment in `app.css` citing a rule
+  that only granted exemption 1. If a third exemption ever seems necessary,
+  the honest move is to add it here, not to cite this rule for something it
+  does not say.
 - All D3 code stays in `src/viz/`.
 - Pure `parseHex` (color string parsing) lives in `src/core/colorMath.ts`;
   browser components that sample colors live in `src/components/sample/`
@@ -194,8 +224,17 @@ Both exist so `src/core/` stays a dependency-free kernel and
 
 ## Deliberate YAGNI (do NOT add these "helpfully")
 
-No state-management library. No router (single page). No CSS framework.
+No state-management library. No router library. No CSS framework.
 No plugin abstractions. No runtime data fetching (data is bundled).
+
+**"No router library" is not "no URLs".** This said "No router (single
+page)", which reads as a ban on ever touching the address bar — and the
+top item in `TODO.md` is shareable deep links, the thing the site most
+visibly lacks. They do not conflict: serialising the one state object
+into `location.hash` and reading it back on load is a few lines and adds
+no dependency. What is banned is pulling in React Router to do it. If you
+are here because you were about to reject deep links on YAGNI grounds:
+don't.
 
 ## Aesthetic
 
