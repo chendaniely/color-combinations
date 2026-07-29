@@ -401,6 +401,13 @@ main { flex: 1; min-height: 0; position: relative; }
   border-left: 2px solid var(--accent); padding-left: var(--s3); margin: var(--s3) 0 0;
 }
 
+/* Fixed-height slot for the "tap your skin" instruction. Reserved whether or
+   not the text is showing, so it can never reflow the photo mid-aim. */
+.probe-hint {
+  min-height: 1.4em; margin: var(--s2) 0; font-size: 0.85rem;
+  color: var(--accent); text-align: center; flex: 0 0 auto;
+}
+
 /* ProbeReview — the "here's what we measured" step.
    Unlike .cam-stage this takes the photo's own aspect ratio and contains the
    image rather than cropping it: the visitor has to be able to see the white
@@ -409,6 +416,15 @@ main { flex: 1; min-height: 0; position: relative; }
 .probe-stage {
   position: relative; width: 100%; max-width: 420px;
   background: var(--ink); border-radius: var(--radius); overflow: hidden;
+  /* MUST NOT SHRINK. The overlay is a height-constrained flex column, so by
+     default flexbox squashes this box to make room for anything that appears
+     below it — which silently breaks the aspect-ratio set inline from the
+     photo's own dimensions. Once the box aspect stops matching the image
+     aspect, object-fit: contain starts letterboxing, the image no longer fills
+     the element, and the probe dots (positioned as a percentage of this box)
+     drift away from the pixels they represent. Measured drift when the
+     "tap your skin" line appeared: 37px across, 21px down. */
+  flex: 0 0 auto;
 }
 .probe-canvas {
   width: 100%; height: 100%; object-fit: contain; touch-action: none; display: block;

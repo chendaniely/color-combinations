@@ -162,11 +162,13 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
         {whiteMark && dot('white', whiteMark, 'white')}
       </div>
 
-      {correcting && (
-        <p className="cam-steps" role="status">
-          Tap your {correcting === 'white' ? 'white object' : correcting} in the photo.
-        </p>
-      )}
+      {/* Always rendered, so turning correction on and off cannot reflow the
+          page under the visitor's finger while they are aiming at it. */}
+      <p className="probe-hint" role="status" aria-live="polite">
+        {correcting
+          ? <>Tap your {correcting === 'white' ? 'white object' : correcting} in the photo.</>
+          : ' '}
+      </p>
 
       <div className="probe-reads">
         {/* Corrected, so they match the photo above and move when the white
