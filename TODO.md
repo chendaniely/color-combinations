@@ -272,13 +272,17 @@ a check that needs a person. See `TODO-completed.md` for what went.
       the code). If a better pattern emerges — or if two paired sliders would
       genuinely serve screen-reader users better than the three text fields
       already provided — revisit.
-- [ ] `make coverage` low spots worth a look, none alarming: `ColorSampler`
-      (9% of functions — it is mostly routing between four child screens),
-      `YouView` (8% of branches — the capture state machine), and
-      `ImagePicker` (30% of branches — the file-load error paths). The logic
-      layers underneath them are at ~100%; these are thin React shells, so the
-      question is whether a browser test of each flow is worth more than
-      mocking them into submission in jsdom.
+- [x] ~~`make coverage` low spots~~ — question answered 2026-07-29: **the
+      browser suite already covers all three**, and the low numbers are the
+      known blind spot `vite.config.ts` documents rather than untested code.
+      `ColorSampler` is exercised by eleven browser specs, `YouView` by six,
+      `ImagePicker` by three — including the whole capture flow (upload, review,
+      tap to sample, white-balance repaint, confirm to a reading and a palette)
+      and the picker's modal behaviour. Mocking these shells into submission in
+      jsdom would add assertions without adding coverage of anything real.
+      Left as an answered question rather than deleted, because "9% of
+      functions" will look alarming again to the next person who runs
+      `make coverage`.
 - [ ] Process: git tags do NOT travel with `git push` unless pushed explicitly.
       `v1.3.2` sat unpushed for weeks and `v1.3.3` was never tagged; both were
       repaired on 2026-07-28. **`push.followTags` is now set repo-local**
@@ -287,6 +291,10 @@ a check that needs a person. See `TODO-completed.md` for what went.
       globally (`git config --global push.followTags true`) if you want the
       habit everywhere. Left as the owner's call rather than changing a global
       setting unasked.
-- [ ] Process: never pipe a test run through `tail` or `grep` alone — it
-      truncates failures and can mask a non-zero exit. This is how the v1.4.0
-      flaky test lost its name for months. Capture full output to a file.
+- [x] ~~Process: never pipe a test run through `tail` or `grep` alone~~ —
+      resolved 2026-07-29 by `make check`, which runs lint + test + build, tees
+      the FULL output to `check.log`, and keeps the real exit code via
+      `set -o pipefail`. The hazard was confirmed first: `make test | grep`
+      reports exit 0 on a failing run. Verified the new target exits non-zero
+      and captures both the `FAIL` line and the `AssertionError`. Use it
+      instead of remembering the rule.
