@@ -84,7 +84,14 @@ export function encodeState(state: AppState): string {
   if (state.you.floor !== initialState.you.floor) q.set('floor', String(state.you.floor))
   if (state.aboutOpen) q.set('about', '1')
 
-  const query = q.toString()
+  // URLSearchParams percent-encodes `:` and `,`, turning
+  // `open=combination:1&sizes=2,3` into `open=combination%3A1&sizes=2%2C3`.
+  // Both characters are legal unencoded in a query string (RFC 3986 puts them
+  // in `pchar` via sub-delims), and the whole argument for this format over an
+  // encoded blob is that a person can read the link they are pasting. Put them
+  // back. Found by looking at a real address bar — the round-trip tests were
+  // perfectly happy either way, because decoding is symmetric.
+  const query = q.toString().replace(/%3A/g, ':').replace(/%2C/g, ',')
   const view = state.view === initialState.view ? '' : state.view
   if (!view && !query) return ''
   return `#/${view}${query ? `?${query}` : ''}`

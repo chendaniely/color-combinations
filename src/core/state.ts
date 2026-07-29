@@ -46,6 +46,12 @@ export type Action =
   | { type: 'setSeason'; season: string | null }
   | { type: 'setFloor'; floor: FloorStop }
   | { type: 'clearReading' }
+  // Replaces the whole state. Exists for the Back and Forward buttons: a
+  // history entry IS a state, so restoring one is not a patch but a swap.
+  // `src/urlSync.ts` is the only caller, and it carries the reading forward
+  // itself — a URL never contains one, so a naive restore would silently throw
+  // the visitor's own analysis away when they pressed Back.
+  | { type: 'restore'; state: AppState }
 
 export const initialState: AppState = {
   view: 'wheel',
@@ -116,5 +122,7 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, you: { ...state.you, floor: action.floor } }
     case 'clearReading':
       return { ...state, you: { reading: null, season: null, floor: state.you.floor } }
+    case 'restore':
+      return action.state
   }
 }

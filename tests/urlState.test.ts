@@ -211,3 +211,44 @@ describe('a reading does not survive a round trip', () => {
     expect(back.you.season).toBe('deep-autumn')
   })
 })
+
+// Readability is the whole reason this format was chosen over an encoded blob,
+// so it gets asserted rather than hoped for. URLSearchParams percent-encodes `:`
+// and `,` by default, which produced `open=combination%3A1&sizes=2%2C3` in a
+// real address bar while every round-trip test above stayed green — decoding is
+// symmetric, so the tests could not see it. Found by looking.
+describe('a shared link is readable, not percent-encoded soup', () => {
+  it('leaves the colon in a selection alone', () => {
+    const encoded = encodeState({
+      ...initialState, selection: { kind: 'combination', id: 331 },
+    })
+    expect(encoded).toContain('open=combination:331')
+    expect(encoded).not.toContain('%3A')
+  })
+
+  it('leaves the commas in a list alone', () => {
+    const encoded = encodeState({
+      ...initialState, sizes: [2, 3], access: ['web-text', 'colorblind'],
+    })
+    expect(encoded).toContain('sizes=2,3')
+    expect(encoded).toContain('lens=web-text,colorblind')
+    expect(encoded).not.toContain('%2C')
+  })
+
+  it('still round-trips with the characters unescaped', () => {
+    const state: AppState = {
+      ...initialState,
+      sizes: [2, 3],
+      selection: { kind: 'ribbon', level: 1, keyA: 'olives', keyB: 'reds', sizes: [2, 4] },
+      access: ['print-bw'],
+    }
+    expect(roundTrip(state)).toEqual(state)
+  })
+
+  it('reads a link that DID arrive percent-encoded, from a chat client', () => {
+    // Messaging apps re-encode URLs. Both forms must work.
+    expect(decodeState('#/wheel?open=combination%3A331').selection)
+      .toEqual({ kind: 'combination', id: 331 })
+    expect(decodeState('#/wheel?sizes=2%2C3').sizes).toEqual([2, 3])
+  })
+})
