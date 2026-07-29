@@ -28,6 +28,68 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.7.2 — 2026-07-29 — Going looking for trouble
+
+The first release under a rule the owner had just set: fix bugs and debt before
+adding features, one feature at a time, with a hunt in between.
+
+> let's go huntin'
+
+The backlog had nothing actionable left on it. **Everything below was found by
+looking anyway** — which is the argument for the rule.
+
+**One bad link would have taken down the whole site.** Four screens looked up
+what to show by an id and assumed it would be there. It always is today, because
+every id comes from clicking something real. But the error net is cast around
+the *entire* application, so a single unrecognised id wouldn't have emptied one
+panel — it would have blanked the wheel, Browse, Match and everything else, and
+left you to reload. That becomes reachable the moment the site learns to put
+state in a link, which is the very next thing planned. All four now say "this
+isn't in the book" and let you carry on.
+
+**The site was failing the contrast standard it ships a feature to check —
+again.** Two separate violations, on a screen that had never been audited:
+reaching the season palette needs a photograph, so the automated audit had never
+seen it. One was hours old (a "not close" label in the orange, at less than two
+thirds of the required contrast); the other had been live since v1.5.0, where a
+count badge was faded to 70% opacity and fell below the bar in its resting
+state — but not when selected, which is exactly why nobody ever noticed.
+
+The lesson is now written next to the code: **fading text with `opacity` is a
+contrast change that no automated check on colours will ever catch**, because
+the colour is still correct. The rest of the stylesheet was swept for the same
+trick.
+
+**Three core screens had never been audited at all** — a colour's detail panel,
+a colour family's panel, and Match with a palette in it. All three pass. That is
+worth stating rather than glossing: it means the two violations were specific to
+the newest screen, not a problem with the whole design.
+
+**What the site tells you about yourself depended on the order of lines in a
+file.** When two seasons scored equally, the winner was whichever happened to be
+listed first — in a file that is meant to be hand-edited. Swapping two lines
+would have quietly changed a visitor's result. Now decided explicitly.
+
+This was found by pulling a different thread: the analysis can read your
+undertone as **neutral**, and all twelve seasons are warm or cool with nothing in
+between — so a neutral reading matched none of them and ties became routine. That
+turned out to be a second, separate honesty problem, and the page now admits it:
+it says your undertone reads neutral, that this season was chosen by depth and
+contrast alone, that one from the other side may suit you just as well, and
+points at the dropdown. It used to state the same answer with the same
+confidence as a clear reading.
+
+**Also, on the value of doubting your own tools:** the new audit reported a
+third contrast failure that turned out not to exist. Panels fade in, and the
+check was measuring one mid-fade. An hour went into disbelieving it. Worth
+spending — a checker that cries wolf about contrast, on a site whose whole
+feature is contrast, is a checker everyone learns to ignore.
+
+Nothing about the site looks different, except one label that is now bold rather
+than orange, and one honest paragraph that wasn't there before.
+
+---
+
 ## v1.7.1 — 2026-07-29 — Working the backlog
 
 A tidying release. The owner pointed at the list of deferred items:
