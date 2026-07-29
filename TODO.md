@@ -259,8 +259,13 @@ a check that needs a person. See `TODO-completed.md` for what went.
       pure-hue Colors level. Current choice is family-order + red-at-12.
 - [ ] Gradient source→target highlight strokes on wheel hover — the highlight
       stroke is currently the source-node colour only.
-- [ ] One control still has three names — `ColorDisc` in code, `.pick-*` in
-      CSS, "the wheel" in the copy.
+- [x] ~~One control still has three names~~ — resolved 2026-07-29 by renaming
+      the CSS from `.pick-*` to `.disc-*` and the token from `--pick-disc-size`
+      to `--disc-size`, so code and CSS now agree on "disc". **"The wheel" stays
+      in the visitor-facing copy on purpose**: that is what people call a round
+      colour control, and matching code names in the UI text would be the wrong
+      fix. So it is two names now, one of them deliberately the user's word,
+      which is as far as this should go.
 - [ ] The colour disc is a two-dimensional control and ARIA has no role for
       one, so it is a focusable `role="group"` with its position announced via
       a live region. `make lint` flags this (disabled inline, with reasoning at

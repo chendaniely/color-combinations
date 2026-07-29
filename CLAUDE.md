@@ -128,7 +128,7 @@ Never treat a plan as a description of the current code.
   style choice:
   1. **Sanzo Wada's data colours** — the book's own hex values.
   2. **Colour-space renderings** — the hue stops and saturation wash of the
-     picker disc (`.pick-face` in `app.css`) and the wheel's ribbon fills.
+     picker disc (`.disc-face` in `app.css`) and the wheel's ribbon fills.
      A hue wheel cannot be drawn in tokens; it has to be actual hues.
   Exemption 2 was previously claimed by a comment in `app.css` citing a rule
   that only granted exemption 1. If a third exemption ever seems necessary,
@@ -155,7 +155,7 @@ Never treat a plan as a description of the current code.
   `tests/browser/overlay.spec.ts`.
 - Values shared by two renderers live in one module, never two copies:
   `src/plateLayout.ts` (the plate taper, used by `PlateCard` and
-  `exportPng`), `--pick-disc-size` (the colour disc, whose pin is placed
+  `exportPng`), `--disc-size` (the colour disc, whose pin is placed
   in percentages so TypeScript holds no copy of the size).
 
 ## Dependency rules

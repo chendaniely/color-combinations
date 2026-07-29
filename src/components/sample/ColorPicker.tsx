@@ -27,7 +27,7 @@ export function ColorPicker({ onSample, onClose }: {
       <ColorDisc hsv={hsv} onChange={setHsv} />
       <ColorFields hsv={hsv} onChange={(next) => setHsv(rgbToHsv(next))} />
       <div className="cam-controls">
-        <span className="pick-swatch" style={{ background: hex }} aria-hidden="true" />
+        <span className="disc-swatch" style={{ background: hex }} aria-hidden="true" />
         {/* Always enabled: HSV is valid by construction, so there is no invalid
             screen state. A bad draft in one field is that field's business. */}
         <button className="cam-btn primary" onClick={() => onSample(rgb)}>
