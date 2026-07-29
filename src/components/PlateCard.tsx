@@ -12,7 +12,11 @@ export function PlateCard({ comboId, dispatch, large = false, outsiders }:
     // everywhere else, where every colour is equally relevant.
     outsiders?: readonly number[]
   }) {
-  const combo = dataset.comboById.get(comboId)!
+  // A card in a grid rather than a panel, so an unknown id renders nothing —
+  // one missing tile beats taking down the page. See MissingPanel for why this
+  // is guarded at all.
+  const combo = dataset.comboById.get(comboId)
+  if (!combo) return null
   const colors = combo.colorIds.map((id) => dataset.colorById.get(id)!)
   const weights = barWeights(colors.length)
   const isOutsider = (id: number) => outsiders?.includes(id) ?? false

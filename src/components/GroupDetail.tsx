@@ -3,10 +3,13 @@ import { breadcrumbOf, childGroupsOf, levelOfGroupKey } from '../core/matching'
 import type { Action } from '../core/state'
 import { dataset } from '../data'
 import { GroupMatches } from './GroupMatches'
+import { MissingPanel } from './MissingPanel'
 import { Panel } from './Panel'
 
 export function GroupDetail({ groupId, dispatch }: { groupId: string; dispatch: (a: Action) => void }) {
-  const g = dataset.groupById.get(groupId)!
+  const found = dataset.groupById.get(groupId)
+  if (!found) return <MissingPanel what="group" id={groupId} dispatch={dispatch} />
+  const g = found
   const level = levelOfGroupKey(dataset, groupId)
   const crumbs = breadcrumbOf(dataset, groupId)
   const children = childGroupsOf(dataset, groupId)

@@ -1,12 +1,18 @@
 import { combinationsForColor } from '../core/dataset'
 import type { Action } from '../core/state'
 import { CopyField } from './CopyField'
+import { MissingPanel } from './MissingPanel'
 import { Panel } from './Panel'
 import { PlateCard } from './PlateCard'
 import { dataset } from '../data'
 
 export function ColorDetail({ colorId, dispatch }: { colorId: number; dispatch: (a: Action) => void }) {
-  const c = dataset.colorById.get(colorId)!
+  // The id is the only untrusted value here: it comes from app state, which a
+  // URL will one day supply. Everything below it is guaranteed by
+  // validateDataset, so the chain keeps its assertions.
+  const found = dataset.colorById.get(colorId)
+  if (!found) return <MissingPanel what="colour" id={colorId} dispatch={dispatch} />
+  const c = found
   const fine = dataset.groupById.get(c.fineId)!
   const broad = dataset.groupById.get(fine.parentId!)!
   const sup = dataset.groupById.get(broad.parentId!)!
