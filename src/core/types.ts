@@ -50,6 +50,11 @@ export type Undertone = 'warm' | 'neutral' | 'cool'
 export type Depth = 'light' | 'medium' | 'deep'
 export type ContrastBand = 'high' | 'medium' | 'low'
 
+// How well a colour of the book matches an ideal season colour. Defined here,
+// in the kernel, so both the pure join-table validator and the culori-backed
+// distance seam name the same four values.
+export type FitBand = 'very close' | 'close' | 'roughly' | 'not close'
+
 // Everything the analysis keeps. Numbers and short strings only — the
 // photograph itself is discarded, never stored (see README Privacy).
 export interface SkinReading {

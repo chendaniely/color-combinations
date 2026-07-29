@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "description": "How the seasons are defined. Replaces the hand-listed colour palettes in the old seasons.json: which colours belong to a season is now COMPUTED from these rules by scripts/build-season-colors.ts, so the rules are the only thing anyone has to audit. Two levels, and the difference between them matters: the four parent seasons come from published Korean personal-colour practice built on PCCS, and are marked `sourced: true`. The twelve sub-seasons are OURS — no published source defines them consistently, studios use eight or twelve depending on the studio — and are marked `sourced: false`. The site shows both and says which is which.",
+  "sources": ["whatcolorssuitme-korean", "colorme-korean", "personalcolorai-korean-12", "dbpia-pccs-ks"],
+  "notes": "The warm/cool split of the hue circle is OUR judgement and is recorded per hue below with a reason, not asserted as sourced. It comes out at 10 warm hues against 14 cool, which is not a mistake: the yellow-orange region where warmth lives is narrower on the PCCS circle than the blue-through-purple region where coolness lives. Sub-season dominant tones may repeat across parents — `d` (dull) is the dominant tone of both True Autumn and Cool Summer — because a dull warm and a dull cool are genuinely different colours. That is why the parent's temperature is part of the rule and not decoration.",
+
+  "temperature": {
+    "warm": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "cool": [1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+    "reasons": {
+      "1": "pR, purplish red — cool: a red carried toward blue.",
+      "2": "R, red — warm: the psychological red the warm half is anchored on.",
+      "11": "yG, yellowish green — warm: green carried toward yellow, the olive and moss region.",
+      "12": "G, green — cool: true green reads blue-based against skin.",
+      "13": "bG, bluish green — cool: unambiguously carried toward blue.",
+      "22": "P, purple — cool.",
+      "23": "rP, reddish purple — cool: a berry rather than a warm red.",
+      "24": "RP, red purple — cool: magenta and fuchsia are blue-based reds."
+    }
+  },
+
+  "parents": [
+    {
+      "id": "spring",
+      "name": "Spring",
+      "temperature": "warm",
+      "tones": ["p", "lt", "b", "v"],
+      "sourced": true,
+      "sources": ["whatcolorssuitme-korean", "colorme-korean"]
+    },
+    {
+      "id": "summer",
+      "name": "Summer",
+      "temperature": "cool",
+      "tones": ["lt", "p", "sf", "d"],
+      "sourced": true,
+      "sources": ["whatcolorssuitme-korean", "colorme-korean"]
+    },
+    {
+      "id": "autumn",
+      "name": "Autumn",
+      "temperature": "warm",
+      "tones": ["ltg", "sf", "s", "d", "g", "dp", "dk", "dkg"],
+      "sourced": true,
+      "sources": ["whatcolorssuitme-korean", "colorme-korean"]
+    },
+    {
+      "id": "winter",
+      "name": "Winter",
+      "temperature": "cool",
+      "tones": ["b", "v", "dp", "dk", "dkg"],
+      "sourced": true,
+      "sources": ["whatcolorssuitme-korean", "colorme-korean"]
+    }
+  ],
+
+  "subSeasons": [
+    { "id": "light-spring", "name": "Light Spring", "parent": "spring", "dominantTone": "lt", "sourced": false },
+    { "id": "warm-spring", "name": "Warm Spring", "parent": "spring", "dominantTone": "b", "sourced": false },
+    { "id": "clear-spring", "name": "Clear Spring", "parent": "spring", "dominantTone": "v", "sourced": false },
+
+    { "id": "light-summer", "name": "Light Summer", "parent": "summer", "dominantTone": "lt", "sourced": false },
+    { "id": "cool-summer", "name": "Cool Summer", "parent": "summer", "dominantTone": "d", "sourced": false },
+    { "id": "soft-summer", "name": "Soft Summer", "parent": "summer", "dominantTone": "sf", "sourced": false },
+
+    { "id": "soft-autumn", "name": "Soft Autumn", "parent": "autumn", "dominantTone": "sf", "sourced": false },
+    { "id": "true-autumn", "name": "True Autumn", "parent": "autumn", "dominantTone": "d", "sourced": false },
+    { "id": "deep-autumn", "name": "Deep Autumn", "parent": "autumn", "dominantTone": "dp", "sourced": false },
+
+    { "id": "cool-winter", "name": "Cool Winter", "parent": "winter", "dominantTone": "dk", "sourced": false },
+    { "id": "deep-winter", "name": "Deep Winter", "parent": "winter", "dominantTone": "dp", "sourced": false },
+    { "id": "clear-winter", "name": "Clear Winter", "parent": "winter", "dominantTone": "v", "sourced": false }
+  ]
+}
