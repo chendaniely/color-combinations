@@ -17,6 +17,12 @@
 // commits the highlighted object — tap or drag alike — unless it lifts in the
 // empty margin beyond the wheel, which cancels (drag off the wheel to change
 // your mind).
+// Whole-namespace import, deliberately. Switching to submodule imports
+// (d3-chord, d3-shape, d3-selection, d3-array, d3-delaunay, d3-transition)
+// was tried and MEASURED on 2026-07-29: it saved 0.68 kB raw / 0.18 kB
+// gzipped out of 443 kB — 0.15% — because Rollup already tree-shakes d3
+// effectively. Six new direct dependencies and a hand-rolled `d3` namespace
+// object is a bad trade for that. Don't redo the experiment.
 import * as d3 from 'd3'
 import type { AngleGroup, WheelNode } from '../core/chord'
 
@@ -55,7 +61,14 @@ export function renderChord(
   const svg = d3.select(svgEl)
     .attr('viewBox', `${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`)
 
-  svg.selectAll('g.wheel').transition().duration(motionOk ? 200 : 0).style('opacity', 0).remove()
+  // The outgoing wheel fades for 200ms, so for that window two wheels exist in
+  // the DOM and BOTH still carry pointer handlers. A click landing on the
+  // outgoing one would dispatch from the previous granularity's geometry —
+  // opening whatever used to be under the cursor. Making it inert on the way
+  // out costs one line and closes that window.
+  svg.selectAll('g.wheel')
+    .style('pointer-events', 'none')
+    .transition().duration(motionOk ? 200 : 0).style('opacity', 0).remove()
 
   const layout = d3.chord()
     .padAngle(nodes.length > 40 ? 0.004 : 0.02)

@@ -4,6 +4,7 @@
 import { converter } from 'culori'
 import type { RGB } from '../core/colorMath'
 import type { ContrastBand, Depth, SkinReading, Undertone } from '../core/types'
+import { colorDistance } from './colorDistance'
 import { whiteBalance } from './whiteBalance'
 
 const toLab = converter('lab')
@@ -15,6 +16,18 @@ const LIGHT_ABOVE = 70
 const DEEP_BELOW = 50
 const CONTRAST_HIGH = 40
 const CONTRAST_LOW = 22
+
+// If the "hair" sample is this close to the skin sample, the probe landed on
+// skin — a fringe, a receding hairline, a bald head — and the contrast axis
+// would be built on comparing skin with itself.
+//
+// The number is the colour-distance seam's own definition of "very close"
+// (VERY_CLOSE in colorDistance.ts), not a new invention. It is deliberately
+// FAR below the low-contrast boundary: CONTRAST_LOW = 22 in Lab ΔL is roughly
+// 0.15 in OKLab, so someone whose hair and skin genuinely are similar — the
+// people the "low contrast" reading exists to describe — keeps their real
+// reading. This only fires when the two samples are effectively one surface.
+const SAME_SURFACE = 0.05
 
 function clamp255(v: number): number {
   return Math.max(0, Math.min(255, Math.round(v)))
@@ -55,9 +68,21 @@ function contrastOf(gap: number | null, skinL: number): ContrastBand {
   return 'medium'
 }
 
+// True when a hair sample is indistinguishable from the skin sample, i.e. the
+// probe never found hair at all. Exported so the capture UI can say so before
+// the visitor commits, rather than only the reading being quietly weakened.
+export function hairIsActuallySkin(skin: RGB, hair: RGB | null): boolean {
+  return hair !== null && colorDistance(skin, hair) < SAME_SURFACE
+}
+
 export function readSkin(skin: RGB, hair: RGB | null, whiteRef: RGB | null): SkinReading {
+  // Drop a hair sample that is really skin. Left in, it produced a confident
+  // contrast reading from comparing the face with itself — always a tiny gap,
+  // so always "low contrast", for anyone whose hair the probe happened to miss.
+  const usableHair = hairIsActuallySkin(skin, hair) ? null : hair
+
   const balancedSkin = whiteBalance(skin, whiteRef)
-  const balancedHair = hair ? whiteBalance(hair, whiteRef) : null
+  const balancedHair = usableHair ? whiteBalance(usableHair, whiteRef) : null
 
   const s = labOf(balancedSkin)
   const hairL = balancedHair ? labOf(balancedHair).L : null

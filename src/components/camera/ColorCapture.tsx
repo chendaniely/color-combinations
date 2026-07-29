@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { rgbToHex, type RGB } from '../../core/colorMath'
+import { Overlay } from '../Overlay'
 import { cameraSupported, stopStream } from './cameraStream'
 import { sampleCanvasAt } from './sampleCanvas'
 
@@ -58,9 +59,7 @@ export function ColorCapture({ onSample, onClose }: {
   }
 
   return (
-    <div className="cam-overlay" role="dialog" aria-label="Find a color with the camera">
-      <button className="cam-close" onClick={onClose} aria-label="Close camera">×</button>
-
+    <Overlay label="Find a color with the camera" onClose={onClose} closeLabel="Close camera">
       {!supported ? (
         <div className="cam-fallback">
           <p>Your camera isn’t available here (it needs a secure connection and permission).
@@ -104,6 +103,6 @@ export function ColorCapture({ onSample, onClose }: {
           <p className="cam-privacy">Your photo stays on this device — nothing is uploaded or saved.</p>
         </>
       )}
-    </div>
+    </Overlay>
   )
 }

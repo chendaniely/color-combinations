@@ -5,7 +5,11 @@ import { PlateCard } from './PlateCard'
 import { dataset } from '../data'
 
 export function RibbonDetail({ sel, sizes, allowed, dispatch }:
-  { sel: Extract<Selection, { kind: 'ribbon' }>; sizes: Set<2 | 3 | 4>; allowed?: ReadonlySet<number>; dispatch: (a: Action) => void }) {
+  // `allowed` is explicitly `| undefined`, not merely optional: App passes the
+  // value through whether or not the goggles are on, so the prop genuinely
+  // receives undefined rather than being omitted. Under
+  // exactOptionalPropertyTypes those are different things.
+  { sel: Extract<Selection, { kind: 'ribbon' }>; sizes: Set<2 | 3 | 4>; allowed?: ReadonlySet<number> | undefined; dispatch: (a: Action) => void }) {
   const nodes = wheelNodes(dataset, sel.level)
   const labelOf = (key: string) => nodes.find((n) => n.key === key)?.label ?? key
   const combos = combosForPair(dataset, sel.level, sel.keyA, sel.keyB, sizes, allowed)

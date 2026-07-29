@@ -23,10 +23,20 @@ export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
     else if (e.key === 'Escape') { e.stopPropagation(); setQ('') }
   }
 
+  // ARIA 1.2 combobox-with-listbox. The input keeps focus throughout and
+  // aria-activedescendant names the highlighted option, which is what lets a
+  // screen reader announce arrow-key movement. Previously this had only
+  // role=listbox/aria-selected on the results, so the whole type-ahead was
+  // silent: nothing said a popup had appeared, nothing announced the highlight.
+  const open = matches.length > 0
+  const activeId = open ? `search-opt-${matches[active].id}` : undefined
+
   return (
     <div className="search-box">
       <input ref={inputRef} value={q} placeholder="Find a color…"
         aria-label="Search colors"
+        role="combobox" aria-expanded={open} aria-controls="search-results"
+        aria-autocomplete="list" aria-activedescendant={activeId}
         onChange={(e) => { setQ(e.target.value); setActive(0) }} onKeyDown={onKeyDown}
         onBlur={() => { setTimeout(() => setQ(''), 150) }} />
       <button type="button" className="search-sample" aria-label="Sample a color from a photo or hex"
@@ -36,18 +46,24 @@ export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
           <path d="M15.3 5.4l3.3 3.3 1.2-1.2a2.35 2.35 0 0 0-3.3-3.3l-1.2 1.2z" />
         </svg>
       </button>
-      {matches.length > 0 && (
-        <ul className="search-results" role="listbox">
-          {matches.map((c, i) => (
-            <li key={c.id} role="option" aria-selected={i === active}>
-              <button onMouseDown={() => choose(c.id)}>
-                <span className="search-swatch" style={{ background: c.hex }} />
-                {c.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Rendered unconditionally so aria-controls always resolves to a real
+          element; empty until there is something to show. */}
+      <ul className="search-results" role="listbox" id="search-results"
+        aria-label="Matching colors" hidden={!open}>
+        {matches.map((c, i) => (
+          // The option IS the row. It used to wrap a <button>, which is invalid
+          // here — an interactive child inside role=option is not reliably
+          // reachable, and the button stole a tab stop from a widget whose
+          // whole point is that the input never loses focus.
+          <li key={c.id} id={`search-opt-${c.id}`} role="option"
+            aria-selected={i === active}
+            onMouseDown={() => choose(c.id)}
+            onMouseEnter={() => setActive(i)}>
+            <span className="search-swatch" style={{ background: c.hex }} />
+            {c.name}
+          </li>
+        ))}
+      </ul>
       {sampleOpen && <ColorSampler dispatch={dispatch} onClose={() => setSampleOpen(false)} />}
     </div>
   )

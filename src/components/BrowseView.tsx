@@ -48,13 +48,14 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
           ))}
         </select>
         {shade && (
-          <button className="filter-chip" onClick={() => setFilter({ shade: '' })}>
-            {keyName(dataset, shade)} <span aria-label="Clear shade" title="Clear shade">×</span>
+          <button className="filter-chip" onClick={() => setFilter({ shade: '' })}
+            aria-label={`Clear shade filter: ${keyName(dataset, shade)}`}>
+            {keyName(dataset, shade)} <span aria-hidden="true">×</span>
           </button>
         )}
         <span className="muted">{comboCount}</span>
       </div>
-      <p className="hint">Taller bars suggest the dominant color — the main garment, the page background; slivers are accents.</p>
+      <p className="hint">Bar heights are decorative. The book records which colors belong together, not how much of each to use — so the proportions are yours to choose.</p>
       {sections.map((sec) => (
         <section key={sec.size} className="browse-section">
           <h2 className="browse-section-head">

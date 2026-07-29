@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { forbiddenSelfTest, matches, NETWORK_AND_STORAGE } from './support/forbidden'
 
 const SAMPLE = 'src/components/sample'
 const FACE = 'src/face'
@@ -16,22 +17,20 @@ function sampleFiles(dir = SAMPLE): string[] {
 // A user's uploaded photo (and any sampled color) must never leave the device
 // or be persisted across sessions. Local processing (URL.createObjectURL,
 // canvas getImageData) is fine — these forbidden vectors transmit or persist.
-const FORBIDDEN: [string, RegExp][] = [
-  ['fetch(', /\bfetch\s*\(/], ['XMLHttpRequest', /XMLHttpRequest/],
-  ['sendBeacon', /sendBeacon/], ['WebSocket', /WebSocket/], ['EventSource', /EventSource/],
-  ['localStorage', /localStorage/], ['sessionStorage', /sessionStorage/], ['indexedDB', /indexedDB/],
-  ['document.cookie', /document\.cookie/],
-]
-
 describe('sample privacy (never weaken)', () => {
   it('has sample source files', () => {
     expect(sampleFiles().length).toBeGreaterThan(0)
   })
+
+  it('the patterns actually catch what they forbid, and nothing else', () => {
+    expect(forbiddenSelfTest(NETWORK_AND_STORAGE)).toEqual([])
+  })
+
   it('never uploads or persists user images', () => {
     for (const file of sampleFiles()) {
       const src = readFileSync(file, 'utf8')
-      for (const [name, re] of FORBIDDEN) {
-        expect(re.test(src), `${file} uses forbidden API: ${name}`).toBe(false)
+      for (const rule of NETWORK_AND_STORAGE) {
+        expect(matches(rule, src), `${file} uses forbidden API: ${rule.name}`).toBe(false)
       }
     }
   })
@@ -44,9 +43,9 @@ describe('sample privacy (never weaken)', () => {
   it('the face layer is held to the same network ban', () => {
     for (const file of sampleFiles(FACE)) {
       const src = readFileSync(file, 'utf8')
-      for (const [name, re] of FORBIDDEN) {
-        if (name === 'fetch(') continue
-        expect(re.test(src), `${file} uses forbidden API: ${name}`).toBe(false)
+      for (const rule of NETWORK_AND_STORAGE) {
+        if (rule.name === 'fetch(') continue
+        expect(matches(rule, src), `${file} uses forbidden API: ${rule.name}`).toBe(false)
       }
     }
   })

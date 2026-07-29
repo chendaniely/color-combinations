@@ -7,17 +7,34 @@ import type { Curation } from './curation'
 import type { RawFile } from './rawTypes'
 
 export function transform(raw: RawFile, curation: Curation, retrievedOn: string): Dataset {
-  const colors: ColorRecord[] = raw.colors.map((c) => ({
-    id: c.index,
-    name: c.name,
-    slug: c.slug,
-    hex: c.hex.toLowerCase(),
-    rgb: c.rgb_array as RGB,
-    cmyk: c.cmyk_array as CMYK,
-    hue: hueOf(c.hex),
-    fineId: curation.assignments[c.slug],
-    combinationIds: [...c.combinations],
-  }))
+  const colors: ColorRecord[] = raw.colors.map((c) => {
+    // `assignments` is a Record<string, string>, so a slug with no curation
+    // entry silently yields undefined while still TYPING as string. The
+    // dataset would then be written with `fineId: undefined`.
+    //
+    // validateDataset does catch it before anything is written, but only as
+    // `color 42 fineId "undefined" unknown`, which says nothing about what to
+    // do. Curation is hand-maintained (see curation.ts) and the source can
+    // gain colours on any `make update-data`, so this is a path that will
+    // eventually be walked. Fail here, naming the slug that needs an entry.
+    const fineId = curation.assignments[c.slug]
+    if (fineId === undefined) {
+      throw new Error(
+        `Colour "${c.slug}" (#${c.index}, ${c.name}) has no curation assignment. ` +
+        `Add it to \`assignments\` in scripts/ingest/curation.ts.`)
+    }
+    return {
+      id: c.index,
+      name: c.name,
+      slug: c.slug,
+      hex: c.hex.toLowerCase(),
+      rgb: c.rgb_array as RGB,
+      cmyk: c.cmyk_array as CMYK,
+      hue: hueOf(c.hex),
+      fineId,
+      combinationIds: [...c.combinations],
+    }
+  })
 
   // Combinations are implicit in the source: combination N = every color
   // whose `combinations` array contains N.

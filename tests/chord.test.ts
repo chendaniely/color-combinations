@@ -91,7 +91,6 @@ describe('redAnchorAngle', () => {
 
   it('level 1 merges a multi-node Red block on the real dataset', () => {
     const real = index(validateDataset(JSON.parse(readFileSync('data/processed/colors-data.json', 'utf8'))))
-    const TAU = 2 * Math.PI
     const nodes = wheelNodes(real, 1)
     const groups = nodes.map((_, i) => ({
       index: i, startAngle: (i / nodes.length) * TAU, endAngle: ((i + 1) / nodes.length) * TAU,

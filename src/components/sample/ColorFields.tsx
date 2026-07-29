@@ -44,7 +44,7 @@ export function ColorFields({ hsv, onChange }: {
             setDraft(text)
             const next = parse(text)
             setBad(next === null)
-            if (next) onChange(next)
+            if (next !== null) onChange(next)
           }}
           onBlur={() => { setEditing(null); setBad(false) }} />
       </div>
@@ -53,7 +53,7 @@ export function ColorFields({ hsv, onChange }: {
 
   return (
     <div className="pick-fields">
-      {field('hex', 'Hex', parseHex)}
+      {field('hex', 'HEX', parseHex)}
       {field('rgb', 'RGB', parseRgb)}
       {field('cmyk', 'CMYK', (t) => {
         const v = parseCmyk(t)

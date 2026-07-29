@@ -1,11 +1,11 @@
 // Renders a combination plate to a PNG download. Browser-only by design.
 import type { Indexed } from './core/dataset'
 import type { CombinationRecord } from './core/types'
+import { barWeights } from './plateLayout'
 
 const W = 1200
 const H = 900
 const BARS_H = 640
-const TAPER = [1.5, 1.15, 0.9, 0.75, 0.7]
 
 export function downloadPlatePng(ix: Indexed, combo: CombinationRecord): void {
   const colors = combo.colorIds.map((id) => ix.colorById.get(id)!)
@@ -17,11 +17,10 @@ export function downloadPlatePng(ix: Indexed, combo: CombinationRecord): void {
   ctx.fillStyle = '#f8f6f2'
   ctx.fillRect(0, 0, W, H)
 
-  const weights = TAPER.slice(0, colors.length)
-  const total = weights.reduce((a, b) => a + b, 0)
+  const weights = barWeights(colors.length)
   let y = 80
   colors.forEach((c, i) => {
-    const h = (weights[i] / total) * BARS_H
+    const h = weights[i] * BARS_H
     ctx.fillStyle = c.hex
     ctx.fillRect(80, y, W - 160, h)
     y += h

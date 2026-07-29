@@ -2,9 +2,13 @@ import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
 import { hsvToRgb, rgbToHex, type HSV } from '../../core/colorMath'
 import { discPointToHueSat, hueSatToDiscPoint } from '../../core/discGeometry'
 
-// Must match the .pick-disc size in app.css — the disc is a fixed square so the
-// pin can be placed before the element has been measured.
-const RADIUS = 118
+// The pin is positioned in PERCENTAGES of the disc, never pixels. Asking
+// hueSatToDiscPoint for a unit radius gives offsets in [-1, 1]; since the disc
+// is square (both axes read --pick-disc-size), 50% of it is exactly the radius
+// in both directions. So the component carries no copy of the disc's size and
+// cannot drift from the CSS — which it previously did, as RADIUS = 118 beside
+// width: 236px, waiting for the first person to make the disc responsive.
+const UNIT = 1
 
 const HUE_STEP = 2
 const SAT_STEP = 0.02
@@ -16,7 +20,7 @@ export function ColorDisc({ hsv, onChange }: {
   onChange: (hsv: HSV) => void
 }) {
   const disc = useRef<HTMLDivElement>(null)
-  const { dx, dy } = hueSatToDiscPoint(hsv.h, hsv.s, RADIUS)
+  const { dx, dy } = hueSatToDiscPoint(hsv.h, hsv.s, UNIT)
   const hex = rgbToHex(hsvToRgb(hsv))
 
   function pick(e: PointerEvent<HTMLDivElement>) {
@@ -46,18 +50,43 @@ export function ColorDisc({ hsv, onChange }: {
 
   return (
     <div className="pick-wrap">
+      {/* The linter is right that this is a smell, and there is no clean fix:
+          a hue/saturation disc is a TWO-dimensional control, and ARIA has no
+          role for one. role="slider" would force a single aria-valuenow and so
+          lie about one of the two axes. So it stays a focusable group that
+          handles keys, with its position announced through the live region
+          below, and the three text fields remain the accessible path per the
+          spec. Tracked in TODO.md; disabled here rather than globally so the
+          reasoning sits at the code it excuses. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions */}
       <div ref={disc} className="pick-disc" tabIndex={0} role="group"
         aria-label="Color wheel — arrow keys adjust hue and saturation"
         onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); pick(e) }}
         onPointerMove={(e) => { if (e.currentTarget.hasPointerCapture(e.pointerId)) pick(e) }}
+        // The Pointer Events spec releases capture implicitly on pointerup, so
+        // this is belt-and-braces rather than a fix — but an unreleased capture
+        // swallows every later pointer event on the page, which is a bad enough
+        // failure to be worth two lines.
+        onPointerUp={(e) => {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId)
+          }
+        }}
         onKeyDown={onKeyDown}>
         {/* brightness is exactly multiplicative on RGB, which is what V means —
             so the disc IS the color space, not a picture of it */}
         <div className="pick-face" style={{ filter: `brightness(${hsv.v})` }} />
         <div className="pick-pin" style={{
-          left: `calc(50% + ${dx}px)`, top: `calc(50% + ${dy}px)`, background: hex,
+          left: `${50 + dx * 50}%`, top: `${50 + dy * 50}%`, background: hex,
         }} />
       </div>
+      {/* Arrow-key movement on the disc used to be completely silent: it is a
+          role="group", so there was no value for a screen reader to report.
+          A 2D control has no honest single aria-valuenow, so its position is
+          announced as text instead. */}
+      <p className="visually-hidden" role="status" aria-live="polite">
+        {`Hue ${Math.round(hsv.h)} degrees, saturation ${Math.round(hsv.s * 100)} percent, ${hex}`}
+      </p>
       <label className="pick-bright">
         <span className="pick-label">Bright</span>
         <input type="range" min={0} max={100} value={Math.round(hsv.v * 100)}

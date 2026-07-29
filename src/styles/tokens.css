@@ -7,8 +7,25 @@
   --paper-hi: #fff; /* bright chrome for the dark camera viewfinder */
   /* ink */
   --ink: #2f2a26;
-  --ink-muted: #7e7468;
-  --ink-faint: #b8aea2;
+  /* The same colour as --ink, as bare channels, for shadows that need an alpha:
+     `rgb(var(--ink-rgb) / 0.08)`. Two shadows used to hard-code `rgb(47 42 38)`
+     inline, which is exactly the "no hard-coded colours" rule this file exists
+     to enforce. Keep in sync with --ink above — 0x2f 0x2a 0x26 = 47 42 38. */
+  --ink-rgb: 47 42 38;
+  /* The three ink steps are all WCAG AA for SMALL text (>= 4.5:1) against both
+     papers. They did not used to be: --ink-muted sat at 4.24 and --ink-faint at
+     2.02, and axe flagged the plate numbers, the copy-field labels and the
+     sampler's sub-labels as serious contrast violations. A site that ships
+     accessibility goggles judging the book's colours against WCAG AA cannot
+     fail WCAG AA in its own chrome.
+     Darkening --ink-faint just far enough to pass would have made it identical
+     to --ink-muted and collapsed the hierarchy, so all three were re-solved
+     together for distinct ratios — measured with the same culori wcagContrast
+     the goggles use. Hue and chroma are unchanged; only L* moved.
+     ink 13.15 · ink-muted 7.79 · ink-faint 5.07 (on --paper-1;
+     11.95 / 7.08 / 4.61 on --paper-2). Re-measure if either paper changes. */
+  --ink-muted: #554c41;
+  --ink-faint: #71685c;
   --hairline: #e8ddd2;
   /* brand accents — orange ONLY for seal/active-nav/slider-stop/hover */
   --accent: #f26522;
@@ -25,7 +42,12 @@
   /* layout */
   --panel-width: 400px;
   --radius: 3px;
+  --radius-pill: 999px;
   --header-height: 64px;
+  /* The colour picker's disc. Width AND height both read this, so the disc is
+     square by construction — which is what lets ColorDisc.tsx place the pin in
+     percentages instead of pixels, with no size constant of its own to drift. */
+  --pick-disc-size: 236px;
   /* motion */
   --dur-hover: 120ms;
   --dur-fast: 200ms;

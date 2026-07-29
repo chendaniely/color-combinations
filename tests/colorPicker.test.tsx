@@ -9,13 +9,13 @@ afterEach(cleanup)
 describe('ColorPicker (jsdom)', () => {
   it('opens seeded on NYC blue across all three notations', () => {
     render(<ColorPicker onSample={() => {}} onClose={() => {}} />)
-    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#236192')
+    expect((screen.getByLabelText('HEX') as HTMLInputElement).value).toBe('#236192')
     expect((screen.getByLabelText('RGB') as HTMLInputElement).value).toBe('35, 97, 146')
   })
 
   it('propagates a typed hex to the other notations', () => {
     render(<ColorPicker onSample={() => {}} onClose={() => {}} />)
-    fireEvent.change(screen.getByLabelText('Hex'), { target: { value: '#F26522' } })
+    fireEvent.change(screen.getByLabelText('HEX'), { target: { value: '#F26522' } })
     expect((screen.getByLabelText('RGB') as HTMLInputElement).value).toBe('242, 101, 34')
     expect((screen.getByLabelText('CMYK') as HTMLInputElement).value).toBe('0, 58, 86, 5')
   })
@@ -23,7 +23,7 @@ describe('ColorPicker (jsdom)', () => {
   it('propagates a typed CMYK to the hex field', () => {
     render(<ColorPicker onSample={() => {}} onClose={() => {}} />)
     fireEvent.change(screen.getByLabelText('CMYK'), { target: { value: '0, 30, 6, 0' } })
-    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#ffb3f0')
+    expect((screen.getByLabelText('HEX') as HTMLInputElement).value).toBe('#ffb3f0')
   })
 
   it('drives the color from the brightness slider', () => {
@@ -42,7 +42,7 @@ describe('ColorPicker (jsdom)', () => {
   it('keeps Explore enabled while a field holds an unparseable draft', () => {
     const onSample = vi.fn()
     render(<ColorPicker onSample={onSample} onClose={() => {}} />)
-    fireEvent.change(screen.getByLabelText('Hex'), { target: { value: '#2' } })
+    fireEvent.change(screen.getByLabelText('HEX'), { target: { value: '#2' } })
     const explore = screen.getByText('Explore this color') as HTMLButtonElement
     expect(explore.disabled).toBe(false)
     fireEvent.click(explore)
@@ -63,12 +63,12 @@ describe('ColorPicker (jsdom)', () => {
     const startPercent = rgbToHsv([35, 97, 146]).v * 100
 
     fireEvent.change(brightness, { target: { value: '0' } }) // extreme: black
-    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#000000')
+    expect((screen.getByLabelText('HEX') as HTMLInputElement).value).toBe('#000000')
 
     fireEvent.change(brightness, { target: { value: '1' } }) // near the extreme
     fireEvent.change(brightness, { target: { value: String(startPercent) } }) // back up
 
-    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#236192')
+    expect((screen.getByLabelText('HEX') as HTMLInputElement).value).toBe('#236192')
     expect((screen.getByLabelText('RGB') as HTMLInputElement).value).toBe('35, 97, 146')
   })
 })

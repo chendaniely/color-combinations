@@ -30,6 +30,19 @@ export function parseHex(input: string): RGB | null {
   ]
 }
 
+// Hue is identical in HSL and HSV — only the saturation/lightness axes differ.
+// Shared so the two cannot drift apart. Callers pass normalized 0..1 channels
+// plus the max and the max-min delta they have already computed. Undefined for
+// grays (d === 0); both callers report 0 there.
+function hueFrom(rn: number, gn: number, bn: number, max: number, d: number): number {
+  if (d === 0) return 0
+  let h: number
+  if (max === rn) h = 60 * (((gn - bn) / d) % 6)
+  else if (max === gn) h = 60 * ((bn - rn) / d + 2)
+  else h = 60 * ((rn - gn) / d + 4)
+  return h < 0 ? h + 360 : h
+}
+
 export function rgbToHsl([r, g, b]: RGB): { h: number; s: number; l: number } {
   const rn = r / 255
   const gn = g / 255
@@ -39,13 +52,7 @@ export function rgbToHsl([r, g, b]: RGB): { h: number; s: number; l: number } {
   const l = (max + min) / 2
   const d = max - min
   if (d === 0) return { h: 0, s: 0, l }
-  const s = d / (1 - Math.abs(2 * l - 1))
-  let h: number
-  if (max === rn) h = 60 * (((gn - bn) / d) % 6)
-  else if (max === gn) h = 60 * ((bn - rn) / d + 2)
-  else h = 60 * ((rn - gn) / d + 4)
-  if (h < 0) h += 360
-  return { h, s, l }
+  return { h: hueFrom(rn, gn, bn, max, d), s: d / (1 - Math.abs(2 * l - 1)), l }
 }
 
 export function hueOf(hex: string): number {
@@ -56,13 +63,6 @@ const NEUTRAL_SATURATION = 0.14
 
 export function isNeutral(hex: string): boolean {
   return rgbToHsl(hexToRgb(hex)).s < NEUTRAL_SATURATION
-}
-
-export function readableTextOn(hex: string): 'dark' | 'light' {
-  const [r, g, b] = hexToRgb(hex)
-  // Perceived luminance (ITU-R BT.601)
-  const luma = 0.299 * r + 0.587 * g + 0.114 * b
-  return luma > 150 ? 'dark' : 'light'
 }
 
 export type HSV = { h: number; s: number; v: number }
@@ -77,14 +77,7 @@ export function rgbToHsv([r, g, b]: RGB): HSV {
   const max = Math.max(rn, gn, bn)
   const min = Math.min(rn, gn, bn)
   const d = max - min
-  let h = 0
-  if (d !== 0) {
-    if (max === rn) h = 60 * (((gn - bn) / d) % 6)
-    else if (max === gn) h = 60 * ((bn - rn) / d + 2)
-    else h = 60 * ((rn - gn) / d + 4)
-    if (h < 0) h += 360
-  }
-  return { h, s: max === 0 ? 0 : d / max, v: max }
+  return { h: hueFrom(rn, gn, bn, max, d), s: max === 0 ? 0 : d / max, v: max }
 }
 
 export function hsvToRgb({ h, s, v }: HSV): RGB {

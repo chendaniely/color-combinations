@@ -28,6 +28,135 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.6.0 — 2026-07-29 — Paying down what we owed
+
+**No new feature. On purpose.** This release started with the owner taking
+stock:
+
+> i think i've exhaused all the features i can think of from this color pallete
+> and what peopel might want to do with it. what do you think?
+
+The honest answer was *mostly yes* — nine ways into 157 colours is enough — but
+that the remaining work was finishing, not inventing. The owner chose that over
+another feature:
+
+> let's go in and clear up all defects. let's take a pass and see if things also
+> need to be refactored. we've built a lot of things from scratch. i know we've
+> said not to have dependencies, but i really meant that as "i want this to be
+> deployable via github pages" so if you think some parts are better served with
+> external libraries, please refactor to use those.
+
+**The site was claiming something the book never said.** For six releases,
+Browse, the About panel and the README all told you that a plate's taller bars
+mean the dominant colour — "the main garment, the page background". That was
+invented. Checked against the data: all 338 multi-colour combinations are stored
+in ascending colour-id order, and a combination record holds only its id,
+colours, size and an excluded flag. There is no area or proportion field
+anywhere. The bar heights are decorative and the order is an artifact of sorting
+by id. The copy now says so, and points out that the proportions are yours to
+choose.
+
+**The site can now be used without a mouse.** The search type-ahead announced
+nothing to a screen reader — no popup, no highlighted result. The nearest-colour
+grid made every one of its twelve swatches a separate tab stop, with arrow keys
+doing nothing. The colour wheel was silent when you moved it. All fixed, and the
+seven full-screen overlays — camera, upload, picker, face capture, probe review
+— became real modal dialogs, so Escape closes them and the keyboard can no
+longer wander off into the page behind.
+
+**The You tab stops sounding certain when it isn't.** Two guards, both prompted
+by the owner's own first use of it — *"i think my camera and lightening isn't
+great"*. If the hair probe lands on a forehead or a bald patch it now says so,
+rather than quietly reporting the contrast between your face and your face. And
+a dark, blown-out or unevenly lit photo now says so *before* you commit to the
+reading, while Retake is still one tap away.
+
+**A second test suite, because the first one is blind by construction.** The
+fast tests run in a simulated browser that never draws anything, so it cannot
+see fonts, colours, sizes or positions. Five defects had already reached the
+live site past a fully green run of it. There is now a real-browser suite that
+checks what the page actually looks like, and each of those five has a test that
+would have caught it. The owner chose the more reproducible of the two options,
+accepting a one-time browser download so results are identical everywhere:
+
+> *(decision, from the options offered)* Playwright with its own browsers
+
+It justified itself immediately by catching a bug in the very refactor that
+prompted it — the new overlay was rendering as a 447×533 box instead of filling
+the screen, and six hundred passing tests had no opinion about it.
+
+**Also fixed:** a long-standing flaky test finally diagnosed (it was a timeout on
+genuinely slow work, not a phantom); the upload picker now lets you sample the
+edges of a landscape photo instead of cropping them out of reach; dead code and
+duplicated constants removed; and the privacy guards strengthened, including
+proof that they can actually detect what they forbid.
+
+**A second pass, before shipping.** The owner asked for one:
+
+> before we push. let's go through this all again and see if there are any more
+> refactoring to be done and other libraries we can use
+
+It turned up the two biggest gaps of the release. The project had **no linter at
+all** — nothing checking twenty React effects or any accessibility rule — so one
+was added, then configured down from about forty warnings to four real ones,
+because a linter that cries wolf teaches you to ignore it. And measuring test
+coverage showed that **copying a colour code and downloading a plate as a PNG
+had no automated test whatsoever** — two things visitors genuinely do, untested
+for exactly the same reason as the layout bugs, since the fast tests have no
+clipboard and no downloads. Both are now covered by the real browser, right down
+to checking the downloaded file really is a PNG and that its stripes match the
+plate you clicked.
+
+Most candidate libraries were turned down rather than adopted — a tooltip
+library, a styling helper, two accessibility toolkits — because each would have
+added weight to replace code that already works and is now tested. The two that
+were added cost the visitor nothing: they are tools for building the site, not
+part of it.
+
+**Then six more passes, because the owner asked for all of it:**
+
+> let's keep looping over and doing passes untill you don't find anything more
+> to fix and test. this is goign to be the big maintence and bug fix release so
+> let's make sure we pay off all our tech debt now
+
+**The site failed the accessibility standard it ships a feature to enforce.**
+This one stings: Iro has an "accessibility goggles" feature that judges Sanzo
+Wada's colours against WCAG AA — and its own small text didn't meet WCAG AA. An
+automated audit caught it on three screens. The three ink shades have been
+re-solved together so all of them pass while staying visibly distinct from one
+another; only their lightness changed, so the soft "Washi & Ink" look is intact.
+
+**The wheel scrolled sideways on a phone.** At 375px the controls under the
+wheel were 28px wider than the screen, so the whole page slid left and right.
+Fixed, and every view is now checked at phone width.
+
+**A blank white page was the worst thing that could happen, and now it can't.**
+Any unexpected error used to leave nothing on screen at all, with the reason
+visible only to someone who knows how to open a developer console. There's now a
+proper "something went wrong" page that explains itself, offers a reload, and
+shows the detail worth reporting.
+
+**The photo flow is finally tested from end to end** — upload, review, tap to
+correct a spot, adjust the white balance, confirm. That's the part of the site
+with the most history of subtle bugs, and until now none of it could be tested
+automatically. The test paints its own synthetic portrait rather than committing
+a photograph, which felt like the right call for a feature whose whole promise
+is that your photo never leaves your device. Chromium also pointed out a genuine
+speed problem in the white-balance preview along the way, which is fixed.
+
+**Also:** copying a colour and downloading a plate are tested for the first
+time; the granularity crossfade could mis-open a colour if you clicked during
+it; reduced-motion is verified rather than assumed; and a handful of quieter
+assumptions now have tests holding them in place.
+
+Two things were deliberately *not* changed after being measured. Splitting the
+charting library apart to shrink the download saved 0.15% — not worth six new
+dependencies. And a stricter type-checking setting produced 175 complaints that
+were almost all noise; adopting it would have made the code less safe, not more.
+Both measurements are written down so nobody repeats the experiment.
+
+---
+
 ## v1.5.0 — 2026-07-28 — "You"
 
 **A new tab that starts from your face.** Photograph yourself, and the site

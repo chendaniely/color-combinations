@@ -4,8 +4,24 @@ import { faceTooSmall, planProbes, type Probe } from '../../core/facePlan'
 import { robustColor, samplesInPatch } from '../../core/robustSample'
 import { findWhiteRef } from '../../core/whiteRef'
 import { cameraSupported, stopStream } from '../camera/cameraStream'
+import { Overlay } from '../Overlay'
 
 const MAX_DIM = 1200
+
+// The capture canvas is WRITTEN once and READ many times: analyse() pulls the
+// whole frame, and ProbeReview re-reads it on every white-balance change to
+// repaint the preview. Chromium warns about exactly this pattern
+// ("Multiple readback operations using getImageData are faster with the
+// willReadFrequently attribute set to true"), because without the hint the
+// canvas stays GPU-backed and every read stalls on a pixel transfer.
+//
+// The option only takes effect on the FIRST getContext call for an element, so
+// every path that touches this canvas must go through here — including the
+// plain drawImage calls, which would otherwise create the context first and
+// silently lock in the GPU-backed mode.
+function readableContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D | null {
+  return canvas.getContext('2d', { willReadFrequently: true })
+}
 
 export interface SampledProbe extends Probe { rgb: RGB }
 
@@ -62,7 +78,7 @@ export function FaceCapture({ onCapture, onClose }: {
     setBusy(true)
     setError(null)
     setTooSmall(false)
-    const ctx = canvas.getContext('2d')
+    const ctx = readableContext(canvas)
     if (!ctx) { setBusy(false); setError('Could not read that photo — try another.'); return }
     const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
@@ -111,7 +127,7 @@ export function FaceCapture({ onCapture, onClose }: {
         const scale = Math.min(1, MAX_DIM / Math.max(img.width, img.height))
         canvas.width = Math.round(img.width * scale)
         canvas.height = Math.round(img.height * scale)
-        canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
+        readableContext(canvas)?.drawImage(img, 0, 0, canvas.width, canvas.height)
         void analyse(canvas)
       }
       URL.revokeObjectURL(url)
@@ -128,14 +144,12 @@ export function FaceCapture({ onCapture, onClose }: {
     if (!video || !canvas || !video.videoWidth) return
     canvas.width = video.videoWidth
     canvas.height = video.videoHeight
-    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height)
+    readableContext(canvas)?.drawImage(video, 0, 0, canvas.width, canvas.height)
     void analyse(canvas)
   }
 
   return (
-    <div className="cam-overlay face-capture" role="dialog" aria-label="Photograph your face">
-      <button className="cam-close" onClick={onClose} aria-label="Close">×</button>
-
+    <Overlay label="Photograph your face" onClose={onClose} className="face-capture">
       <p className="cam-steps">
         Fit your face in the oval, and hold <b>something white</b> next to it —
         paper, a mug, a wall, a t-shirt. We use it to correct the lighting.
@@ -185,6 +199,6 @@ export function FaceCapture({ onCapture, onClose }: {
         Your photo stays on this device — nothing is uploaded or saved, and the
         photo itself is thrown away as soon as we’ve measured it.
       </p>
-    </div>
+    </Overlay>
   )
 }

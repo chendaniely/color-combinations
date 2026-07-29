@@ -1201,3 +1201,413 @@ accuracy fixtures. That jsdom cannot catch layout bugs at all is logged in
 
 **Spec:** `docs/superpowers/specs/2026-07-28-personal-color-analysis-design.md`
 **Plan:** `docs/superpowers/plans/2026-07-28-personal-color-analysis.md`
+
+## 2026-07-29 — Session: consolidation (v1.6.0)
+
+**Owner prompt (opening):**
+
+> i think i've exhaused all the features i can think of from this color
+> pallete and what peopel might want to do with it. what do you think?
+
+**Owner prompt (the work):**
+
+> let's go in and clear up all defects. let's take a pass and see if things
+> also need to be refactored. we've built a lot of things from scratch. i know
+> we've said not to have dependencies, but i really meant that as "i want this
+> to be deployable via github pages" so if you think some parts are better
+> served with external libraries, please refactor to use those.
+
+**Owner decision (browser testing):** chose **Playwright with its own
+browsers** over driving the already-installed Chrome, accepting a ~95 MB
+one-time download in exchange for identical results on every machine and in
+CI. This is the first deliberate exception to the "no separate download step"
+dependency rule, and `CLAUDE.md` now scopes that rule to running the site
+rather than testing it.
+
+**Decisions and findings:**
+
+- **The answer to the opening question was "no, but not where you'd expect."**
+  Nine ways in (search, wheel, browse, match, hex, upload, camera, picker,
+  face) is enough. What is missing is the back half: everything the *book*
+  makes can be exported, nothing the *visitor* makes can be — no saved
+  palette, and no URL state anywhere in `src/`, so no screen can be linked to.
+  Logged, not built; the owner chose consolidation first.
+- **The site claimed something the data cannot support.** "Taller bars suggest
+  the dominant color — the main garment" appeared in Browse, the About panel
+  and the README. Verified against the dataset: all 338 multi-colour
+  combinations are stored in ascending colour-id order, and a combination
+  record has only `{id, colorIds, size, excluded}` — there is no area field.
+  The taper is decorative and the order is an artifact of the id sort. The
+  v1.5.0 spec already recorded this; the copy had never been corrected.
+- **Seven overlays, one missing component.** Every camera/sampler/capture
+  screen was a `<div role="dialog">`: it announced itself as a dialog while
+  Tab walked out into the page behind and Escape did nothing. Replaced with
+  one native `<dialog>` + `showModal()`, which is the rare case where the
+  platform simply grew the feature.
+- **The dependency audit mostly said no.** `colorMath` looks hand-rolled but
+  its parsers are deliberately *stricter* than culori's (they reject `0x10`
+  and `1e2`) and its CMYK is the book's own convention, not a standard one;
+  `validate.ts` looks like a job for zod but its interesting half is
+  referential integrity — cross-references agreeing both ways — which zod
+  cannot express. The one real gap was testing, not libraries.
+- **The browser suite caught a regression on its first run.** The new overlay
+  was rendering 447×533 instead of full-screen: the UA stylesheet sets
+  `width: fit-content` on `<dialog>`, which makes `inset: 0` over-constrained,
+  so the browser drops `right`/`bottom`. 598 unit tests were happy with it.
+- **The v1.4.0 "UNDIAGNOSED" flaky test is diagnosed.** It reproduced twice,
+  both times as `matchedCombinations > the floor control > offers all four
+  stops`, and both times as a TIMEOUT (7122ms against a 5000ms default), never
+  a failed assertion. Cause: several files render the whole book in jsdom on
+  purpose, and this is the first test in a heavy file. Verified the fix against
+  the triggering condition rather than by hoping — under a deliberate build +
+  browser-suite CPU contention the same test took 7484ms and passed.
+- **A guard that cannot catch its own target is a green tick with nothing
+  behind it.** The two privacy guards each kept a private copy of the
+  forbidden-API list, and the `download` rule was JSX-shaped only, so
+  `a.download = …` walked past it. Now shared, hardened, and each rule ships
+  samples it must catch and samples it must not.
+
+**Owner prompt (second pass, before pushing):**
+
+> before we push. let's go through this all again and see if there are any more
+> refactoring to be done and other libraries we can use. let's take another pass
+> before we push this big bug fix patch
+
+**Decisions and findings (second pass):**
+
+- **The project had no linter at all.** Twenty `useEffect`s with nothing
+  checking their dependency arrays, and no `jsx-a11y` — in a codebase whose
+  owner does not read code and whose only maintainer is an AI. Added oxlint
+  (one package, ~1s) wired into `make lint` and CI.
+- **A linter is only worth having if it is quiet.** Out of the box it produced
+  ~40 warnings, most of them wrong here: `react-in-jsx-scope` is obsolete under
+  React 19's automatic runtime, and `prefer-tag-over-role` wanted a `<select>`
+  for a custom combobox that shows colour swatches. Configured down to four
+  real findings. The `ColorDisc` warnings are disabled *inline*, with the
+  reasoning at the code: a hue/saturation disc is two-dimensional and ARIA has
+  no role for that, so `role="slider"` would lie about one axis.
+- **The one `exhaustive-deps` hit was a false positive — and still worth it.**
+  The deps were equivalent to the value the linter wanted. But reading it
+  showed the *comment* was wrong: it claimed depending on `shown` directly
+  would "rebuild the Set every render and loop", when `shown` is a ternary over
+  two memoized arrays and is perfectly stable. Simplified to say something true.
+- **Coverage was the most valuable measurement of the pass.** `src/core` and
+  `src/color` sit near 100%, but `src/copy.ts` was at **0%** and
+  `src/exportPng.ts` at **13.88% with not one function covered** — the
+  clipboard and the PNG download, two things visitors actually do, and both
+  sitting on the owner's manual browser checklist. They were untested for the
+  same structural reason as the layout defects: jsdom has no clipboard and no
+  file download. The new Playwright suite can test both, so it now does —
+  including asserting the downloaded PNG's magic bytes and that the exported
+  plate's bar proportions match the plate on screen. That last one guards the
+  `plateLayout.ts` refactor made earlier the same day.
+- **Most library candidates were rejected, on the four properties.** No `clsx`
+  (six usages). No `zod` (already argued). No `@floating-ui` — InfoTip is 51
+  lines of working CSS and a runtime dependency would violate "weight is paid
+  by the feature that incurs it". No `radix-ui`/`react-aria`: they would add a
+  large runtime dependency to replace ~60 lines of now-tested code, and the
+  native `<dialog>` already beats their dialog implementations. The two that
+  were added are both dev-only with zero runtime weight.
+- **The new browser test was itself flaky, and the diagnosis was exact.** The
+  plate-proportions test passed alone and failed under load, missing tolerance
+  by 0.00003. Cause: `.panel .plate-large` runs a 500ms `deal` animation
+  containing `rotate(-1.5deg)`, and a rotation inflates an element's
+  axis-aligned bounding box by an amount that depends on its width — so
+  mid-animation the two bars were inflated by *different* factors, skewing the
+  ratio. Fixed by awaiting the element's own animations rather than sleeping,
+  so it stays correct if the duration ever changes. Verified with three clean
+  runs plus two full-suite runs under CPU contention.
+
+**Owner prompt (keep going):**
+
+> let's keep looping over and doing passes untill you don't find anything more
+> to fix and test. this is goign to be the big maintence and bug fix release so
+> let's make sure we pay off all our tech debt now
+
+**Third pass — the most embarrassing find of the release:**
+
+- **The site failed the accessibility standard it ships a feature to enforce.**
+  Added an axe (WCAG 2.1 A/AA) audit over nine screens, and three of them
+  failed immediately on `color-contrast (serious)`: the plate numbers, the
+  copy-field labels, and the sampler's sub-labels. Measured with the same
+  culori `wcagContrast` the goggles use, `--ink-muted` sat at **4.24** and
+  `--ink-faint` at **2.02** against `--paper-1`, where small text needs 4.5.
+  A site with an "accessibility goggles" feature judging Sanzo Wada's colours
+  against WCAG AA cannot fail WCAG AA in its own chrome.
+- **The naive fix was wrong, and measuring showed why.** Darkening
+  `--ink-faint` just far enough to pass lands it on L* 45.2 — indistinguishable
+  from a fixed `--ink-muted` at L* 45.0, collapsing two tokens into one and
+  destroying the visual hierarchy. All three were re-solved together for
+  distinct ratios instead: 13.15 / 7.79 / 5.07 on `--paper-1`. Hue and chroma
+  unchanged; only lightness moved, so "Washi & Ink" survives.
+- **TypeScript strictness, measured flag by flag rather than adopted wholesale.**
+  Five were already clean and are now on (`verbatimModuleSyntax`,
+  `isolatedModules`, `noImplicitOverride`, `allowUnreachableCode: false`,
+  `exactOptionalPropertyTypes` — one real fix). Two were rejected with the
+  numbers recorded in `tsconfig.json`: `noUncheckedIndexedAccess` produces 175
+  errors that are almost all bounded-loop indexes, and "fixing" them would mean
+  ~175 non-null assertions — which makes the code less safe by making `!`
+  routine. `noPropertyAccessFromIndexSignature` found 3, all stylistic.
+- **A real hole in the data pipeline.** `transform.ts` typed `fineId` as
+  `string` while the expression was `string | undefined`: a colour whose slug
+  is missing from hand-maintained curation would produce `fineId: undefined`.
+  `validateDataset` does catch it before anything is written, but reports
+  `color 42 fineId "undefined" unknown`, which says nothing about the fix. The
+  source can gain colours on any `make update-data`, so this path will
+  eventually be walked. It now fails naming the slug and the file to edit.
+  Verified behaviour-preserving: re-running the ingest reproduces the committed
+  dataset byte-for-byte.
+- **One genuinely dead CSS rule** (`.you-next`), found by diffing every class in
+  the stylesheet against every reference in `src/`. The three other candidates
+  were false positives — `is-skin`/`is-hair`/`is-white` are built dynamically as
+  `is-${kind}`.
+
+**Fourth pass — phone width and reduced motion, both off the manual checklist:**
+
+- **A real mobile defect: the Wheel scrolled sideways by 14px at 375px.**
+  `.wheel-view` centres its children, so `.wheel-controls` — which shrink-to-fits
+  its content — overflowed BOTH sides once the four granularity buttons plus
+  2rem of side padding came to 403px in a 375px viewport. Fixed with
+  `max-width: 100%`, wrapping on `.granularity`, and less side padding on small
+  screens. Every view is now checked for horizontal overflow.
+- **`prefers-reduced-motion` verified for the first time.** The checklist had
+  asked whether it really suppresses the animations; now a test opens a panel
+  under `emulateMedia({ reducedMotion: 'reduce' })` and asserts nothing is
+  running — and, separately, that suppressing the animation does not leave the
+  panel stuck at its opening opacity.
+- **Tap targets checked against WCAG 2.2's 24x24 minimum**, allowing for the
+  padded `::before` hit area that lets `.infotip-btn` reach 44px without
+  looking it — the fix made by hand in v1.5.0, now guarded.
+- The WCAG audit runs at phone width too, not just desktop.
+
+**Fifth pass — the last untested journey, and a crossfade misclick:**
+
+- **The wheel is `role="img"` with a label naming Browse as its text
+  alternative.** Checked whether the site's primary feature was mouse-only; it
+  is a documented, legitimate pattern for a complex visualisation rather than a
+  defect, and Browse genuinely carries the same 348 combinations.
+- **A click during the 200ms granularity crossfade could hit the OUTGOING
+  wheel.** `renderChord` fades the old `g.wheel` out before removing it, so for
+  that window two wheels exist and both carry pointer handlers — a click landing
+  on the old one dispatches from the previous granularity's geometry. Made the
+  outgoing group inert on the way out.
+- **The sampler's end-to-end journeys are now covered in a browser** rather than
+  mocked in jsdom: pick a colour, see the nearest book colours, hand off to
+  Match (palette seeded) or Browse (filtered, not the full 338), switch the
+  match level, and go back. `ColorSampler` was the last sizeable piece of
+  routing sitting near zero coverage, and it is a shell — mocking it would have
+  tested the mock.
+- **Coverage numbers understate reality, and now say so.** They measure only the
+  vitest run, so `copy.ts` still reports 0% and `exportPng.ts` 13.88% even
+  though both are thoroughly tested by Playwright. Recorded in the config so a
+  future reader treats a low number as "go and check", not "this is untested".
+
+**Sixth pass — measured and mostly rejected:**
+
+- **The console is clean, and now stays clean.** Nothing had ever checked
+  whether the app complains while running. React logs key warnings, controlled/
+  uncontrolled switches and invalid DOM nesting to `console.error`, none of
+  which fails a test or is visible to an owner who does not open devtools. A
+  walk through every view, the sampler, a copy, and all four granularities
+  produces zero errors and zero warnings, and a test now holds that line.
+- **d3 submodule imports: measured, rejected, recorded.** Replacing
+  `import * as d3 from 'd3'` with six submodule imports saved **0.68 kB raw /
+  0.18 kB gzipped out of 443 kB** — 0.15%, because Rollup already tree-shakes
+  d3 effectively. Six new direct dependencies and a hand-rolled namespace
+  object for that is a bad trade. The number is now a comment in
+  `chordRender.ts` so the experiment is not repeated.
+- **A crossfade misclick, fixed.** During the 200ms granularity fade two wheels
+  exist and both carry pointer handlers; a click on the outgoing one dispatches
+  from the previous geometry. The outgoing group is now inert.
+- **`redAnchorAngle`'s silent assumption is now a loud one.** It anchors Red at
+  12 o'clock by taking the min/max angle of Red's nodes as one block, which is
+  only right while a family's nodes are contiguous. Nothing enforced it; an
+  interleaved future dataset would have rotated every level with no error
+  anywhere. A test now asserts contiguity at all three levels, built from the
+  public dataset API rather than by widening chord.ts to expose a private
+  helper.
+
+**Seventh pass — the blank-page failure mode, and the You tab end to end:**
+
+- **A throw anywhere rendered a blank white page.** There was no error boundary
+  at all, so any render failure left nothing but a console trace — invisible to
+  an owner who does not open devtools, and the single worst failure mode this
+  project has. Added one that names the error so it can be pasted into a
+  session, offers a reload, and says plainly that nothing was stored so nothing
+  is lost.
+- **The You tab's upload path is now tested end to end in a browser** — the
+  most bug-prone surface in the project (the tap misalignment, the invisible
+  photo, the probes a zone too low, the marker that would not move), and every
+  one of those was invisible to jsdom. The test image is GENERATED by a small
+  PNG encoder built on Node's zlib rather than committed: a repo whose premise
+  is that photographs never leave the device should not carry a face photo. A
+  synthetic portrait is also not a face any detector accepts, so this exercises
+  the "we couldn't find a face" path — the manual one, which nothing had tested.
+- **The browser told us about a performance bug in its own log.** While
+  debugging the test, Chromium warned "Multiple readback operations using
+  getImageData are faster with the willReadFrequently attribute set to true" —
+  on exactly the full-frame white-balance repaint that TODO.md flags as never
+  profiled. The capture canvas is written once and read on every slider move,
+  so it now asks for a CPU-backed context. The option only applies at the FIRST
+  getContext call for an element, so all three paths in FaceCapture had to go
+  through one helper; a stray plain getContext would have silently locked in
+  the slow mode.
+- **My own test failed for an instructive reason.** Raw page coordinates landed
+  outside the stage because the review screen is taller than the viewport and
+  had scrolled (`stage.y` was -422). Element-relative clicks scroll into view
+  first — a reminder that in a real browser, unlike jsdom, position is a thing
+  that can be wrong.
+
+**Eighth pass — sweeping for what's left, and finding little:**
+
+- **The codebase is clean by the obvious measures**: one TODO marker (a
+  legitimate cross-reference), zero `any` types, four non-null assertions in all
+  of `src/`, and README/Makefile agreeing in both directions — every documented
+  command exists, every target is documented.
+- **The season palettes are lopsided, and that is data the owner can fix.**
+  Sizes run 7 to 35, median 15: Cool Summer and Soft Summer have 7 colours each,
+  Clear Spring has 35. Part of that is the source (109 warm colours to 48 cool),
+  but a 5× spread means the thinnest seasons offer a visitor very little. Logged
+  rather than "fixed" — `seasons.json` is hand-authored precisely so it can be
+  re-curated by the owner or another agent without touching TypeScript.
+- **The guard on it was too weak to be worth much.** It asserted only that a
+  season was non-empty, so a season holding one colour would have passed. Now a
+  floor of 5 and a max/min spread of 8 — a floor, not an endorsement of 7.
+- The CI workflow parses and wires up as intended: lint + unit + build in one
+  job, the browser suite in another, deploy waiting on both.
+
+**Assessment: the passes have converged.** Passes one through seven each turned
+up multiple real defects; this one turned up one weak test and one curation
+observation. Continuing would be looking for the sake of looking.
+
+**Ninth pass — a rule the project was quietly breaking:**
+
+- **CLAUDE.md's dependency property 3 says "a third-party CDN request is a leak"
+  — and the shipped page requests googletagmanager.com on every load.** The
+  analytics were a deliberate owner decision in v1.3.3 and the README describes
+  them honestly, but the RULE read as absolute with no exception recorded. A
+  rule that is knowingly broken without saying so teaches the next reader that
+  the rules are decorative — and the next reader is another AI session. The
+  exception is now stated precisely: analytics is the ONLY permitted third-party
+  origin, and it does not extend to assets.
+- **Now enforced by observation rather than by grep.** `origins.spec.ts` watches
+  every request the real page makes across every view and the whole face-capture
+  flow, and fails on any origin that is not ours or the declared analytics. A
+  static scan cannot see a CDN font pulled in by a stylesheet or a library that
+  phones home at runtime. It also proves the 3.5 MB MediaPipe model really is
+  served by us, and cannot pass vacuously — it asserts model assets were
+  actually requested.
+- **A privacy sentence that could be read too broadly.** The README said "No
+  third-party request is made at any point while you use the tab" in the
+  face-detection bullet. True of face detection; loose about the page, which has
+  analytics running. On a privacy claim — the highest-stakes kind of claim this
+  project makes — that is worth being exact about. Reworded.
+- **index.html had never been examined.** Six releases with no meta description,
+  so a search result or shared link said nothing. Added, along with a
+  theme-color, plus a test tying it to the `--paper-1` token since HTML cannot
+  read a CSS custom property. Open Graph tags are logged rather than added: a
+  card wants a 1200×630 image, which is a design asset the owner should approve.
+
+**Tenth pass — a real user-facing bug, in a feature nobody had exercised:**
+
+- **Copy CSS produced invalid CSS for 28 of the 338 combinations.** Five of the
+  book's colours carry punctuation that a data slug keeps happily and a CSS
+  identifier rejects: "Hay's Russet", "Pale King's Blue" and "Vandar Poel's
+  Blue" hold an apostrophe, "Eugenia Red | A" and "| B" hold a pipe. The
+  exporter wrote them straight into custom property names — `--hay's-russet:
+  #a35d4a;` — which a browser drops on parse. A visitor pasting the result got a
+  stylesheet quietly missing colours, with no error anywhere. Roughly one
+  combination in twelve.
+- **The fix keeps the slug and fixes the output.** A slug is a stable data key;
+  a CSS custom property name is an identifier; conflating the two was the bug.
+  Apostrophes are removed rather than replaced (an apostrophe sits inside a
+  word, so "hay's" reads "hays", not "hay-s"), other invalid runs become
+  hyphens. Verified across all 157 colours that this collides for none of them.
+- **The regression test was proved to catch the bug, not merely to pass.**
+  Restoring the old behaviour makes it fail with the exact damage —
+  "combination 49: wrote 2, browser kept 0" — and the strongest form of the test
+  is a real browser parsing the generated CSS with `CSSStyleSheet.replaceSync`,
+  because "matches a regex" and "Chromium keeps it" are different claims.
+- Two things checked and found FINE, recorded so they are not re-checked: all
+  eight `@font-face` blocks already declare `font-display: swap` (an earlier
+  count of nine was my own miscount — the file's opening comment contains the
+  string), and exactly one colour of 157 has no combinations (Vandar Poel's
+  Blue), which settles the long-open zero-width-arc question as a curiosity
+  rather than a systemic gap.
+
+**Owner prompt (documentation pass):**
+
+> you mentioned documentation in the previous loop pass. let's do a full comment
+> and documentation pass. if there is anything that is conflicting let me know
+> and we can work on resolving conflicting instructions to make sure it's all
+> clear
+
+**Five conflicts found and resolved:**
+
+1. **The v1.0 spec still asserted the dominant-colour rule** — "plate
+   proportions suggest dominant garment vs accent pieces" — six releases after
+   it turned out the book records no proportions at all, and while a later spec
+   said the opposite. Two specs contradicting each other, with the older one
+   also contradicting the shipped code.
+2. **The same spec called the granularity control a "slider"** (four times). It
+   was built as a radiogroup of four buttons and always has been.
+3. **A CSS comment cited a rule that did not say what it claimed.** `app.css`
+   justified the picker disc's raw hue stops as "the same exemption CLAUDE.md
+   grants Sanzo Wada's data colors" — but that rule only exempted the book's
+   own colours. The exemption was real and reasonable (a hue wheel cannot be
+   drawn in design tokens); it just was not written down. CLAUDE.md now names
+   both exemptions.
+4. **"No router (single page)" reads as a ban on ever touching the URL** — and
+   the top item in TODO.md is shareable deep links. They do not actually
+   conflict (serialising state into `location.hash` needs no dependency), but
+   the wording invited a future session to reject the feature the site most
+   visibly lacks. Reworded to "No router library", with the distinction spelled
+   out.
+5. **Specs vs plans was never stated.** The contract says to update specs when
+   the design changes, but says nothing about plans — which name symbols that
+   no longer exist. Now explicit: specs are living and get DATED CORRECTION
+   BLOCKS rather than rewrites (a spec records what was decided on a day;
+   silently editing it destroys that), while plans and PROMPTS.md are history
+   and are never maintained.
+
+**Also clarified:** the data-file rule says one module may *import* a data file.
+The word is load-bearing — an import bundles it — and several tests legitimately
+read the same files with `readFileSync`, which bundles nothing. Stated, so
+nobody "tidies" a test into an import.
+
+**Checked and found accurate:** every command in README exists and runs; every
+Makefile target is documented; every file path named in README and CLAUDE.md
+resolves; every test file cited in a source comment exists; app state really is
+one serializable object (arrays, strings, numbers, booleans — no Sets, no DOM
+handles), so the deep-links item is as cheap as claimed.
+
+**Owner decision (provenance):**
+
+> i like your resolutin for specs and plans. this way we have provinance on how
+> this repo was built.
+
+**What that changed:**
+
+- The specs/plans rule is now recorded with its REASON, not just as a
+  mechanism. A bare rule gets "tidied" away by a future session; a rule
+  carrying its why survives. CLAUDE.md now opens with provenance as a stated
+  project value, naming the four files that carry it — PROMPTS.md, CHANGELOG,
+  specs/plans, and TODO-completed's commit hashes — and the reason it matters
+  more here than usual: the owner does not read the code, and every future
+  maintainer is a fresh session with no memory of this one.
+- **Audited the chain and found it intact**: all 68 commit hashes cited in
+  TODO-completed.md resolve to real commits.
+- **But the contract was being broken by this very session.** Seven completed
+  entries carried no commit hash at all — six from the second pass, plus one
+  inherited from v1.5.0. Found by writing the check rather than by reading.
+  Fixed.
+- `tests/provenance.test.ts` now enforces both halves: every cited hash
+  resolves, and every completed entry cites one. It skips on a shallow clone,
+  because CI checks out at depth 1 and "the history was not downloaded" is a
+  different fact from "the history is wrong" — a test that cries wolf in CI
+  gets deleted.
+- The obvious implementation spawned a git process per hash and took 7.8s, a
+  large share of a ten-second suite, in a release that already spent a pass
+  diagnosing a timeout caused by slow tests. One batched `git cat-file
+  --batch-check` brought it to 155ms, and it was checked against a deliberately
+  fake hash to confirm it still detects one.

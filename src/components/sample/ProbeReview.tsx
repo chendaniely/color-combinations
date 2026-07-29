@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import { readSkin } from '../../color/skinMetrics'
+import { hairIsActuallySkin, readSkin } from '../../color/skinMetrics'
 import {
   CONTROL_LIMIT, controlsToWhiteRef, NEUTRAL, whiteBalance, whiteBalanceTable,
   whiteRefToControls, type WhiteBalanceControls,
 } from '../../color/whiteBalance'
 import { rgbToHex, type RGB } from '../../core/colorMath'
 import type { ProbeKind } from '../../core/facePlan'
+import { photoWarnings, WARNING_TEXT } from '../../core/photoQuality'
 import { medianColor, robustColor, samplesInPatch } from '../../core/robustSample'
 import type { SkinReading } from '../../core/types'
 import { canvasPointAt, PATCH_RADIUS } from '../camera/sampleCanvas'
+import { Overlay } from '../Overlay'
 import type { CaptureResult } from './FaceCapture'
 
 const SKIN_KINDS: ProbeKind[] = ['forehead', 'leftCheek', 'rightCheek', 'jaw']
@@ -53,7 +55,12 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
   const [correcting, setCorrecting] = useState<Correcting>(null)
 
   const skin = medianColor(skinMarks.map((m) => m.rgb))
-  const hair = hairMark?.rgb ?? null
+  // A hair sample that is really skin is dropped by readSkin anyway; checking
+  // it here too keeps this screen honest, so the swatch says "no hair visible"
+  // instead of showing a colour the reading is about to discard.
+  const rawHair = hairMark?.rgb ?? null
+  const hair = skin && hairIsActuallySkin(skin, rawHair) ? null : rawHair
+  const warnings = photoWarnings(skinMarks.map((m) => m.rgb))
   // One source of truth: whatever the sliders say, expressed as the white
   // reference the rest of the pipeline already understands.
   const whiteRef = controls ? controlsToWhiteRef(controls) : null
@@ -140,8 +147,12 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
     </div>
   )
 
+  // No × button: the way out of this screen is Retake or Continue, both
+  // rendered below. Escape maps to Retake — the same "back", not a silent
+  // discard of a capture the visitor has just spent time correcting.
   return (
-    <div className="cam-overlay probe-review" role="dialog" aria-label="Check what we read">
+    <Overlay label="Check what we read" className="probe-review"
+      onClose={onRetake} closeLabel={null}>
       <p className="cam-steps">
         {capture.faceFound
           ? <><b>Check this is right.</b> These are the colours we measured, and
@@ -239,9 +250,18 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       )}
       {!hair && (
         <p className="probe-note">
-          No hair visible, so the contrast reading is weaker than usual.
+          {rawHair
+            ? 'That looks like skin rather than hair, so we’ve left it out — tap Correct the hair to point at it, or carry on with a weaker contrast reading.'
+            : 'No hair visible, so the contrast reading is weaker than usual.'}
         </p>
       )}
+
+      {/* Said before Continue, while retaking is still one tap away. A poor
+          photo used to produce a reading that looked just as confident as a
+          good one. */}
+      {warnings.map((w) => (
+        <p key={w} className="probe-note probe-warn" role="status">{WARNING_TEXT[w]}</p>
+      ))}
 
       <div className="cam-controls">
         <button className="cam-btn ghost" onClick={onRetake}>Retake</button>
@@ -251,6 +271,6 @@ export function ProbeReview({ capture, onConfirm, onRetake }: {
       <p className="cam-privacy">
         Your photo stays on this device — only these few numbers go any further.
       </p>
-    </div>
+    </Overlay>
   )
 }

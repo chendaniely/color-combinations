@@ -11,7 +11,7 @@ const BLUE = rgbToHsv([35, 97, 146])
 describe('ColorFields (jsdom)', () => {
   it('renders all three notations of the same color', () => {
     render(<ColorFields hsv={BLUE} onChange={() => {}} />)
-    expect((screen.getByLabelText('Hex') as HTMLInputElement).value).toBe('#236192')
+    expect((screen.getByLabelText('HEX') as HTMLInputElement).value).toBe('#236192')
     expect((screen.getByLabelText('RGB') as HTMLInputElement).value).toBe('35, 97, 146')
     expect((screen.getByLabelText('CMYK') as HTMLInputElement).value).toBe('76, 34, 0, 43')
   })
@@ -19,7 +19,7 @@ describe('ColorFields (jsdom)', () => {
   it('emits RGB when a hex is typed', () => {
     const onChange = vi.fn()
     render(<ColorFields hsv={BLUE} onChange={onChange} />)
-    fireEvent.change(screen.getByLabelText('Hex'), { target: { value: '#F26522' } })
+    fireEvent.change(screen.getByLabelText('HEX'), { target: { value: '#F26522' } })
     expect(onChange).toHaveBeenCalledWith([242, 101, 34])
   })
 
@@ -33,7 +33,7 @@ describe('ColorFields (jsdom)', () => {
   it('marks an unparseable draft invalid and emits nothing', () => {
     const onChange = vi.fn()
     render(<ColorFields hsv={BLUE} onChange={onChange} />)
-    const hex = screen.getByLabelText('Hex')
+    const hex = screen.getByLabelText('HEX')
     fireEvent.change(hex, { target: { value: '#23' } })
     expect(hex.getAttribute('aria-invalid')).toBe('true')
     expect(onChange).not.toHaveBeenCalled()
@@ -43,7 +43,7 @@ describe('ColorFields (jsdom)', () => {
 
   it('discards an unparseable draft on blur', () => {
     render(<ColorFields hsv={BLUE} onChange={() => {}} />)
-    const hex = screen.getByLabelText('Hex')
+    const hex = screen.getByLabelText('HEX')
     fireEvent.change(hex, { target: { value: 'garbage' } })
     fireEvent.blur(hex)
     expect((hex as HTMLInputElement).value).toBe('#236192')
@@ -52,7 +52,7 @@ describe('ColorFields (jsdom)', () => {
 
   it('keeps hex draft while external hsv changes (wheel driving fields)', () => {
     const { rerender } = render(<ColorFields hsv={BLUE} onChange={() => {}} />)
-    const hex = screen.getByLabelText('Hex') as HTMLInputElement
+    const hex = screen.getByLabelText('HEX') as HTMLInputElement
     const rgb = screen.getByLabelText('RGB') as HTMLInputElement
     const cmyk = screen.getByLabelText('CMYK') as HTMLInputElement
 
@@ -74,7 +74,7 @@ describe('ColorFields (jsdom)', () => {
   it('reverts invalid draft when switching to another field', () => {
     const onChange = vi.fn()
     render(<ColorFields hsv={BLUE} onChange={onChange} />)
-    const hex = screen.getByLabelText('Hex') as HTMLInputElement
+    const hex = screen.getByLabelText('HEX') as HTMLInputElement
     const rgb = screen.getByLabelText('RGB') as HTMLInputElement
 
     // Focus hex for real, then type an unparseable draft into it.

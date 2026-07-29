@@ -88,8 +88,13 @@ main { flex: 1; min-height: 0; position: relative; }
   stroke-linejoin: round;
   pointer-events: none;
 }
-.wheel-controls { padding: var(--s4) var(--s8) var(--s6); text-align: center; }
-.granularity { display: inline-flex; gap: var(--s2); }
+/* max-width is load-bearing: .wheel-view centres its children, so a control
+   bar wider than the viewport overflows BOTH sides and the page scrolls
+   sideways. At 375px the four granularity buttons plus 2rem of side padding
+   came to 403px, pushing the document 14px wide. Caught by
+   tests/browser/mobile.spec.ts. */
+.wheel-controls { padding: var(--s4) var(--s8) var(--s6); text-align: center; max-width: 100%; }
+.granularity { display: inline-flex; gap: var(--s2); flex-wrap: wrap; justify-content: center; }
 .granularity button {
   background: none; border: none; border-bottom: 2px solid transparent;
   color: var(--ink-muted); font-size: 0.8rem; letter-spacing: var(--tracking-label);
@@ -109,7 +114,7 @@ main { flex: 1; min-height: 0; position: relative; }
 .panel {
   position: fixed; top: 0; right: 0; bottom: 0; width: var(--panel-width);
   max-width: 92vw; background: var(--paper-1); border-left: 1px solid var(--hairline);
-  box-shadow: -12px 0 40px rgb(47 42 38 / 0.08); z-index: 10;
+  box-shadow: -12px 0 40px rgb(var(--ink-rgb) / 0.08); z-index: 10;
   display: flex; flex-direction: column;
   animation: panel-in var(--dur) var(--ease);
 }
@@ -174,8 +179,9 @@ main { flex: 1; min-height: 0; position: relative; }
 .filter-chip {
   font: inherit; font-size: 0.85rem;
   background: var(--paper-2); color: var(--ink);
-  border: 1px solid var(--hairline); border-radius: 999px;
-  padding: 0.25rem 0.6rem; cursor: pointer;
+  /* Snapped to the 4px scale — 0.6rem was off-grid by 2.4px a side. */
+  border: 1px solid var(--hairline); border-radius: var(--radius-pill);
+  padding: var(--s1) var(--s3); cursor: pointer;
 }
 .filter-chip span { color: var(--ink-muted); margin-left: 0.25rem; }
 .filter-chip:hover { border-color: var(--accent); }
@@ -216,13 +222,16 @@ main { flex: 1; min-height: 0; position: relative; }
 .search-results {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
   background: var(--paper-1); border: 1px solid var(--hairline); border-radius: var(--radius);
-  list-style: none; padding: var(--s1); box-shadow: 0 8px 30px rgb(47 42 38 / 0.1);
+  list-style: none; padding: var(--s1); box-shadow: 0 8px 30px rgb(var(--ink-rgb) / 0.1);
 }
-.search-results button {
+/* Each result IS the option row — it no longer wraps a button, so these
+   styles moved from `.search-results button` onto the <li> itself. */
+.search-results li {
   display: flex; align-items: center; gap: var(--s2); width: 100%;
-  background: none; border: none; padding: var(--s1) var(--s2); font-size: 0.85rem; text-align: left;
+  padding: var(--s1) var(--s2); font-size: 0.85rem; text-align: left;
+  cursor: pointer; border-radius: var(--radius);
 }
-.search-results [aria-selected='true'] button, .search-results button:hover { background: var(--paper-2); }
+.search-results li[aria-selected='true'] { background: var(--paper-2); }
 .search-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
 
 /* Footer */
@@ -255,6 +264,8 @@ main { flex: 1; min-height: 0; position: relative; }
   .nav { flex-wrap: wrap; }
   .search-box input { width: 130px; }
   .chord-wheel { max-width: 96vw; }
+  /* 2rem a side is a fifth of a 375px screen. */
+  .wheel-controls { padding: var(--s4) var(--s4) var(--s6); }
   .browse-view { padding: var(--s4); }
   .browse-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   /* Panels become bottom sheets */
@@ -314,7 +325,19 @@ main { flex: 1; min-height: 0; position: relative; }
 .picker-input:focus { outline: none; border-bottom-color: var(--accent); }
 @media (max-width: 820px) { .match-cols { grid-template-columns: 1fr; } .sugs { grid-template-columns: 1fr; } }
 
+/* Every overlay is a native <dialog> opened with showModal(), portalled to
+   <body> (see Overlay.tsx). This block neutralises the UA's default dialog
+   box — a centred, fit-content panel with a border, its own padding and a
+   max-width of calc(100% - 6px - 2em) — which otherwise fights the full-screen
+   layout below.
+   `width/height: auto` is the load-bearing pair and the easy one to miss: the
+   UA sets `width: fit-content`, and a specified width makes `inset: 0`
+   over-constrained, so the browser drops `right`/`bottom` and the overlay
+   shrink-wraps its content instead of filling the viewport. Asserted by
+   tests/browser/overlay.spec.ts, which is how the omission was caught. */
 .cam-overlay {
+  margin: 0; border: 0; color: inherit;
+  width: auto; height: auto; max-width: none; max-height: none;
   position: fixed; inset: 0; z-index: 50;
   background: var(--paper-1);
   display: flex; flex-direction: column; align-items: center; gap: var(--s4);
@@ -340,6 +363,11 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--ink); border-radius: var(--radius); overflow: hidden;
 }
 .cam-video, .cam-canvas { width: 100%; height: 100%; object-fit: cover; touch-action: none; }
+/* The upload picker shows the WHOLE photo: its stage takes the photo's own
+   aspect ratio, so `contain` letterboxes nothing and every part of the image
+   stays eyedroppable. `cover` cropped the edges of a landscape photo out of
+   reach entirely. */
+.cam-canvas-contain { object-fit: contain; }
 .cam-reticle {
   position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
   width: 58px; height: 58px; border: 2px solid var(--accent); border-radius: 50%;
@@ -368,7 +396,6 @@ main { flex: 1; min-height: 0; position: relative; }
 .you-intro p { color: var(--ink-muted); margin: 0 0 var(--s3); }
 .you-privacy { font-size: 0.85rem; border-left: 2px solid var(--link); padding-left: var(--s3); }
 .you-actions { display: flex; gap: var(--s2); margin-top: var(--s6); }
-.you-next { margin-top: var(--s6); color: var(--ink-faint); font-size: 0.85rem; }
 
 .reading-strip {
   border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -635,6 +662,10 @@ main { flex: 1; min-height: 0; position: relative; }
   font-size: 0.8rem; color: var(--ink-muted); border-left: 2px solid var(--accent);
   padding-left: var(--s3); margin: 0 0 var(--s3);
 }
+/* A photo-quality warning. Louder than a note but with no new colour — the
+   brand rule keeps orange sparing, and the note border is already orange, so
+   this steps up the text weight instead. */
+.probe-warn { color: var(--ink); font-weight: 700; }
 .cam-tap { position: absolute; transform: translate(-50%, -50%);
   width: 30px; height: 30px; border: 2px solid var(--paper-hi); border-radius: 50%;
   box-shadow: 0 0 0 2px var(--accent); pointer-events: none; }
@@ -650,6 +681,20 @@ main { flex: 1; min-height: 0; position: relative; }
   width: 56px; height: 56px; border-radius: 50%; background: var(--paper-hi);
   border: 3px solid var(--paper-2); box-shadow: 0 0 0 2px var(--accent); cursor: pointer;
 }
+/* The crash screen (ErrorBoundary). Plain and centred — it has to render when
+   something else in the app has already failed, so it depends on nothing but
+   tokens. */
+.crash {
+  max-width: 34rem; margin: 0 auto; padding: var(--s12) var(--s6);
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--s4);
+}
+.crash h1 { font-family: var(--font-display); font-weight: 500; }
+.crash-detail { color: var(--ink-muted); font-size: 0.85rem; }
+.crash-detail code {
+  display: block; margin-top: var(--s2); font-family: var(--font-mono);
+  font-size: 0.8rem; color: var(--ink);
+}
+
 .cam-btn { font: inherit; padding: 0.6rem 1rem; border-radius: var(--radius); cursor: pointer; }
 .cam-btn.primary { background: var(--link); color: var(--paper-hi); border: 1px solid var(--link); }
 .cam-btn.primary:disabled { opacity: 0.5; cursor: default; }
@@ -774,12 +819,19 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Color picker — the HSV disc.
    The hue stops and the white saturation wash below are the COLOR SPACE, not
-   design tokens — the same exemption CLAUDE.md grants Sanzo Wada's data colors.
+   design tokens: a hue wheel cannot be drawn in tokens, it has to be actual
+   hues. This is exemption 2 of the two CLAUDE.md grants to the no-hard-coded-
+   colours rule. (Until v1.6.0 this comment claimed "the same exemption
+   CLAUDE.md grants Sanzo Wada's data colors" — which that rule did not say.
+   The rule now names both exemptions explicitly.)
    Every other value here comes from tokens.css.
-   The 236px size must stay in sync with RADIUS in ColorDisc.tsx. */
+   The disc's size lives in --pick-disc-size and NOWHERE else: ColorDisc.tsx
+   positions the pin in percentages, so this can change (or become responsive)
+   without touching TypeScript. */
 .pick-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--s3); }
 .pick-disc {
-  position: relative; width: 236px; height: 236px; border-radius: 50%;
+  position: relative; border-radius: 50%;
+  width: var(--pick-disc-size); height: var(--pick-disc-size);
   touch-action: none; cursor: crosshair;
 }
 .pick-disc:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
@@ -795,7 +847,14 @@ main { flex: 1; min-height: 0; position: relative; }
   border: 2px solid var(--paper-hi); box-shadow: 0 0 0 1.5px var(--ink);
   pointer-events: none;
 }
-.pick-bright { display: flex; align-items: center; gap: var(--s2); width: 236px; }
+/* Announced, never shown. The disc is a two-dimensional control, so it cannot
+   honestly be a single role="slider" with one aria-valuenow — instead its
+   position is reported here as text whenever it changes. */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0; padding: 0; margin: -1px;
+}
+.pick-bright { display: flex; align-items: center; gap: var(--s2); width: var(--pick-disc-size); }
 .pick-bright input { flex: 1; min-width: 0; accent-color: var(--link); }
 
 .pick-swatch {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { hsvToRgb, rgbToHex, rgbToHsv, type HSV, type RGB } from '../../core/colorMath'
+import { Overlay } from '../Overlay'
 import { ColorDisc } from './ColorDisc'
 import { ColorFields } from './ColorFields'
 
@@ -19,8 +20,7 @@ export function ColorPicker({ onSample, onClose }: {
   const hex = rgbToHex(rgb)
 
   return (
-    <div className="cam-overlay" role="dialog" aria-label="Pick a color">
-      <button className="cam-close" onClick={onClose} aria-label="Back">×</button>
+    <Overlay label="Pick a color" onClose={onClose} closeLabel="Back">
       <p className="cam-steps">
         <b>Pick a color</b> — turn the wheel, or type a hex, RGB, or CMYK value.
       </p>
@@ -34,6 +34,6 @@ export function ColorPicker({ onSample, onClose }: {
           Explore this color
         </button>
       </div>
-    </div>
+    </Overlay>
   )
 }
