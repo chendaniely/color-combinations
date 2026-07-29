@@ -504,6 +504,41 @@ main { flex: 1; min-height: 0; position: relative; }
   border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
 }
 
+/* Ranked combinations, and the floor that decides where the list stops. */
+.you-combos { margin-top: var(--s8); }
+.you-combos h2 {
+  font-family: var(--font-display); font-weight: 500; font-size: 1.3rem;
+  margin-bottom: var(--s2);
+}
+.you-combos-lede {
+  color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--s4);
+  max-width: 46rem;
+}
+.you-floor { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s4); }
+.you-floor button {
+  padding: var(--s1) var(--s3); border: 1px solid var(--hairline);
+  border-radius: 999px; background: transparent; color: var(--ink-muted);
+  font: inherit; font-size: 0.78rem;
+}
+.you-floor button[aria-checked='true'] {
+  background: var(--ink); border-color: var(--ink); color: var(--paper-1); font-weight: 700;
+}
+.you-floor em { font-style: normal; font-family: var(--font-mono); opacity: 0.7; }
+.you-combo-grid {
+  display: grid; gap: var(--s4);
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+.you-combo small {
+  display: block; margin-top: var(--s1); font-size: 0.68rem; color: var(--ink-faint);
+  font-family: var(--font-mono);
+}
+/* A colour in the plate that is NOT in the visitor's palette. Dashed rather
+   than tinted, so the colour itself still reads true. */
+.plate-bar.is-outsider {
+  box-shadow: inset 0 0 0 2px var(--paper-hi), inset 0 0 0 3px var(--ink);
+  opacity: 0.72;
+}
+
 /* Fixed-height slot for the "tap your skin" instruction. Reserved whether or
    not the text is showing, so it can never reflow the photo mid-aim. */
 .probe-hint {

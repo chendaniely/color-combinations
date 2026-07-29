@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Action, AppState } from '../../core/state'
 import { FaceCapture, type CaptureResult } from '../sample/FaceCapture'
 import { ProbeReview } from '../sample/ProbeReview'
+import { MatchedCombinations } from './MatchedCombinations'
 import { PaletteTabs } from './PaletteTabs'
 import { ReadingStrip } from './ReadingStrip'
 
@@ -13,6 +14,9 @@ export function YouView({ state, dispatch }: {
 }) {
   const [capture, setCapture] = useState<CaptureResult | null>(null)
   const [capturing, setCapturing] = useState(false)
+  // Whichever palette the visitor is currently LOOKING at — the combinations
+  // below follow the tab, so switching to the season list re-ranks against it.
+  const [visiblePalette, setVisiblePalette] = useState<ReadonlySet<number> | null>(null)
   const reading = state.you.reading
 
   if (capturing && !capture) {
@@ -56,7 +60,13 @@ export function YouView({ state, dispatch }: {
       {reading && <ReadingStrip reading={reading} />}
 
       {reading && (
-        <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch} />
+        <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
+          onPaletteChange={setVisiblePalette} />
+      )}
+
+      {reading && visiblePalette && (
+        <MatchedCombinations palette={visiblePalette} floor={state.you.floor}
+          dispatch={dispatch} />
       )}
 
       <div className="you-actions">

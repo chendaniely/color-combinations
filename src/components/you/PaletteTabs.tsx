@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { measuredPalette, scorePalette } from '../../color/personalPalette'
 import { classifySeason, seasonById } from '../../core/seasons'
 import type { Action } from '../../core/state'
@@ -14,10 +14,13 @@ const WARM_COUNT = 109
 const COOL_COUNT = 48
 const SHORT_LIST = 30
 
-export function PaletteTabs({ reading, season, dispatch }: {
+export function PaletteTabs({ reading, season, dispatch, onPaletteChange }: {
   reading: SkinReading
   season: string | null
   dispatch: (a: Action) => void
+  // Reports whichever palette is on screen, so the combinations below follow
+  // the tab rather than silently ranking against the other list.
+  onPaletteChange?: (ids: ReadonlySet<number>) => void
 }) {
   const [which, setWhich] = useState<Which>('measured')
 
@@ -36,6 +39,13 @@ export function PaletteTabs({ reading, season, dispatch }: {
   }, [activeSeason])
 
   const shown = which === 'measured' ? measured : seasonColors
+
+  useEffect(() => {
+    onPaletteChange?.(new Set(shown.map((c) => c.id)))
+    // `shown` is derived from these two; depending on it directly would rebuild
+    // the Set every render and loop.
+  }, [which, measured, seasonColors, onPaletteChange])
+
   const reasonFor = (id: number) =>
     scored.find((s) => s.color.id === id)?.reasons.join('; ') ?? ''
 
