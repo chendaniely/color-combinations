@@ -124,16 +124,38 @@ Never treat a plan as a description of the current code.
 - App state is one serializable object (`src/core/state.ts`).
 - Every design token (color/font/spacing/motion) lives in
   `src/styles/tokens.css`. No hard-coded colors in components, with exactly
-  two exemptions, both because the colour IS the content rather than a
+  **three** exemptions, all because the colour IS the content rather than a
   style choice:
   1. **Sanzo Wada's data colours** — the book's own hex values.
   2. **Colour-space renderings** — the hue stops and saturation wash of the
      picker disc (`.disc-face` in `app.css`) and the wheel's ribbon fills.
      A hue wheel cannot be drawn in tokens; it has to be actual hues.
+  3. **Colour-science anchors** — the four sRGB primaries in
+     `src/color/pccsMap.ts` (`#ff0000`, `#ffff00`, `#00ff00`, `#0000ff`),
+     which stand in for PCCS's psychological primaries when mapping the hue
+     circle. They are measurements, not decisions: changing one would move
+     the hue circle, not restyle anything. Added 2026-07-29 after a sweep
+     found them sitting outside all stated exemptions — see the paragraph
+     below, which is exactly the situation it was written for.
+
   Exemption 2 was previously claimed by a comment in `app.css` citing a rule
-  that only granted exemption 1. If a third exemption ever seems necessary,
+  that only granted exemption 1. If a fourth exemption ever seems necessary,
   the honest move is to add it here, not to cite this rule for something it
   does not say.
+
+  **`opacity` on text evades this rule entirely.** Fading text changes its
+  rendered contrast while the token stays correct, so no audit of colour
+  values can see it. It shipped twice: `.you-floor em` at `opacity: 0.7`
+  measured 3.66:1 (v1.5.0, live for two releases), and it passes in one state
+  while failing in another, which is why nobody noticed. Use a different
+  token, not transparency.
+
+  **A canvas cannot read `var(--x)`, so it must read the token at run time.**
+  `exportPng.ts` once copied the hex values and they went stale: v1.6.0 moved
+  `--ink-muted` for contrast and the export kept the retired value, so every
+  PNG the site exported had sub-AA caption text. It now calls
+  `getComputedStyle`, and `tests/exportTokens.test.ts` asserts its jsdom
+  fallbacks still equal the tokens they stand in for.
 - All D3 code stays in `src/viz/`.
 - Pure `parseHex` (color string parsing) lives in `src/core/colorMath.ts`;
   browser components that sample colors live in `src/components/sample/`
