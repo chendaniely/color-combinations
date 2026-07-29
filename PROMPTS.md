@@ -1317,3 +1317,47 @@ rather than testing it.
   ratio. Fixed by awaiting the element's own animations rather than sleeping,
   so it stays correct if the duration ever changes. Verified with three clean
   runs plus two full-suite runs under CPU contention.
+
+**Owner prompt (keep going):**
+
+> let's keep looping over and doing passes untill you don't find anything more
+> to fix and test. this is goign to be the big maintence and bug fix release so
+> let's make sure we pay off all our tech debt now
+
+**Third pass — the most embarrassing find of the release:**
+
+- **The site failed the accessibility standard it ships a feature to enforce.**
+  Added an axe (WCAG 2.1 A/AA) audit over nine screens, and three of them
+  failed immediately on `color-contrast (serious)`: the plate numbers, the
+  copy-field labels, and the sampler's sub-labels. Measured with the same
+  culori `wcagContrast` the goggles use, `--ink-muted` sat at **4.24** and
+  `--ink-faint` at **2.02** against `--paper-1`, where small text needs 4.5.
+  A site with an "accessibility goggles" feature judging Sanzo Wada's colours
+  against WCAG AA cannot fail WCAG AA in its own chrome.
+- **The naive fix was wrong, and measuring showed why.** Darkening
+  `--ink-faint` just far enough to pass lands it on L* 45.2 — indistinguishable
+  from a fixed `--ink-muted` at L* 45.0, collapsing two tokens into one and
+  destroying the visual hierarchy. All three were re-solved together for
+  distinct ratios instead: 13.15 / 7.79 / 5.07 on `--paper-1`. Hue and chroma
+  unchanged; only lightness moved, so "Washi & Ink" survives.
+- **TypeScript strictness, measured flag by flag rather than adopted wholesale.**
+  Five were already clean and are now on (`verbatimModuleSyntax`,
+  `isolatedModules`, `noImplicitOverride`, `allowUnreachableCode: false`,
+  `exactOptionalPropertyTypes` — one real fix). Two were rejected with the
+  numbers recorded in `tsconfig.json`: `noUncheckedIndexedAccess` produces 175
+  errors that are almost all bounded-loop indexes, and "fixing" them would mean
+  ~175 non-null assertions — which makes the code less safe by making `!`
+  routine. `noPropertyAccessFromIndexSignature` found 3, all stylistic.
+- **A real hole in the data pipeline.** `transform.ts` typed `fineId` as
+  `string` while the expression was `string | undefined`: a colour whose slug
+  is missing from hand-maintained curation would produce `fineId: undefined`.
+  `validateDataset` does catch it before anything is written, but reports
+  `color 42 fineId "undefined" unknown`, which says nothing about the fix. The
+  source can gain colours on any `make update-data`, so this path will
+  eventually be walked. It now fails naming the slug and the file to edit.
+  Verified behaviour-preserving: re-running the ingest reproduces the committed
+  dataset byte-for-byte.
+- **One genuinely dead CSS rule** (`.you-next`), found by diffing every class in
+  the stylesheet against every reference in `src/`. The three other candidates
+  were false positives — `is-skin`/`is-hair`/`is-white` are built dynamically as
+  `is-${kind}`.

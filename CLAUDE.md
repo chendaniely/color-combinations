@@ -104,7 +104,8 @@ four true.**
 Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision. Dev: vite,
 typescript, vitest, @vitejs/plugin-react, tsx, @types/react,
 @types/react-dom, @types/d3, @types/node, jsdom, @testing-library/react,
-@testing-library/dom, @playwright/test, oxlint, @vitest/coverage-v8.
+@testing-library/dom, @playwright/test, oxlint, @vitest/coverage-v8,
+@axe-core/playwright, axe-core.
 
 Justifications: tsx = run TypeScript scripts under Node (ingest, season
 seeding); @vitejs/plugin-react = Vite's React glue; @types/* = TypeScript
@@ -114,7 +115,9 @@ hand-roll color science — used ONLY in `src/color/`, never in the pure
 @playwright/test = the real-browser suite (see Testing below); oxlint =
 the linter (`make lint`, one package, config in `.oxlintrc.json`);
 @vitest/coverage-v8 = `make coverage`, which answers "what do the tests
-never run?";
+never run?"; @axe-core/playwright = the WCAG audit in
+`tests/browser/a11y.spec.ts` — non-negotiable for a site that ships
+accessibility goggles;
 @mediapipe/tasks-vision = on-device face detection for the You tab,
 Apache-2.0 with zero transitive dependencies, ~3.5 MB lazy-loaded and
 self-hosted from `public/mediapipe/`.
@@ -146,6 +149,14 @@ deliberately custom ARIA widgets — a styled combobox cannot be a
 a rule starts firing on correct code, silence it in `.oxlintrc.json` WITH
 a reason, or disable it inline where the reasoning belongs (see
 `ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
+
+**The three ink tokens must stay WCAG AA (>= 4.5:1) against both papers.**
+`tests/browser/a11y.spec.ts` audits nine screens with axe and will fail if
+they don't. Before touching `--ink*` or `--paper*`, re-measure with
+culori's `wcagContrast` — the same function the goggles use. Note that
+`--ink-faint` cannot simply be darkened "until it passes": that lands it
+on top of `--ink-muted`. The three were solved together for distinct
+ratios (13.15 / 7.79 / 5.07 on `--paper-1`).
 
 `make coverage` is a question, not a target. Do not chase a number:
 `src/core` and `src/color` are near 100% because the logic lives there,

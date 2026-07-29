@@ -389,7 +389,6 @@ main { flex: 1; min-height: 0; position: relative; }
 .you-intro p { color: var(--ink-muted); margin: 0 0 var(--s3); }
 .you-privacy { font-size: 0.85rem; border-left: 2px solid var(--link); padding-left: var(--s3); }
 .you-actions { display: flex; gap: var(--s2); margin-top: var(--s6); }
-.you-next { margin-top: var(--s6); color: var(--ink-faint); font-size: 0.85rem; }
 
 .reading-strip {
   border: 1px solid var(--hairline); border-radius: var(--radius);

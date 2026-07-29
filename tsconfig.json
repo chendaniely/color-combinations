@@ -9,6 +9,19 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    // NOT enabled, deliberately, after measuring both on this codebase:
+    //   noUncheckedIndexedAccess       — 175 errors, almost all noise. Most are
+    //     bounded loop indexes like TAPER[i] or tuple reads from an RGB. The
+    //     fix would be ~175 non-null assertions, which makes the code LESS safe
+    //     by making `!` routine. The real out-of-range risks here are already
+    //     covered by tests (see averagePatch's clamping).
+    //   noPropertyAccessFromIndexSignature — 3 errors, all stylistic, all in
+    //     test helpers (URL.createObjectURL). No bug-finding value.
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
