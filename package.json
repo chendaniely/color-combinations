@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:browser": "playwright test",
     "ingest": "tsx scripts/ingest/ingest.ts",
     "seed-seasons": "tsx scripts/seed-seasons.ts"
   },
@@ -21,6 +22,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@types/d3": "^7.4.3",

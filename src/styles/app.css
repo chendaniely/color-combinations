@@ -315,12 +315,18 @@ main { flex: 1; min-height: 0; position: relative; }
 @media (max-width: 820px) { .match-cols { grid-template-columns: 1fr; } .sugs { grid-template-columns: 1fr; } }
 
 /* Every overlay is a native <dialog> opened with showModal(), portalled to
-   <body> (see Overlay.tsx). These four lines neutralise the UA's default
-   dialog box — a centred, fit-content panel with a border, its own padding and
-   a max-width of calc(100% - 6px - 2em) — which would otherwise fight the
-   full-screen layout below. */
+   <body> (see Overlay.tsx). This block neutralises the UA's default dialog
+   box — a centred, fit-content panel with a border, its own padding and a
+   max-width of calc(100% - 6px - 2em) — which otherwise fights the full-screen
+   layout below.
+   `width/height: auto` is the load-bearing pair and the easy one to miss: the
+   UA sets `width: fit-content`, and a specified width makes `inset: 0`
+   over-constrained, so the browser drops `right`/`bottom` and the overlay
+   shrink-wraps its content instead of filling the viewport. Asserted by
+   tests/browser/overlay.spec.ts, which is how the omission was caught. */
 .cam-overlay {
-  margin: 0; border: 0; max-width: none; max-height: none; color: inherit;
+  margin: 0; border: 0; color: inherit;
+  width: auto; height: auto; max-width: none; max-height: none;
   position: fixed; inset: 0; z-index: 50;
   background: var(--paper-1);
   display: flex; flex-direction: column; align-items: center; gap: var(--s4);
