@@ -1,6 +1,6 @@
 NPM := npm
 
-.PHONY: help install dev lint test test-browser install-browser coverage build preview update-data check-links clean
+.PHONY: help install dev lint test test-browser install-browser coverage build preview update-data check-links check clean
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-16s %s\n", $$1, $$2}'
@@ -40,6 +40,26 @@ update-data: ## Re-download source data and regenerate data/processed/
 
 check-links: ## Check every cited source URL still resolves (hits the network)
 	npx tsx scripts/check-links.ts
+
+# Runs the three fast gates, keeps the FULL output, and still fails loudly.
+#
+# This exists because piping a test run through `grep` or `tail` to skim the
+# result silently swallows the exit code — `make test | grep Tests` reports
+# success even when make failed. That is how the v1.4.0 flaky test lost its
+# name for months: the summary line was read, the failure above it scrolled
+# past, and the non-zero exit never surfaced.
+#
+# `set -o pipefail` keeps the real status, `tee` keeps the whole log, and the
+# summary at the end is a convenience rather than the only thing you saw.
+check: ## Run lint + test + build, full output to check.log, correct exit code
+	@set -o pipefail; \
+	{ $(MAKE) lint && $(MAKE) test && $(MAKE) build; } 2>&1 | tee check.log; \
+	status=$$?; \
+	echo ""; \
+	echo "--- summary (full log in check.log) ---"; \
+	grep -E "Test Files|Tests |error|✓ built" check.log || true; \
+	if [ $$status -ne 0 ]; then echo "FAILED — read check.log, do not trust this summary"; fi; \
+	exit $$status
 
 clean: ## Remove build output, copied assets, and installed dependencies
 	rm -rf dist node_modules public/mediapipe

@@ -172,9 +172,29 @@ a check that needs a person. See `TODO-completed.md` for what went.
       camera is live) — v1 deliberately chose freeze-then-tap for accuracy.
 - [ ] Multi-point / region-average or pattern (multi-colour) detection from a
       capture — v1 samples one tapped point.
-- [ ] ΔE2000 (or another) colour-difference metric — the default is OKLab
-      Euclidean via culori, and swapping is a one-file change in
-      `src/color/colorDistance.ts` (culori already ships `differenceCiede2000`).
+- [ ] ~~ΔE2000 colour-difference metric~~ — **measured 2026-07-29, and there is
+      no reason to switch.** Compared OKLab Euclidean against
+      `differenceCiede2000` over a 512-point grid spanning the sRGB cube (what a
+      visitor actually feeds in from a photo or the picker, not just colours
+      already in the book):
+      • the top-1 nearest colour differs on **34.2%** of queries;
+      • but the top-12 SET overlaps **73.6%** on average.
+      That first number sounds alarming and is not. Inspecting the
+      disagreements, both metrics pick the same near colours and disagree only
+      on the ordering among near-ties — for `#0000c0` both return Deep Lyons
+      Blue, Violet and Red Violet, at CIEDE2000 distances of 4.9, 4.2 and 4.0.
+      Reordering three candidates separated by 0.9 ΔE is not a better answer,
+      and the UI shows twelve results with a very-close/close/roughly band, so
+      the exact order inside a tight cluster is not load-bearing.
+      Note for whoever revisits this: an earlier draft of this entry claimed
+      CIEDE2000 was misbehaving in the blue region because it is fitted for
+      small differences. The distances above disprove that for this dataset —
+      they are all under 5. The formula is being used in range; it simply
+      weights the same cluster differently. Do not repeat the stronger claim
+      without re-measuring.
+      Left open only because the seam exists and a future dataset with denser
+      coverage might make the ordering matter. It is a one-file change in
+      `src/color/colorDistance.ts` if so.
 - [ ] Browse page — plot all 157 colours on a hue/saturation disc with a
       brightness slider that slices to the colours at that lightness (owner:
       "i liked how you can plot all the points and then also points in same

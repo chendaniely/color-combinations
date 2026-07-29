@@ -5,3 +5,4 @@ public/mediapipe/
 # Playwright output (see `make test-browser`)
 test-results/
 playwright-report/
+check.log
