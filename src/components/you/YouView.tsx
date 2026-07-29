@@ -19,6 +19,11 @@ export function YouView({ state, dispatch }: {
   // below follow the tab, so switching to the season list re-ranks against it.
   const [visiblePalette, setVisiblePalette] = useState<ReadonlySet<number> | null>(null)
   const reading = state.you.reading
+  // A shared link carries a season but never a reading — the owner's privacy
+  // decision, enforced by tests/urlPrivacy.test.ts. So "somebody sent me this"
+  // is a real state the tab has to render: the season's colours, with no
+  // measurements of anyone, and an invitation to run it yourself.
+  const sharedSeason = !reading && state.you.season !== null
 
   if (capturing && !capture) {
     return (
@@ -44,7 +49,7 @@ export function YouView({ state, dispatch }: {
   return (
     <div className="you-view">
       <header className="you-intro">
-        <h1>Your colours</h1>
+        <h1>{sharedSeason ? 'A season, shared with you' : 'Your colours'}</h1>
         <p>
           Photograph your face and we’ll measure three things about your
           colouring — whether you lean warm or cool, how deep your colouring is,
@@ -60,17 +65,17 @@ export function YouView({ state, dispatch }: {
 
       {reading && <ReadingStrip reading={reading} />}
 
-      {reading && (
+      {(reading || sharedSeason) && (
         <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
           onPaletteChange={setVisiblePalette} />
       )}
 
-      {reading && visiblePalette && (
+      {visiblePalette && (
         <MatchedCombinations palette={visiblePalette} floor={state.you.floor}
           dispatch={dispatch} />
       )}
 
-      {reading && visiblePalette && (
+      {visiblePalette && (
         <YouDoorways palette={visiblePalette} dispatch={dispatch} />
       )}
 

@@ -1,5 +1,54 @@
 # TODO — completed
 
+## v1.8.0 — shareable deep links (2026-07-29)
+
+Owner: *"yes let's go and implment deep links so results are shareable"* — the
+first feature under the debt-first cadence, after three hunt patches cleared the
+way. Two of those turned out to be load-bearing for this.
+
+- [x] **Every screen has an address.** `src/core/urlState.ts` is a PURE
+      encoder/decoder holding all the interesting logic — no `location`,
+      `window`, `history` or dataset — so 29 assertions about hostile URLs run
+      without a browser. `src/urlSync.ts` owns the browser half (`abca340`,
+      `894ac0b`).
+- [x] **A You link carries the season, never the reading.** Owner's decision.
+      `SkinReading` holds the visitor's skin and hair colour; a link containing
+      those, pasted into a chat, publishes the sender's skin tone to someone
+      else's server. Enforced by `tests/urlPrivacy.test.ts`, which checks by
+      field name AND by value so a rename cannot slip past, and verified by
+      making `encodeState` leak on purpose (`81855f1`).
+- [x] **Back closes a panel; filters do not stack history.** Panels
+      `pushState`, everything else `replaceState` (`894ac0b`).
+- [x] **The You tab renders a season with no reading**, with a note saying
+      outright that nothing on the page measures the reader — the whole risk of
+      that screen is somebody mistaking a friend's season for their own analysis
+      (`4f25c64`).
+- [x] **A Copy link button**, because phone browsers hide the address bar and the
+      season feature is used on a phone by definition. Reads `location.href` at
+      CLICK time, not render time — a captured value goes stale and copying the
+      wrong link is worse than no button (`81bd962`).
+- [x] **A shared palette is a saved palette**, which completes most of the
+      "export a built outfit palette" half of the old top item (`81bd962`).
+- [x] **Fixed: the feature was finished and still broken.**
+      `state.you.season` was set only on an explicit dropdown pick, so after a
+      capture the screen said "Deep Autumn — our guess" while the shareable
+      state held null and the link was a bare `#/you`. The sentence that
+      justified the whole feature was still true after it was built. Caught by a
+      test that read the real clipboard rather than the encoder (`697624b`).
+- [x] **Fixed: the URL was unreadable and the tests could not see it.**
+      `URLSearchParams` percent-encodes `:` and `,`; every round-trip test
+      stayed green because decoding is symmetric. Found by looking at a real
+      address bar (`894ac0b`).
+- [x] **Fixed: a pre-existing `copyText` bug** — it called
+      `document.execCommand` outside any try, so it REJECTED instead of
+      returning false when both clipboard routes were unavailable, breaking its
+      own `Promise<boolean>` contract. Reachable from every copy button on the
+      site, not just the new one (`81bd962`).
+- [x] **Established the Open Graph ceiling**, recorded in `TODO.md`: hash
+      routing makes per-link previews permanently impossible, so one site-wide
+      card is the maximum. A property of the design, not of effort (`12b02a9`).
+
+
 ## Bug hunt, second pass (2026-07-29, v1.7.3)
 
 Owner: *"make the patch first then keep hunting"*

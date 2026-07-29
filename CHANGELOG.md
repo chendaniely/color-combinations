@@ -28,6 +28,62 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.8.0 — 2026-07-29 — Every screen has an address now
+
+The first feature since the owner set the rule that debt gets paid before
+features do. Three bug-hunt patches cleared the way, and two of them turned out
+to be load-bearing for this one.
+
+> yes let's go and implment deep links so results are shareable
+
+**Everything is linkable.** Open a colour, filter Browse to reds, build a
+palette, find your season — the address bar keeps up, so copying it shares
+exactly what you are looking at. There's a **Copy link** button on combinations,
+on a built palette and on your season, because phone browsers hide the address
+bar while you scroll, and the season feature is used on a phone by definition.
+
+**Your season is shareable. Your measurements are not.** This was the design
+question, and the owner chose the careful answer. A link to your season contains
+the words `season=deep-autumn` and nothing else — not your skin tone, not your
+hair colour, none of the numbers read off your face. Those would otherwise
+travel into whatever chat you pasted the link into and sit on that company's
+servers. The cost is accepted and real: the "Measured for you" palette can't
+come back from a link, and you can't bookmark your own full result. Reloading
+still means retaking the photo.
+
+Someone who opens your link sees a plain note that it came from a link and that
+nothing on the page is a measurement of *them*, with an invitation to try it
+themselves. The whole risk of that screen is somebody mistaking a friend's
+season for their own analysis.
+
+**Back closes a panel** instead of dumping you off the site — what most people
+expect, and what the Android back gesture means. Changing a filter doesn't add a
+history entry, so browsing doesn't bury you in them.
+
+**A shared palette is a saved palette.** This site has no accounts, so a link to
+a palette you built is the closest thing to saving it — which quietly completes
+the other half of a long-standing request.
+
+**Old links still work, or explain themselves.** A link to a colour that isn't in
+the book says so. A saved palette that has lost a colour opens with the rest of
+it. That only works because of the three patches that came first: the bug where
+an unrecognised id took down the *entire site* was fixed a few hours before this
+feature made unrecognised ids reachable for the first time.
+
+**The feature was finished, and then found to be broken.** After a capture the
+screen said "Deep Autumn — our guess", but the guess only lived inside the
+component and never reached the shareable state — so the link you'd copy was a
+bare address with no season in it. *"Someone finds their season and the only way
+to show a friend is to make them redo the photo"* — the exact sentence that
+justified building any of this — was still true after it was built. Caught by a
+test that read the real clipboard rather than trusting the code that fills it.
+
+Also fixed on the way past: copying could fail silently in browsers missing both
+clipboard routes, an old bug that had been reachable from every copy button on
+the site.
+
+---
+
 ## v1.7.3 — 2026-07-29 — The colour in the file you download
 
 The hunt continued, on the owner's instruction:

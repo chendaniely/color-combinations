@@ -1,4 +1,4 @@
-import { keyName, keySwatches } from '../core/dataset'
+import { keyLabel, keySwatches } from '../core/dataset'
 import type { Action } from '../core/state'
 import { dataset } from '../data'
 
@@ -22,8 +22,8 @@ export function PaletteTray({ keys, dispatch }: { keys: string[]; dispatch: (a: 
           <div key={k} className="chip">
             <Swatches hexes={keySwatches(dataset, k)} />
             <div className="row">
-              <span className="nm">{keyName(dataset, k)}</span>
-              <button className="x" aria-label={`Remove ${keyName(dataset, k)}`}
+              <span className="nm">{keyLabel(dataset, k)}</span>
+              <button className="x" aria-label={`Remove ${keyLabel(dataset, k)}`}
                 onClick={() => dispatch({ type: 'removeFromPalette', key: k })}>×</button>
             </div>
           </div>

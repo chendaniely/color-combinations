@@ -186,3 +186,52 @@ describe('a neutral undertone is flagged as less certain', () => {
     expect(container.textContent).not.toMatch(/undertone reads\s*neutral/i)
   })
 })
+
+// A shared link carries a season but never a reading — the owner's privacy
+// decision. So "somebody sent me this" is a state the tab must render: the
+// season's colours, no measurements of anybody, and an invitation to run it.
+describe('a season shared by link, with no reading', () => {
+  async function shared(season = 'deep-autumn') {
+    const utils = render(
+      <PaletteTabs reading={null} season={season} dispatch={vi.fn()} />)
+    await waitFor(() => expect(screen.queryByLabelText(/season/i)).toBeTruthy())
+    return utils
+  }
+
+  it('shows the season, both levels, without a reading', async () => {
+    const { container } = await shared()
+    expect(container.querySelector('.season-parent')!.textContent).toMatch(/autumn/i)
+    expect(container.querySelector('.season-sub')!.textContent).toMatch(/deep autumn/i)
+  })
+
+  it('shows the season colours', async () => {
+    const { container } = await shared()
+    expect(container.querySelectorAll('.you-swatch').length).toBeGreaterThan(0)
+  })
+
+  // A one-tab tablist would be a lie about what is available.
+  it('renders no tab strip, because there is no second palette', async () => {
+    await shared()
+    expect(screen.queryAllByRole('tab')).toHaveLength(0)
+    expect(screen.queryByText(/measured for you/i)).toBeNull()
+  })
+
+  it('says it came from a link and that nothing here measures the reader', async () => {
+    const { container } = await shared()
+    const note = container.querySelector('.shared-season')!
+    expect(note.textContent).toMatch(/opened from a shared link/i)
+    expect(note.textContent).toMatch(/nothing here is a measurement of you/i)
+    expect(note.textContent).toMatch(/take your own photo/i)
+  })
+
+  it('does not claim a neutral undertone it never measured', async () => {
+    const { container } = await shared()
+    expect(container.textContent).not.toMatch(/undertone reads/i)
+  })
+
+  it('still shows the fit panel, which needs no reading', async () => {
+    const { container } = await shared()
+    expect(container.querySelector('.season-fit')).toBeTruthy()
+    expect(container.querySelectorAll('.fit-pairs li').length).toBeGreaterThan(0)
+  })
+})

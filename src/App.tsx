@@ -11,11 +11,15 @@ import { MatchPage } from './components/MatchPage'
 import { RibbonDetail } from './components/RibbonDetail'
 import { WheelControls } from './components/WheelControls'
 import { YouView } from './components/you/YouView'
-import { initialState, reducer } from './core/state'
+import { reducer } from './core/state'
 import { allowedFor } from './data'
+import { initialStateFromUrl, useUrlSync } from './urlSync'
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  // Seeded from the address bar, so a shared link renders the right screen on
+  // the first paint rather than flashing the default one first.
+  const [state, dispatch] = useReducer(reducer, undefined, initialStateFromUrl)
+  useUrlSync(state, dispatch)
   const allowed = useMemo(() => allowedFor(state.access), [state.access])
   return (
     <div className="app">
