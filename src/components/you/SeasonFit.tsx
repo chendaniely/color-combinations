@@ -56,7 +56,13 @@ export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
 
   return (
     <section className="season-fit" aria-label={`How well the book covers ${sub.name}`}>
-      <h4>What the book has for {sub.name}</h4>
+      {/* h2, not h4. The page ran h1 -> h4 -> h2, skipping two levels going down
+          and then jumping back up, so a screen reader hears a sub-sub-section
+          where a peer section is. This panel and "Combinations" ARE peers: two
+          top-level things the page has to say about a palette. The audit never
+          caught it because heading-order is one of axe's best-practice rules and
+          a11y.spec.ts is scoped to WCAG 2.1 A/AA. */}
+      <h2>What the book has for {sub.name}</h2>
 
       <div className="fit-pairs" role="listbox"
         aria-label={`The book's nearest match to each ${sub.name} ideal — pick one to start a palette from`}

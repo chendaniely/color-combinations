@@ -168,9 +168,26 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Browse */
 .browse-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
-/* padding-right reserves room for the floating accessibility goggles (top-right)
-   so the filter row never slides underneath it. */
-.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
+.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+/* Keep the filter controls clear of the accessibility goggles, which are
+   absolutely positioned at the top right and float over this row at every width.
+   ON DESKTOP, reserve the width; there is plenty of it.
+   ON A PHONE there is not. 10rem is 41% of a 390px screen, and reserving it on
+   every row pushed each select onto a row of its own: the bar stood 157.75px
+   tall and the first colour plate landed at y=471 of an 844px screen, below the
+   halfway line. So break the line after the size pills instead. The pills are
+   narrow enough to sit beside the goggles, and the selects get a full-width row
+   underneath with nothing floating over it.
+   Measured 2026-07-30: bar 157.75px -> 97px, first plate y=471 -> y=410.
+   DROPPING THE RESERVE ALONE IS NOT THE FIX, and looked like one — the bar
+   shrank exactly as intended and the goggles came down on top of the family
+   select. Found by screenshotting; the tests were checking height and padding,
+   neither of which can see two boxes overlapping. */
+@media (min-width: 761px) { .browse-filters { padding-right: 10rem; } }
+@media (max-width: 760px) {
+  .browse-filters { gap: var(--s2) var(--s3); }
+  .browse-filters .size-filter { flex: 1 1 100%; }
+}
 .browse-filters select {
   font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink);
   background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -558,13 +575,22 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--link); color: var(--paper-hi); font-weight: 700;
 }
 
-/* Where this palette came from — never behind a disclosure. */
+/* Where this palette came from — never behind a disclosure.
+   A CITATION, MARKED AS ONE, rather than a fourth coloured left rule.
+   Six classes on this site draw a 2px coloured rule down the left of a block of
+   small muted prose: you-privacy, you-note, shared-season, you-provenance,
+   fit-caveat and the goggles note. Three of them stack consecutively on the You
+   tab, so the device stopped meaning "read this" and started meaning "text".
+   This one is not a notice at all — it is a source, and sources are set apart
+   by a rule ABOVE and small caps, not by an alert stripe. The two blocks that
+   really are notices (the privacy promise, the shared-link explainer) keep the
+   left rule and are now the only things wearing it, which gives it back its
+   meaning. Nothing was deleted: every word still renders. */
 .you-provenance {
   font-size: 0.82rem; color: var(--ink-muted); line-height: 1.55;
-  border-left: 2px solid var(--link); padding-left: var(--s3);
+  border-top: 1px solid var(--hairline); padding-top: var(--s3);
   margin: 0 0 var(--s4); max-width: 46rem;
 }
-.you-provenance.season { border-left-color: var(--accent); }
 
 .you-swatches {
   display: grid; gap: var(--s2);
@@ -628,8 +654,12 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Ideal beside nearest-in-the-book. The gap between the two columns IS the
    information, so the pair must read as a pair at any width. */
 .season-fit { margin-top: var(--s5); }
-.season-fit h4 {
-  font-family: var(--font-display); font-size: 1.05rem; font-weight: 500;
+/* Sized to match `.you-combos h2`, because the two ARE peer sections and were
+   only styled differently because one had been marked up as an h4. Reading the
+   page top to bottom, "What the book has for X" and "Combinations" should land
+   with the same weight. */
+.season-fit h2 {
+  font-family: var(--font-display); font-weight: 500; font-size: 1.3rem;
   margin: 0 0 var(--s3);
 }
 .fit-pairs { margin: 0 0 var(--s3); }
