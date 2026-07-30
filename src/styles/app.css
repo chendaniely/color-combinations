@@ -219,6 +219,16 @@ main { flex: 1; min-height: 0; position: relative; }
   border: 1px solid var(--hairline); border-radius: var(--radius); cursor: pointer;
 }
 .search-sample:hover { border-color: var(--accent); color: var(--accent); }
+.search-sample-tx {
+  font-size: 0.72rem; letter-spacing: var(--tracking-label); text-transform: uppercase;
+}
+
+/* The entry gallery, shared by the sampler overlay and Match > Colors. The
+   cards were only ever inside the overlay, which is why nobody found the
+   camera. */
+.color-entry { display: flex; flex-direction: column; gap: var(--s2); }
+.match-entry { max-width: 30rem; }
+.match-entry .lede { margin-bottom: var(--s3); }
 .search-results {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
   background: var(--paper-1); border: 1px solid var(--hairline); border-radius: var(--radius);

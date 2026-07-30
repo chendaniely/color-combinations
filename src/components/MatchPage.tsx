@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { combosForSet, remapKeysToLevel, suggestPartners } from '../core/matching'
 import type { Action, AppState, MatchLevel } from '../core/state'
 import { allowedFor, dataset } from '../data'
+import { cameraSupported } from './camera/cameraStream'
+import { ColorEntry, type EntrySource } from './sample/ColorEntry'
+import { ColorSampler } from './sample/ColorSampler'
 import { PaletteTray } from './PaletteTray'
 import { ShareLink } from './ShareLink'
 import { PlateCard } from './PlateCard'
@@ -45,6 +48,15 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
   }, [keys.length])
 
   const noun = NOUN[level]
+
+  // Opening a card here jumps straight into that capture screen: the cards on
+  // the page have already asked the question the overlay's own card list would
+  // ask again. Search focuses the header box instead, as it does everywhere.
+  const [entrySource, setEntrySource] = useState<'camera' | 'upload' | 'pick' | null>(null)
+  function openEntry(picked: EntrySource) {
+    if (picked !== 'search') { setEntrySource(picked); return }
+    document.querySelector<HTMLInputElement>('.search-box input')?.focus()
+  }
   // useMemo for consistency with App and ChordWheel — see the note in
   // BrowseView.
   const allowed = useMemo(() => allowedFor(state.access), [state.access])
@@ -52,6 +64,10 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
   const combos = keys.length ? combosForSet(dataset, level, keys, MATCH_SIZES, allowed) : []
   return (
     <div className="match-view">
+      {entrySource && (
+        <ColorSampler dispatch={dispatch} initialSource={entrySource}
+          onClose={() => setEntrySource(null)} />
+      )}
       <div className="match-head">
         <h1>Build a palette</h1>
         <div className="level" role="radiogroup" aria-label="Matching level"
@@ -69,7 +85,18 @@ export function MatchPage({ state, dispatch }: { state: AppState; dispatch: (a: 
         <>
           {levelNotice && <p className="empty-note">{levelNotice}</p>}
           {level === 0
-            ? <p className="lede">Search a color name above, or snap a color with the camera — exact colors land here.</p>
+            ? (
+              /* This level used to render a SENTENCE pointing at affordances
+                 elsewhere, which made it the only level with no way in — levels
+                 1 and 2 have had a ShadePicker all along. Owner: "on its own
+                 there's no way to get to a similar page". The same cards as the
+                 header overlay, so the camera appears twice instead of hiding
+                 once. */
+              <div className="match-entry">
+                <p className="lede">Pick an exact color to start from:</p>
+                <ColorEntry cameraAvailable={cameraSupported()} onPick={openEntry} />
+              </div>
+            )
             : <ShadePicker level={level} dispatch={dispatch} />}
         </>
       ) : (

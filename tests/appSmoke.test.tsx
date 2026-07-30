@@ -57,11 +57,18 @@ describe('app shell', () => {
     expect(html).toContain('Build a palette')
   })
 
-  it('match page offers a Colors level with a snap/search prompt when empty', () => {
+  it('match page offers real ways in at the Colors level when empty', () => {
     const empty = { ...initialState, view: 'match' as const, palette: { level: 0 as const, keys: [] } }
     const html = renderToString(<MatchPage state={empty} dispatch={() => {}} />)
     expect(html).toContain('Colors')
-    expect(html).toContain('snap a color')
+    // Was a SENTENCE pointing at affordances elsewhere, which made Colors the
+    // only level with no way in. Now the same entry cards as the header overlay.
+    // Asserted on a card that is ALWAYS offered: the camera one is correctly
+    // absent here, because cameraSupported() is false when rendering to a
+    // string with no navigator.
+    expect(html).toContain('sample-src')
+    expect(html).toContain('Upload a photo')
+    expect(html).toContain('Pick a color')
   })
   it('match page renders a color-key palette by color name', () => {
     const seeded = { ...initialState, view: 'match' as const, palette: { level: 0 as const, keys: ['c1'] } }
