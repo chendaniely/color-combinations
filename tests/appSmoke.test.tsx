@@ -78,7 +78,7 @@ describe('app shell', () => {
 
   it('browse view shows a dismissible chip for an active shade filter', () => {
     const olives = dataset.data.groups.fine.find((g) => g.name === 'Olives')!.id
-    const state = { ...initialState, view: 'browse' as const, browse: { family: '', shade: olives, colorId: '' } }
+    const state = { ...initialState, view: 'browse' as const, browse: { family: '', shade: olives, colorId: '', palette: null } }
     const html = renderToString(<BrowseView state={state} dispatch={() => {}} />)
     expect(html).toContain('Olives')
     expect(html).toContain('Clear shade')

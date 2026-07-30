@@ -28,8 +28,10 @@ interface Props {
   season: string | null
   dispatch: (a: Action) => void
   // Reports whichever palette is on screen, so the combinations below follow
-  // the tab rather than silently ranking against the other list.
-  onPaletteChange?: (ids: ReadonlySet<number>) => void
+  // the tab rather than silently ranking against the other list. The LABEL
+  // travels with it because only this component knows what the season is
+  // called — the season data is code-split and YouView never sees it.
+  onPaletteChange?: (ids: ReadonlySet<number>, label: string) => void
 }
 
 // Thin wrapper: the season datasets are code-split, so they are not here on
@@ -88,9 +90,10 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
 
   // `shown` is referentially stable: both branches of the ternary are useMemo
   // results. So this fires exactly when the shown list changes.
+  const shownLabel = reading && which === 'measured' ? 'Your colours' : activeSeason.name
   useEffect(() => {
-    onPaletteChange?.(new Set(shown.map((c) => c.id)))
-  }, [shown, onPaletteChange])
+    onPaletteChange?.(new Set(shown.map((c) => c.id)), shownLabel)
+  }, [shown, shownLabel, onPaletteChange])
 
   // Write the guessed season into state once, so the URL carries it.
   //

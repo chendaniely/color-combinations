@@ -1,14 +1,16 @@
 import { useMemo } from 'react'
+import { FLOOR_LABELS, passesFloor, rankCombinations } from '../core/combinationMatch'
 import { ancestorAtLevel, displayableCombinations, keyLabel, sizeBucket } from '../core/dataset'
-import type { Action, AppState } from '../core/state'
+import type { Action, AppState, FloorStop } from '../core/state'
 import type { SizeBucket } from '../core/types'
 import { allowedFor, dataset } from '../data'
 import { PlateCard } from './PlateCard'
 
 const SIZES: SizeBucket[] = [2, 3, 4]
+const FLOORS: FloorStop[] = [0, 1, 2, 3]
 
 export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a: Action) => void }) {
-  const { family, shade, colorId } = state.browse
+  const { family, shade, colorId, palette } = state.browse
   const setFilter = (patch: Partial<AppState['browse']>) =>
     dispatch({ type: 'setBrowseFilter', browse: { ...state.browse, ...patch } })
   // useMemo for consistency with App and ChordWheel, which memoize the same
@@ -16,14 +18,26 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
   // different ways is the thing worth removing.
   const allowed = useMemo(() => allowedFor(state.access), [state.access])
 
-  const combos = displayableCombinations(dataset).filter((c) => {
-    if (allowed && !allowed.has(c.id)) return false
-    if (!state.sizes.includes(sizeBucket(c))) return false
-    if (family && !c.colorIds.some((id) => ancestorAtLevel(dataset, id, 2) === family)) return false
-    if (shade && !c.colorIds.some((id) => ancestorAtLevel(dataset, id, 1) === shade)) return false
-    if (colorId && !c.colorIds.includes(Number(colorId))) return false
-    return true
-  })
+  // A palette brought from the You tab, as a Set for the ranking below.
+  const paletteIds = useMemo(() => new Set(palette?.ids ?? []), [palette])
+
+  const combos = useMemo(() => {
+    const base = displayableCombinations(dataset).filter((c) => {
+      if (allowed && !allowed.has(c.id)) return false
+      if (!state.sizes.includes(sizeBucket(c))) return false
+      if (family && !c.colorIds.some((id) => ancestorAtLevel(dataset, id, 2) === family)) return false
+      if (shade && !c.colorIds.some((id) => ancestorAtLevel(dataset, id, 1) === shade)) return false
+      if (colorId && !c.colorIds.includes(Number(colorId))) return false
+      return true
+    })
+    if (!palette) return base
+    // The SAME ranking and floor the You tab uses — imported, not reimplemented.
+    // Browse could previously filter to one colour only, which is why "Browse
+    // these in the book" carried one of a visitor's nineteen.
+    return rankCombinations(base, paletteIds)
+      .filter((r) => passesFloor(r, palette.floor))
+      .map((r) => r.combination)
+  }, [allowed, state.sizes, family, shade, colorId, palette, paletteIds])
 
   const comboCount = `${combos.length} combinations`
   const sections = SIZES
@@ -51,6 +65,25 @@ export function BrowseView({ state, dispatch }: { state: AppState; dispatch: (a:
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
+        {palette && (
+          <>
+            <button className="filter-chip palette-chip"
+              onClick={() => dispatch({ type: 'setBrowsePalette', palette: null })}
+              aria-label={`Clear palette filter: ${palette.label}`}>
+              {palette.label} · {palette.ids.length} colours <span aria-hidden="true">×</span>
+            </button>
+            <div className="browse-floor" role="radiogroup" aria-label="How much must be yours">
+              {FLOORS.map((f) => (
+                <button key={f} role="radio" aria-checked={palette.floor === f}
+                  onClick={() => dispatch({
+                    type: 'setBrowsePalette', palette: { ...palette, floor: f },
+                  })}>
+                  {FLOOR_LABELS[f]}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
         {shade && (
           <button className="filter-chip" onClick={() => setFilter({ shade: '' })}
             aria-label={`Clear shade filter: ${keyLabel(dataset, shade)}`}>

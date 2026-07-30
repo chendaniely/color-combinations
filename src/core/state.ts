@@ -14,6 +14,21 @@ export type MatchLevel = 0 | 1 | 2
 // 0 every colour · 1 all but one · 2 half or more (default) · 3 any match
 export type FloorStop = 0 | 1 | 2 | 3
 
+/**
+ * A whole palette used as a Browse filter, with the same four-stop floor the
+ * You tab uses.
+ *
+ * Browse could only ever filter to ONE colour, which is why "Browse these in
+ * the book" on the You tab silently carried one of a visitor's nineteen. The
+ * label travels with the ids so the chip can name what it is — "Clear Spring",
+ * "Your colours" — rather than showing a bare count.
+ */
+export interface BrowsePalette {
+  ids: number[]
+  label: string
+  floor: FloorStop
+}
+
 export interface AppState {
   view: 'wheel' | 'browse' | 'match' | 'you'
   granularity: GranularityLevel
@@ -21,7 +36,7 @@ export interface AppState {
   selection: Selection | null
   aboutOpen: boolean
   palette: { level: MatchLevel; keys: string[] }
-  browse: { family: string; shade: string; colorId: string }
+  browse: { family: string; shade: string; colorId: string; palette: BrowsePalette | null }
   access: AccessLensId[]
   // The personal-colour reading. Numbers and short strings only — the
   // photograph is discarded after the capture and never lands here.
@@ -40,7 +55,10 @@ export type Action =
   | { type: 'removeFromPalette'; key: string }
   | { type: 'setMatchLevel'; level: MatchLevel; keys: string[] }
   | { type: 'clearPalette' }
+  // The three dropdown filters only. Merged rather than replaced, so changing a
+  // dropdown does not silently drop a palette the visitor brought from the You tab.
   | { type: 'setBrowseFilter'; browse: { family: string; shade: string; colorId: string } }
+  | { type: 'setBrowsePalette'; palette: BrowsePalette | null }
   | { type: 'toggleAccess'; id: AccessLensId }
   | { type: 'setReading'; reading: SkinReading }
   | { type: 'setSeason'; season: string | null }
@@ -60,7 +78,7 @@ export const initialState: AppState = {
   selection: null,
   aboutOpen: false,
   palette: { level: 1, keys: [] },
-  browse: { family: '', shade: '', colorId: '' },
+  browse: { family: '', shade: '', colorId: '', palette: null },
   access: [],
   you: { reading: null, season: null, floor: 2 },
 }
@@ -104,7 +122,16 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'clearPalette':
       return { ...state, palette: { ...state.palette, keys: [] } }
     case 'setBrowseFilter':
-      return { ...state, browse: action.browse }
+      return { ...state, browse: { ...state.browse, ...action.browse } }
+    case 'setBrowsePalette':
+      return {
+        ...state,
+        // Setting a palette navigates, exactly as seedPalette does for Match —
+        // it is a handoff, not a filter tweak. Clearing does not, because the
+        // visitor is already looking at Browse when they dismiss the chip.
+        ...(action.palette ? { view: 'browse' as const, selection: null, aboutOpen: false } : {}),
+        browse: { ...state.browse, palette: action.palette },
+      }
     case 'toggleAccess': {
       const has = state.access.includes(action.id)
       const access = has

@@ -18,12 +18,16 @@ export function YouView({ state, dispatch }: {
   // Whichever palette the visitor is currently LOOKING at — the combinations
   // below follow the tab, so switching to the season list re-ranks against it.
   const [visiblePalette, setVisiblePalette] = useState<ReadonlySet<number> | null>(null)
+  // What Browse should call this palette in its chip — "Your colours" or the
+  // season's name. Reported by PaletteTabs, which is the only place that knows.
+  const [paletteLabel, setPaletteLabel] = useState('Your colours')
   const reading = state.you.reading
   // A shared link carries a season but never a reading — the owner's privacy
   // decision, enforced by tests/urlPrivacy.test.ts. So "somebody sent me this"
   // is a real state the tab has to render: the season's colours, with no
   // measurements of anyone, and an invitation to run it yourself.
   const sharedSeason = !reading && state.you.season !== null
+
 
   if (capturing && !capture) {
     return (
@@ -67,7 +71,7 @@ export function YouView({ state, dispatch }: {
 
       {(reading || sharedSeason) && (
         <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
-          onPaletteChange={setVisiblePalette} />
+          onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }} />
       )}
 
       {visiblePalette && (
@@ -76,7 +80,8 @@ export function YouView({ state, dispatch }: {
       )}
 
       {visiblePalette && (
-        <YouDoorways palette={visiblePalette} dispatch={dispatch} />
+        <YouDoorways palette={visiblePalette} floor={state.you.floor}
+          label={paletteLabel} dispatch={dispatch} />
       )}
 
       <div className="you-actions">

@@ -47,16 +47,18 @@ export function sanitise(partial: Partial<AppState>): Partial<AppState> {
   }
 
   if (out.browse) {
-    const { family, shade, colorId } = out.browse
-    out.browse = {
+    const { family, shade, colorId, palette } = out.browse
+    const cleaned = {
       family: family && dataset.groupById.has(family) ? family : '',
       shade: shade && dataset.groupById.has(shade) ? shade : '',
       colorId: colorId && dataset.colorById.has(Number(colorId)) ? colorId : '',
+      // Never comes from a URL (see urlState.ts), but a caller could pass one.
+      palette: palette ? { ...palette, ids: palette.ids.filter((id) => dataset.colorById.has(id)) } : null,
     }
-    // All three gone means the filter block said nothing; let the default stand
-    // rather than carrying an object of empty strings.
-    const b = out.browse
-    if (!b.family && !b.shade && !b.colorId) delete out.browse
+    // All three dropdowns gone AND no palette means the block said nothing; let
+    // the default stand rather than carrying an object of empty strings.
+    if (!cleaned.family && !cleaned.shade && !cleaned.colorId && !cleaned.palette) delete out.browse
+    else out.browse = cleaned
   }
 
   return out

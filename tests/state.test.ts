@@ -7,7 +7,7 @@ describe('app state reducer', () => {
     expect(initialState).toEqual({
       view: 'wheel', granularity: 0, sizes: [2, 3, 4], selection: null, aboutOpen: false,
       palette: { level: 1, keys: [] },
-      browse: { family: '', shade: '', colorId: '' },
+      browse: { family: '', shade: '', colorId: '', palette: null },
       access: [],
       you: { reading: null, season: null, floor: 2 },
     })
@@ -76,17 +76,21 @@ describe('app state reducer', () => {
     const s = reducer(initialState, { type: 'seedPalette', key: 'olives', level: 1 })
     expect(JSON.parse(JSON.stringify(s))).toEqual(s)
   })
-  it('initial state carries empty browse filters', () => {
-    expect(initialState.browse).toEqual({ family: '', shade: '', colorId: '' })
+  it('initial state carries empty browse filters and no palette', () => {
+    expect(initialState.browse).toEqual({ family: '', shade: '', colorId: '', palette: null })
   })
   it('seedPalette works at the color level', () => {
     const s = reducer(initialState, { type: 'seedPalette', key: 'c12', level: 0 })
     expect(s.view).toBe('match')
     expect(s.palette).toEqual({ level: 0, keys: ['c12'] })
   })
-  it('setBrowseFilter replaces the browse filter object', () => {
+  // MERGES rather than replaces, changed in v1.8.2. It used to replace the whole
+  // object, which would silently drop a palette carried in from the You tab the
+  // moment the visitor touched a dropdown — and dropping the thing they came to
+  // look at is worse than any tidiness the replacement bought.
+  it('setBrowseFilter merges, so a palette survives a dropdown change', () => {
     const s = reducer(initialState, { type: 'setBrowseFilter', browse: { family: 'green', shade: '', colorId: '' } })
-    expect(s.browse).toEqual({ family: 'green', shade: '', colorId: '' })
+    expect(s.browse).toEqual({ family: 'green', shade: '', colorId: '', palette: null })
   })
   it('toggleAccess adds and removes lenses; empty is allowed', () => {
     let s = reducer(initialState, { type: 'toggleAccess', id: 'web-text' })
@@ -145,5 +149,48 @@ describe('the You tab', () => {
     const s = reducer(initialState, { type: 'setReading', reading })
     // The whole state must round-trip through JSON — no canvas, no blob, no File.
     expect(JSON.parse(JSON.stringify(s))).toEqual(s)
+  })
+})
+
+// A palette carried in from the You tab. Reported by the owner: "Browse ... the
+// list of colors that lets the user explore is only 1 color", because Browse
+// could filter to one colour and the doorway handed it one of nineteen.
+describe('the Browse palette filter', () => {
+  const PALETTE = { ids: [1, 2, 3], label: 'Your colours', floor: 2 as const }
+
+  it('setting one navigates to Browse, the way seedPalette navigates to Match', () => {
+    const s = reducer(initialState, { type: 'setBrowsePalette', palette: PALETTE })
+    expect(s.view).toBe('browse')
+    expect(s.browse.palette).toEqual(PALETTE)
+  })
+
+  it('closes any open panel on the way, so the handoff is visible', () => {
+    const open = reducer(initialState, { type: 'select', selection: { kind: 'color', id: 1 } })
+    const s = reducer(open, { type: 'setBrowsePalette', palette: PALETTE })
+    expect(s.selection).toBeNull()
+  })
+
+  it('clearing it does NOT navigate — the visitor is already on Browse', () => {
+    const withPalette = reducer(initialState, { type: 'setBrowsePalette', palette: PALETTE })
+    const onWheel = { ...withPalette, view: 'wheel' as const }
+    expect(reducer(onWheel, { type: 'setBrowsePalette', palette: null }).view).toBe('wheel')
+  })
+
+  it('survives a dropdown change', () => {
+    const withPalette = reducer(initialState, { type: 'setBrowsePalette', palette: PALETTE })
+    const filtered = reducer(withPalette, {
+      type: 'setBrowseFilter', browse: { family: 'green', shade: '', colorId: '' },
+    })
+    expect(filtered.browse.palette, 'the palette was dropped by a dropdown').toEqual(PALETTE)
+    expect(filtered.browse.family).toBe('green')
+  })
+
+  it('changes the floor without losing the colours', () => {
+    const withPalette = reducer(initialState, { type: 'setBrowsePalette', palette: PALETTE })
+    const stricter = reducer(withPalette, {
+      type: 'setBrowsePalette', palette: { ...PALETTE, floor: 0 },
+    })
+    expect(stricter.browse.palette!.floor).toBe(0)
+    expect(stricter.browse.palette!.ids).toEqual(PALETTE.ids)
   })
 })
