@@ -299,13 +299,24 @@ a rule starts firing on correct code, silence it in `.oxlintrc.json` WITH
 a reason, or disable it inline where the reasoning belongs (see
 `ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
 
-**The three ink tokens must stay WCAG AA (>= 4.5:1) against both papers.**
+**The three ink tokens must stay WCAG AA (>= 4.5:1) against all THREE papers.**
 `tests/browser/a11y.spec.ts` audits nine screens with axe and will fail if
 they don't. Before touching `--ink*` or `--paper*`, re-measure with
 culori's `wcagContrast` — the same function the goggles use. Note that
 `--ink-faint` cannot simply be darkened "until it passes": that lands it
 on top of `--ink-muted`. The three were solved together for distinct
 ratios (13.15 / 7.79 / 5.07 on `--paper-1`).
+
+`--paper-hi` is easy to overlook — it is mostly a foreground on dark, but
+`app.css` also uses it as a background — so this said "both papers" until a
+documentation audit on 2026-07-29 counted three. **Measure against
+`--paper-2`, which is the binding constraint:** ink-faint scores 5.07 on
+paper-1, 5.47 on paper-hi and **4.61 on paper-2**, eleven hundredths above
+the line. A change that looks safe on paper-1 can fail there.
+
+Two ways to break this rule without touching a token, both of which have
+shipped: `opacity` on text (see the token section above), and a canvas
+copying hex values instead of reading them.
 
 `make coverage` is a question, not a target. Do not chase a number:
 `src/core` and `src/color` are near 100% because the logic lives there,

@@ -49,6 +49,7 @@ Run these from the project folder. `make help` lists them all.
 | `make coverage` | Shows which code the fast tests never run |
 | `make install-browser` | One-time: downloads the browser the layout tests drive (see [Testing](#testing)) |
 | `make test-browser` | Runs the slower tests that check how the site actually *looks* |
+| `make check` | Runs lint + tests + build together, keeps the full log in `check.log`, and fails loudly — the one to use before shipping |
 | `make build` | Type-checks everything and builds the deployable site into `dist/` |
 | `make preview` | Serves the built `dist/` exactly as GitHub Pages will |
 | `make update-data` | Re-downloads the source colors and regenerates the processed data |
