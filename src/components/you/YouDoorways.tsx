@@ -4,6 +4,19 @@ import { dataset } from '../../data'
 // Carry the result into the rest of the site. The You tab is a doorway, not a
 // destination — the point of knowing your colours is to go and use them.
 //
+// IT TRAVELS WITH THE PAGE (`position: sticky` — see `.you-doorways` in
+// app.css). This tab has two long lists, up to fifty swatches and then a grid of
+// plates, and a doorway sitting in the flow is off screen for most of the
+// scroll. It was duplicated to compensate, first twice and briefly three times,
+// until the owner named the better answer on 2026-07-30: "since i have those
+// buttons repeated 3 times on the pages now. maybe we have those brose/start be
+// a floating set of buttons so it's out of the way but travels with the user as
+// they scroll on the desktop / phone". So there is now exactly ONE, and it is
+// always on screen. Sticky rather than fixed on purpose: it stays in the flow,
+// so it reserves its own space, needs no pointer-events games, degrades to a
+// plain block where sticky is unsupported, and cannot collide with the fixed
+// corner mark the way a bottom bar would.
+//
 // This used to hand BOTH destinations a single colour, chosen as
 // `dataset.data.colors.find(c => palette.has(c.id))` — the lowest id in the
 // book, not the best match — while both buttons said "these". A visitor with
@@ -53,10 +66,6 @@ export function YouDoorways({ palette, floor, label, selectedId, dispatch }: {
 
   return (
     <section className="you-doorways" aria-label="Take these colours further">
-      <p>
-        Your colours work anywhere on the site — take them into the palette
-        builder, or browse every combination that uses them.
-      </p>
       <div className="you-doorway-buttons">
         <button className="cam-btn primary"
           onClick={() => dispatch({
@@ -70,12 +79,26 @@ export function YouDoorways({ palette, floor, label, selectedId, dispatch }: {
           → Start a palette from {first.name}
         </button>
       </div>
-      <p className="muted you-doorway-note">
-        Match builds a palette by narrowing — it looks for combinations
-        containing <em>every</em> colour you add — so it starts from one of yours
-        rather than all {ids.length} at once. Pick any swatch above to start from
-        that one instead, then add more in Match to narrow further.
-      </p>
     </section>
+  )
+}
+
+// The prose that used to sit around those buttons, now that they travel.
+//
+// It lives here rather than in PaletteTabs so the explanation and the thing it
+// explains stay in one file, and it is a separate export because it belongs
+// somewhere else on the page: under the swatch grid, which is the only place
+// "pick any swatch above" is true, and where somebody who has just read fifty
+// colour names is deciding what to do with them.
+export function YouDoorwayNote({ count }: { count: number }) {
+  return (
+    <p className="muted you-doorway-note">
+      Your colours work anywhere on the site, and the two buttons above take them
+      there. <b>Browse</b> carries all {count}. <b>Match</b> builds by narrowing —
+      it looks for combinations containing <em>every</em> colour you add — so it
+      starts from one of yours rather than all {count} at once. Pick any swatch
+      above to start from that one instead, then add more in Match to narrow
+      further.
+    </p>
   )
 }

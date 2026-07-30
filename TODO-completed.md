@@ -1,5 +1,29 @@
 # TODO — completed
 
+## v1.9.1 — the photo first, the doorways floating (2026-07-30)
+
+Owner: *"the photo button on the bottom gets lost. we need the photo up at the
+top so it's a clear entry point"*, then, replacing their own follow-up request
+for a third copy of the doorways: *"maybe we have those brose/start be a
+floating set of buttons so it's out of the way but travels with the user as they
+scroll"*.
+
+- [x] **"Take a photo" moved from the bottom of the You tab to the top**, under
+      the paragraph that explains it. Last is fine on an empty tab and wrong in
+      every other state, since a shared season or an earlier reading fills the
+      page above it (`bcebe8f`).
+- [x] **The doorways became ONE sticky bar** instead of three in-flow copies.
+      Sticky rather than fixed: it stays in the flow, reserves its own height,
+      needs no pointer-events handling, and releases at the end of its region
+      (`bcebe8f`).
+- [x] **Pinned to the top, not the bottom, because the corner mark is fixed
+      bottom-right.** Confirmed by planting `top: calc(100vh - 110px)`, which
+      fails the phone check and passes on desktop where the two are in different
+      columns — which is also why that check tests rectangle intersection rather
+      than vertical extents (`bcebe8f`).
+- [x] **Fixed copy broken in passing**: the shared-link note said "take your own
+      photo below" after the photo button moved above it (`bcebe8f`).
+
 ## v1.9.0 — every way into a colour, in one place (2026-07-30)
 
 Owner: *"the options under the pencil aren't that visable to the user and i want

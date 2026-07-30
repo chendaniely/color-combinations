@@ -28,6 +28,44 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.9.1 — 2026-07-30 — The photo goes first, and the buttons travel
+
+Two placement fixes on the **You** tab, both reported by the owner from using it.
+
+**Take a photo was the last thing on the page.** That reads fine on an empty tab
+— there is nothing else on it — and badly in every other state. Open a season
+someone shared with you, or come back to a reading from earlier, and the page
+fills with fifty colour swatches and a grid of plates; the one control a
+first-time visitor actually needs was below all of it. It now sits directly
+under the paragraph that explains it.
+
+**And the "Browse / Start a palette" buttons now travel with you.** They kept
+getting lost in the long lists, and the fix so far had been to repeat them —
+one copy, then two, then briefly three. The owner named a better answer, and
+there is now exactly **one set, pinned to the top of the screen** for as long as
+there are colours or combinations left to scroll. The explanation that used to
+wrap them stays down with the swatches, where "pick any swatch above" is true.
+
+> **The owner's prompts** (from [`PROMPTS.md`](PROMPTS.md)):
+>
+> *"on the you page, the take a photo needs to be on the top, right now it
+> current prepopulates with a season and the photo button on the bottom gets
+> lost. we need the photo up at the top so it's a clear entry point. i also
+> think we need another copy of the browse and start from pallete set of buttons
+> around the your and season color palletes. when the colors return a lot of
+> values, those buttons get lost from the long list"*
+>
+> *"actually, since i have those buttons repeated 3 times on the pages now.
+> maybe we have those brose/start be a floating set of buttons so it's out of
+> the way but travels with the user as they scroll on the desktop / phone"*
+
+The bar pins to the **top** rather than floating at the bottom, because the
+corner seal is fixed bottom-right and two things in one corner is how one of
+them ends up underneath. Also fixed in passing: a line that told you to take
+your photo "below", which had just stopped being true.
+
+---
+
 ## v1.9.0 — 2026-07-30 — Every way into a colour, in one place
 
 **Match > Colors was a dead end.** Its Shades and Families levels each have a

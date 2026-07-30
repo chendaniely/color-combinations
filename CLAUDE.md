@@ -174,6 +174,15 @@ Never treat a plan as a description of the current code.
   while failing in another, which is why nobody noticed. Use a different
   token, not transparency.
 
+  **An element that floats over the page needs the page's gradient, not a
+  paper token.** `body` paints `linear-gradient(...) fixed`, and `fixed` means
+  the gradient is positioned against the VIEWPORT — so any sticky or fixed
+  surface must repeat that same declaration to paint the pixels it covers at
+  every scroll offset. `.you-doorways` does. Substituting `background:
+  var(--paper-1)` looks right in a screenshot of the top of the page and shows
+  a widening seam as you scroll, which is the kind of defect that ships because
+  nobody screenshots the middle.
+
   **A canvas cannot read `var(--x)`, so it must read the token at run time.**
   `exportPng.ts` once copied the hex values and they went stale: v1.6.0 moved
   `--ink-muted` for contrast and the export kept the retired value, so every

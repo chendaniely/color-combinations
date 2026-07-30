@@ -443,7 +443,9 @@ main { flex: 1; min-height: 0; position: relative; }
 .you-intro h1 { font-family: var(--font-display); font-weight: 500; margin: 0 0 var(--s3); }
 .you-intro p { color: var(--ink-muted); margin: 0 0 var(--s3); }
 .you-privacy { font-size: 0.85rem; border-left: 2px solid var(--link); padding-left: var(--s3); }
-.you-actions { display: flex; gap: var(--s2); margin-top: var(--s6); }
+/* Sits directly under the intro now, as the tab's entry point, so it needs
+   less air above it than it did as the last thing on the page. */
+.you-actions { display: flex; gap: var(--s2); margin-top: var(--s4); flex-wrap: wrap; }
 
 .reading-strip {
   border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -649,12 +651,42 @@ main { flex: 1; min-height: 0; position: relative; }
 .you-swatch .swatch-band { font-size: 0.58rem; }
 
 /* Out of the You tab and into the rest of the site. */
+/* The doorway bar travels with the reader.
+   Sticky rather than fixed: it keeps its place in the flow, so it reserves its
+   own space instead of covering the top of the palette, and it releases at the
+   end of `.you-result` instead of hanging around over the rest of the page.
+   Owner, 2026-07-30, after three in-flow copies: "maybe we have those
+   brose/start be a floating set of buttons so it's out of the way but travels
+   with the user as they scroll on the desktop / phone".
+
+   THE BACKGROUND MUST BE THE BODY'S OWN GRADIENT, not a flat --paper token.
+   `body` paints `linear-gradient(...) fixed`, and `fixed` means the gradient is
+   positioned against the VIEWPORT — so repeating it here paints exactly the
+   pixels this bar covers, at any scroll offset, and swatches scrolling under it
+   vanish at the hairline instead of crossing a visible seam. A flat colour
+   cannot match a gradient. */
 .you-doorways {
-  margin-top: var(--s8); padding-top: var(--s6);
-  border-top: 1px solid var(--hairline);
+  position: sticky; top: 0; z-index: 5;
+  margin-top: var(--s8); padding: var(--s3) 0;
+  background: linear-gradient(160deg, var(--paper-1), var(--paper-2)) fixed;
+  border-bottom: 1px solid var(--hairline);
+  /* Reads as a surface ABOVE the page, which it is. Without it there is no edge
+     where content passes under, so a half-hidden row of swatches looks cut off
+     rather than scrolled behind — and at rest the bar looks like a third row of
+     page buttons under "Take a photo" instead of a thing of its own. */
+  box-shadow: 0 10px 16px -14px rgb(var(--ink-rgb) / 0.55);
 }
-.you-doorways p { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--s3); }
 .you-doorway-buttons { display: flex; gap: var(--s2); flex-wrap: wrap; }
+/* Two long labels ("Browse all 18 in the book", "Start a palette from Deep
+   Grayish Olive") do not share a phone's width, so they stack — and a bar that
+   is on screen the whole time pays for every pixel of its own height. Tightened
+   here rather than shortened: the colour name on the second button is the whole
+   reason it stopped saying "these". */
+@media (max-width: 32rem) {
+  .you-doorways { padding: var(--s2) 0; }
+  .you-doorways .cam-btn { font-size: 0.8rem; padding: var(--s2) var(--s3); }
+  .you-doorway-buttons { gap: var(--s1); }
+}
 
 /* Ranked combinations, and the floor that decides where the list stops. */
 .you-combos { margin-top: var(--s8); }
@@ -1027,4 +1059,4 @@ main { flex: 1; min-height: 0; position: relative; }
 .browse-floor button[aria-checked='true'] {
   background: var(--ink); border-color: var(--ink); color: var(--paper-1); font-weight: 700;
 }
-.you-doorway-note { font-size: 0.78rem; margin-top: var(--s2); max-width: 46rem; }
+.you-doorway-note { font-size: 0.78rem; margin-top: var(--s4); max-width: 46rem; }

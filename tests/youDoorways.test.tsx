@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { renderToString } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AboutPanel } from '../src/components/AboutPanel'
-import { YouDoorways } from '../src/components/you/YouDoorways'
+import { YouDoorways, YouDoorwayNote } from '../src/components/you/YouDoorways'
 import { measuredPalette } from '../src/color/personalPalette'
 import { dataset } from '../src/data'
 import type { SkinReading } from '../src/core/types'
@@ -76,12 +76,6 @@ describe('the doorways out of the You tab', () => {
     expect(screen.getByRole('button', { name: new RegExp(first.name, 'i') })).toBeTruthy()
   })
 
-  it('explains why Browse takes them all and Match takes one', () => {
-    const { container } = setup()
-    expect(container.textContent).toMatch(/narrowing/i)
-    expect(container.textContent).toMatch(/every.*colour you add/i)
-  })
-
   it('is hidden when there is nothing to hand over', () => {
     const { container } = render(
       <YouDoorways palette={new Set()} floor={2} label="Your colours" dispatch={vi.fn()} />)
@@ -94,6 +88,24 @@ describe('the doorways out of the You tab', () => {
     const { container } = render(
       <YouDoorways palette={new Set([999999])} floor={2} label="x" dispatch={vi.fn()} />)
     expect(container.querySelectorAll('button')).toHaveLength(0)
+  })
+
+  // The prose moved out of this component when the buttons became a sticky bar
+  // that travels with the reader: a floating bar has no room for two paragraphs,
+  // and the paragraph belongs next to the swatch grid it points at.
+  describe('the note that explains the two destinations', () => {
+    it('explains why Browse takes them all and Match takes one', () => {
+      const { container } = render(<YouDoorwayNote count={18} />)
+      expect(container.textContent).toMatch(/all 18/)
+      expect(container.textContent).toMatch(/narrowing/i)
+      expect(container.textContent).toMatch(/every.*colour you add/i)
+    })
+
+    it('is not inside the bar, so the bar can stay one line tall', () => {
+      const { container } = setup()
+      expect(container.querySelector('.you-doorway-note')).toBeNull()
+      expect(container.textContent).not.toMatch(/narrowing/i)
+    })
   })
 })
 
