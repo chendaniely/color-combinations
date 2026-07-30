@@ -201,7 +201,6 @@ test.describe('switching tab is a navigation, not a refinement', () => {
   })
 
   test('a history move never silently discards the reading', async ({ page }) => {
-    const { reachThePalette } = await import('./seasonHelpers')
     await reachThePalette(page)
     await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
     await expect(page.locator('.reading-strip')).toBeVisible()
