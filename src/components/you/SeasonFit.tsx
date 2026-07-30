@@ -30,22 +30,51 @@ import { useRovingFocus } from '../useRovingFocus'
 //
 // Presentational: it is handed its pairs and reports a click. PaletteTabs owns
 // the selection because the swatch grid shares it — one pick, two lists.
-export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
+export function SeasonFit({ sub, pairs, selectedId, selectedRow, onSelect }: {
   sub: SubSeason
   pairs: IdealPair[]
   /** The page-wide pick, which may well be a swatch rather than a row here. */
   selectedId: number | null
-  onSelect: (id: number) => void
+  /**
+   * WHICH ROW the visitor clicked, when the pick came from this list.
+   *
+   * A colour id is not enough to identify a row, and that is the whole point of
+   * this panel: 60 of the 144 rows across the twelve seasons repeat a colour
+   * that serves more than one ideal. Deriving the row from the id with
+   * `findIndex` returns the FIRST row carrying it, so clicking the second
+   * "Light Pinkish Cinnamon" lit up the first — the highlight jumped backwards
+   * as you arrowed forwards, and the focused option reported
+   * aria-selected="false" in a single-select listbox. That was a worse lie than
+   * the one it replaced (all duplicates selected at once), so the row has to
+   * travel with the pick rather than be reconstructed from it.
+   *
+   * null when the page's pick is a swatch instead.
+   */
+  selectedRow: number | null
+  onSelect: (id: number, row: number) => void
 }) {
   const nameOf = (id: number) => dataset.colorById.get(id)?.name ?? ''
   const hexOf = (id: number) => dataset.colorById.get(id)?.hex ?? '#000'
 
   const list = useRovingFocus()
-  // Tabbable by ROW, not by colour id: the crowding this panel exists to show
-  // means the same colour can appear on two rows, and matching by id would put
-  // both of them in the tab order. Falls back to the first row when the page's
-  // selection is a swatch, so this list is always reachable by keyboard.
-  const focusRow = Math.max(0, pairs.findIndex((p) => p.colorId === selectedId))
+  // BY ROW, NOT BY COLOUR ID — for selection as well as for the tab stop.
+  //
+  // The crowding this panel exists to show means one colour can serve two or
+  // three ideals, so matching on id marked every duplicate at once: measured on
+  // Light Spring, three rows carried aria-selected="true" in a single-select
+  // listbox, which a screen reader announces as three selections and which no
+  // axe rule can see. The tab stop was already matched by row for exactly this
+  // reason; the selection was not, which is the kind of half-applied fix that
+  // reads as deliberate until someone measures it.
+  //
+  // -1 when the page's pick is a swatch rather than a row here. Then NO row is
+  // selected, which is the truth, and row 0 merely holds the tab stop so the
+  // list stays reachable from the keyboard.
+  // A swatch pick that happens to name a colour this list also holds still
+  // highlights it — the first row is the honest answer there, because the
+  // visitor did not choose between the duplicates.
+  const litRow = selectedRow ?? pairs.findIndex((p) => p.colorId === selectedId)
+  const focusRow = Math.max(0, litRow)
 
   // The headline number is how many DISTINCT colours serve these ideals, not
   // how many are a good match. Measured across all twelve seasons, only one
@@ -56,7 +85,13 @@ export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
 
   return (
     <section className="season-fit" aria-label={`How well the book covers ${sub.name}`}>
-      <h4>What the book has for {sub.name}</h4>
+      {/* h2, not h4. The page ran h1 -> h4 -> h2, skipping two levels going down
+          and then jumping back up, so a screen reader hears a sub-sub-section
+          where a peer section is. This panel and "Combinations" ARE peers: two
+          top-level things the page has to say about a palette. The audit never
+          caught it because heading-order is one of axe's best-practice rules and
+          a11y.spec.ts is scoped to WCAG 2.1 A/AA. */}
+      <h2>What the book has for {sub.name}</h2>
 
       <div className="fit-pairs" role="listbox"
         aria-label={`The book's nearest match to each ${sub.name} ideal — pick one to start a palette from`}
@@ -64,8 +99,8 @@ export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
         {pairs.map((p, i) => (
           <button key={p.hue} type="button" role="option"
             className={`fit-pair fit-${p.band.replace(' ', '-')}`}
-            aria-selected={p.colorId === selectedId} {...list.itemProps(i === focusRow)}
-            onClick={() => onSelect(p.colorId)}>
+            aria-selected={i === litRow} {...list.itemProps(i === focusRow)}
+            onClick={() => onSelect(p.colorId, i)}>
             <i className="fit-ideal" style={{ background: p.idealHex }}
               aria-hidden="true" />
             <span className="fit-arrow" aria-hidden="true">→</span>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Action, AppState } from '../../core/state'
 import { FaceCapture, type CaptureResult } from '../sample/FaceCapture'
 import { ProbeReview } from '../sample/ProbeReview'
@@ -6,6 +6,7 @@ import { MatchedCombinations } from './MatchedCombinations'
 import { PaletteTabs } from './PaletteTabs'
 import { ReadingStrip } from './ReadingStrip'
 import { YouDoorways } from './YouDoorways'
+import { registerOverlay } from '../../overlayHistory'
 
 // The You tab: capture -> review -> the reading, both palettes, the
 // combinations that suit you, and the doorways into Match and Browse.
@@ -23,6 +24,35 @@ export function YouView({ state, dispatch }: {
   const [paletteLabel, setPaletteLabel] = useState('Your colours')
   // Which swatch the visitor picked, for "Start a palette from ...".
   const [selectedColorId, setSelectedColorId] = useState<number | undefined>(undefined)
+  // The task-level dismiss for the capture flow, for the same reason
+  // ColorSampler has one: ProbeReview's own close steps BACK to FaceCapture, so
+  // Back would walk the flow in reverse a screen at a time instead of leaving
+  // it. Registered only while a capture screen is up, so it adds nothing to the
+  // count on the ordinary tab.
+  const capturingNow = capturing || capture !== null
+  useEffect(() => {
+    if (!capturingNow) return
+    return registerOverlay(() => { setCapture(null); setCapturing(false) })
+  }, [capturingNow])
+
+  // useCallback, and it is a PERFORMANCE FIX rather than tidiness.
+  //
+  // PaletteTabs lists this in an effect's deps and calls it with a freshly
+  // built Set. An inline arrow here therefore closed the loop: new callback ->
+  // effect re-runs -> setVisiblePalette with a new Set identity -> re-render ->
+  // new callback. Measured with CDP over a 3s idle window on the built site:
+  // the You tab burned 2.99s of script time (a full core, indefinitely) against
+  // 0.000s on every other tab, re-ranking all 338 combinations each pass.
+  // (idleCpu.spec.ts guards it over 2s, which is the same fault at a different
+  // sample length — the numbers here are the diagnosis, not the threshold.) It is
+  // silent in production — React only names it in dev — so no console test
+  // could ever have caught it. Wrapping this brought the same measurement to
+  // 0.000s with nothing else changed.
+  const onPaletteChange = useCallback((ids: ReadonlySet<number>, label: string) => {
+    setVisiblePalette(ids)
+    setPaletteLabel(label)
+  }, [])
+
   const reading = state.you.reading
   // A shared link carries a season but never a reading — the owner's privacy
   // decision, enforced by tests/urlPrivacy.test.ts. So "somebody sent me this"
@@ -107,7 +137,7 @@ export function YouView({ state, dispatch }: {
           )}
 
           <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
-            onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }}
+            onPaletteChange={onPaletteChange}
             onSelectColor={setSelectedColorId} />
 
           {visiblePalette && (

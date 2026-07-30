@@ -1,0 +1,246 @@
+# UI/UX skill audit — 2026-07-30
+
+**Shipped as v1.10.0** on 2026-07-30. It began as a spike on a branch, in a
+worktree, so it could be reviewed or thrown away without touching `main`; the
+owner reviewed it, reverted two of its changes, and released the rest. The spike
+framing is kept below because it is what the work was at the time.
+
+The owner installed three design skills (`frontend-design`, `ui-ux-pro-max`,
+`taste-skill`) and asked whether they would find improvements to this site. This
+records what they found, what was implemented, and — at least as importantly —
+**which of their rules were rejected and why**.
+
+## The headline: most of what these skills say does not apply here
+
+They are tuned for **greenfield marketing and landing pages**. `taste-skill`
+says so itself: its Section 13 lists "dense product UI" as out of scope. This
+site is a reference tool with a documented visual brief, six releases of
+accessibility work, and a `CLAUDE.md` that pins the aesthetic.
+
+Their own escape hatches agree. `frontend-design`: *"Where the brief pins down a
+visual direction, follow it exactly — the brief's own words always win."*
+`taste-skill` §11 distinguishes "redesign — preserve" from "overhaul" and says
+preserve mode keeps brand tokens, IA and copy voice.
+
+So this was run as **redesign — preserve**. Design read: *a reference tool for
+people choosing colours, with an established japandi/wabi-sabi language, where
+the content IS colour and the job is to stop the chrome competing with it.*
+
+### Rules explicitly rejected
+
+| Rule | Why it does not apply |
+| --- | --- |
+| "Serif is very discouraged as default" (`taste-skill` §4.1) | The brief names EB Garamond. The skill's own override covers a brief that names a serif. |
+| "Premium-consumer palette ban: warm cream backgrounds, ochre accents" (§4.2) | The palette is derived from a 1933 Japanese colour book and is the subject, not a default reach. Same override clause. |
+| "Zero em-dashes anywhere" (§9.G) | A house-style preference, not a defect. This site's voice uses them throughout, in copy the owner has approved release by release. |
+| "No version footers on marketing pages" (§9.F) | The corner version badge was an explicit owner request in v1.8.3. |
+| "Use Tailwind v4 / Motion" (§3) | Direct conflict with the dependency rules. Four properties in `CLAUDE.md` govern what may be added; neither clears them and neither is needed. (The icon library, from the same section, was **accepted** — see the second pass.) |
+| "Every page needs real images" (§4.8) | The images here are 348 colour plates, generated from the data. |
+| "Min touch target 44×44" (`ui-ux-pro-max` priority 2) | The site targets WCAG 2.2's 24×24, already enforced in `tests/browser/mobile.spec.ts`. Raising it is a real option but it is a design decision with layout cost, not a defect. |
+
+Raised as a **genuine open question** rather than changed silently: the
+entry-gallery cards used emoji as icons (🔍 📷 🖼 🎨), which `ui-ux-pro-max` lists
+as an anti-pattern. The alternatives conflicted — `taste-skill` forbids
+hand-rolled SVG, and an icon library is a new dependency subject to `CLAUDE.md`'s
+four properties. **The owner took the library**, so it is implemented below; this
+row stays as the record of it having been a decision rather than a default.
+
+## What was implemented
+
+### 1. Browse on a phone was more than half chrome
+
+**The finding.** At 390×844 the first colour plate landed at **y=479** — past the
+halfway line. The cause was precise: `.browse-filters` carried an unconditional
+`padding-right: 10rem` to clear the floating accessibility goggles. At 390px wide
+that reserve is **41% of the screen**, so each `<select>` wrapped onto a row of
+its own and the filter bar stood **157.75px** tall.
+
+**The fix.** Reserve the width only where there is width to spare. On a phone,
+break the line after the size pills instead: the pills are narrow enough to sit
+beside the goggles, and the selects get a clean full-width row underneath.
+
+**Measured** (re-measured 2026-07-30 after a reviewer found the first pair
+unreproducible — they had been taken against two different baselines): against
+the merge-base, filter bar **157.75px → 96.75px** and first plate
+**y=479 → y=418**. Three plates visible on load instead of one and a half.
+
+**A wrong turn worth recording.** The first attempt simply dropped the reserve at
+phone width. The bar halved exactly as intended — and the goggles came down on
+top of the family select. It passed every test I had written, because those
+tests measured *height* and *padding*. A screenshot found it in seconds.
+
+`tests/browser/browseDensity.spec.ts` pins the plate position and the bar
+height; the goggles-overlap check lives in `tests/browser/pageWidth.spec.ts`,
+which runs it across five widths and both rows. Each assertion was verified to
+fail against the original CSS.
+
+### 2. The You tab had six ways of saying "note", and they all looked the same
+
+**The finding.** Six differently-named classes draw the same device — a 2px
+coloured rule down the left of small muted prose: `.you-privacy`, `.you-note`,
+`.shared-season`, `.you-provenance`, `.fit-caveat`, and the goggles note. Three
+of them stack consecutively near the top of the You tab. When every block is
+emphasised, the emphasis stops meaning anything.
+
+**The fix.** One block is not a notice at all. `.you-provenance` is a **source
+citation**, and sources are set apart by a rule *above* and quiet type, not by an
+alert stripe down the side. It now reads as a citation, which leaves the left
+rule to the blocks that really are notices. **Corrected 2026-07-30:** an earlier
+version of this claimed that left only two things wearing it. It is five —
+`.you-privacy`, `.reading-caveat`, `.you-note` (recoloured by `.shared-season`),
+`.fit-caveat` and `.probe-note` — so this thins the device by one rather than
+reserving it. Thinning the rest is worth doing and is not done here.
+
+Nothing was deleted. Every word still renders; `CLAUDE.md` is explicit that the
+provenance is never hidden behind a disclosure.
+
+### 3. The heading levels ran h1 → h4 → h2
+
+**The finding.** "What the book has for *Deep Autumn*" was an `<h4>` sitting
+between an `<h1>` and an `<h2>`. That skips two levels going down and jumps back
+up, so a screen reader hears a sub-sub-section where a peer section is.
+
+The nine-screen axe audit never caught it because `heading-order` is one of axe's
+**best-practice** rules and `a11y.spec.ts` is scoped to WCAG 2.1 A/AA. That
+scoping is a deliberate, documented choice, so the gap is real rather than a bug
+in the suite.
+
+**The fix.** It is an `<h2>`, styled to match `.you-combos h2`. The fit panel and
+"Combinations" **are** peers — two top-level things the page says about a palette
+— and they now read as peers.
+
+## Second pass — the rest, on the owner's go-ahead
+
+*"i'm okay with an icon library instead of emojis. gives us more flexibility.
+otherwise implmeent the plan"* — so everything below was built too.
+
+### Icons instead of emoji
+
+`@phosphor-icons/react`, at weight `light` to match the hairlines the rest of the
+site is drawn with. Emoji are rendered by the OS: the four entry cards were four
+different illustration styles, changed shape per platform, and could take neither
+a stroke weight nor a token colour. The header's hand-drawn camera path went the
+same way — one family, or the seams show.
+
+**Measured: +12.15 kB raw, +4.10 kB gzipped** for the icons plus the shared
+renderer. Named imports only; the barrel is ~9000 icons and only named imports
+tree-shake. Documented in `CLAUDE.md`, which `tests/docsMatchReality.test.ts`
+caught as missing within one run.
+
+One test had to change with it, and the change is the interesting part.
+`colourEntry.spec.ts` asserted `svg circle` on the reasoning "a camera has a
+lens" — true only while the path was hand-drawn here. Phosphor draws the same
+camera without a `<circle>`, so a pure improvement failed the suite. It now
+asserts `[data-icon="camera"]`: the intent, not the artwork.
+
+### Match > Shades is a colour chooser again
+
+Each shade had a 56x22px ramp in a 690px row. It is now the swatch-grid pattern
+the You tab already uses — ramp across the card, name beneath — so all 23 shades
+fit above the fold and the colour is the largest thing in its own card. `.sugs`
+elsewhere is untouched: in the narrow "add a shade" column beside a built
+palette, the row form is right, because it carries a score and a plus button.
+
+### The wheel said what to do with it, and now does not again
+
+**Built, then reverted the same day on the owner's review.** Recorded rather than
+deleted, because the reasoning is the useful part.
+
+The finding was real: the wheel is the first thing a visitor meets and the only
+guidance on the screen was a 0.75rem italic line at the bottom, about zooming
+out. So a two-line prompt went in the hollow centre — where the hover name
+appears, replaced by it, and retired for good after the first hover.
+
+The owner rejected it on sight:
+
+> i don't like the text that tells me what to do. its distracting. i liked it
+> better with a clean overlay. people can self discover the wheel chord diagram
+> ... it makes screenshots horrible.
+
+**The screenshot argument is the one that settles it.** This wheel is the image
+people share, so its resting state has to be a picture rather than a UI. That is
+a fact about the artefact that no amount of usability reasoning outweighs, and
+none of the three skills could have supplied it — `frontend-design` in fact
+argues the opposite, that the hero should be the most characteristic thing in
+the subject's world, which the wheel already is *without* being annotated.
+
+The self-discovery half is also a fair read: hovering a big colourful circle is
+close to the first thing anyone tries.
+
+`chordRender.ts` carries a note at the centre-label code so the next session does
+not helpfully re-add it.
+
+### One page width, in golden section with the viewport
+
+*Superseded the You-page-only widening that was here first.* The owner's read on
+seeing it: **"the page width across the match/browse/you are all different. i
+liked it when it is a bit more constrained in the you page. so let's make sure
+those parts of the UI are consistent and also works for mobile"**, and then, when
+offered three fixed candidates, **"can we pick a golden ratio value for all the
+pages?"**
+
+They were three treatments: Browse and Match ran edge to edge with 2rem gutters,
+You was capped at 720px with 1rem, so the left margin moved under you between
+tabs.
+
+A single px number would not be a golden ratio, it would be a number. The ratio
+is the **proportion**: the column is 1/φ (0.618) of the viewport, so
+column : margins = 1.618 : 1 at any size. Measured — 1440px gives an 890px
+column, 1920px gives 1187px, and 890/1440 = 0.618 exactly.
+
+- **Floor 45rem (720px)** — the measure the You page already had and the owner
+  liked, so nothing narrows below what they approved. It is also what rescues
+  small screens: 61.8vw of a 390px phone is 241px, which would be absurd.
+- **Cap 80rem (1280px)** — a very large monitor stops scaling rather than running
+  to a 1580px line.
+- **Phones** get full width minus one shared gutter, and the gutter is now one
+  value for all three (Match had kept 2rem, a sixth of a 390px screen).
+
+**The accessibility control did NOT move with it**, though it briefly did. It is
+pinned to the window edge, which on a wide screen leaves it out in the margin —
+so it was aligned to the column, and the owner reverted that: *"i also liked it
+when the accessibilty goggles were on the right side ... now that it's moved in
+towards the main content, it's a bit distracting."* It is a site-wide utility
+rather than part of the page under it, and out of the way is the point.
+
+The rows therefore keep clear of it themselves, with a **line break below
+1100px** rather than reserved padding. A flat 10rem reserve was wrong in both
+directions — dead space inside an 890px column at 1440px, and a third of the row
+on a 390px phone.
+
+`tests/browser/pageWidth.spec.ts` pins the width, the content's left edge, the
+proportion, the phone gutter, that the scroll containers stay full-bleed, and
+that no control overlaps the goggles at five widths.
+
+### Two small ones
+
+- **Plate captions** no longer sit ragged: `.plate-number` was allowed to wrap
+  between "No." and the number, so captions in a row stopped sharing a baseline.
+- **The goggles no longer land on the You heading at phone width.** The heading
+  is nudged clear rather than the control moved, which is still the owner's open
+  question in `TODO.md`.
+
+## Found, not implemented
+
+Each is a design decision rather than a defect, so each is the owner's call.
+
+1. **Match > Shades under-uses colour.** *(implemented in the second pass above)* On a 1440px screen, each shade occupies
+   a 690px-wide row in which the colour itself is a **56×22px** chip. The rest is
+   empty. On a site where the colour is the content, the content is the smallest
+   thing in the row. This is the biggest single visual opportunity found.
+2. **The wheel has no orientation.** A first-time visitor meets an abstract chord
+   diagram; the only explanation is a 0.75rem italic line at the *bottom* of the
+   page, the smallest text on screen. The wheel itself is genuinely the site's
+   signature and needs no defending — the copy around it does.
+3. **The You page is a 3054px single column in a 1440px window**, two-thirds of
+   which is empty. Its two long lists are candidates for a two-column desktop
+   layout.
+4. **Plate caption baselines are ragged** wherever a colour name wraps to two
+   lines, because the `No.` label and the name are set on different baselines.
+5. **The accessibility goggles overlap the You tab heading at phone width.**
+   Already in `TODO.md` next to the existing note about that control.
+
+## Verification
+
+`npx oxlint` clean, **882** unit tests and **131** browser tests, all passing. Every new assertion was checked against the original CSS to
+confirm it fails there — the guards guard something.

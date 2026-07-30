@@ -150,7 +150,14 @@ main { flex: 1; min-height: 0; position: relative; }
 .plate-large .plate-bars { height: 220px; }
 .plate-bar { flex-basis: 0; }
 .plate figcaption { display: flex; gap: var(--s3); align-items: baseline; margin-top: var(--s2); }
-.plate-number { font-size: 0.65rem; letter-spacing: var(--tracking-label); color: var(--ink-faint); }
+/* nowrap + no shrink, or the flex algorithm breaks "No. 3" across two lines in
+   a narrow card and the captions in a row stop sharing a baseline. It is the
+   ragged look in the Browse grid: the label is two words and was allowed to
+   wrap between them. */
+.plate-number {
+  font-size: 0.65rem; letter-spacing: var(--tracking-label); color: var(--ink-faint);
+  white-space: nowrap; flex: 0 0 auto;
+}
 .plate-names { font-family: var(--font-display); font-size: 0.9rem; }
 .plate-list { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s3); }
 .plate-list .plate-bars { height: 64px; }
@@ -167,10 +174,51 @@ main { flex: 1; min-height: 0; position: relative; }
 .swatch-cell { aspect-ratio: 1; border: none; border-radius: var(--radius); }
 
 /* Browse */
-.browse-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
-/* padding-right reserves room for the floating accessibility goggles (top-right)
-   so the filter row never slides underneath it. */
-.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
+/* THE THREE PAGES SHARE ONE WIDTH, in golden section with the viewport — see
+   --page-w in tokens.css for the reasoning. They were three different
+   treatments: Browse and Match ran edge to edge with 2rem gutters, You was
+   capped at 720px with 1rem gutters, so moving between tabs moved the left
+   margin. Owner, 2026-07-30: "the page width across the match/browse/you are
+   all different ... let's make sure those parts of the UI are consistent and
+   also works for mobile."
+   `box-sizing: border-box` is global (line 4), so max-width has to carry the
+   gutters as well as the column. */
+.browse-view, .match-view, .you-view {
+  /* CENTRED WITH PADDING, NOT max-width, and that is the whole point of writing
+     it this way. `.browse-view` and `.match-view` are the scroll containers
+     (height:100% + overflow-y:auto), so constraining their WIDTH moves the
+     scrollbar inward to the column edge — owner, 2026-07-30: "there is now a
+     hideous scrollbar on the edge where the new boundry is. that scroll bar
+     shoudl just say on the edge of the browser like before."
+     Padding leaves the box full-bleed, so the scrollbar stays where the browser
+     puts it and only the content is inset. `max()` handles small screens: below
+     the 45rem floor the halved remainder goes negative and the gutter wins. */
+  padding-inline: max(var(--page-gutter), calc((100% - var(--page-w)) / 2));
+}
+.browse-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
+.browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+/* No padding reserve at all. A LINE BREAK buys the space instead, and it costs
+   nothing: the size pills are ~110px, so the goggles sit comfortably beside them
+   and the selects get a clean row underneath. Padding took the space out of
+   EVERY row, which is what made the phone bar three rows tall.
+   Scoped to the widths where the goggles can actually reach this row. Measured
+   2026-07-30 — free margin per side: 390px->16, 768px->32, 1024px->152,
+   1280px->244; the control itself is 130px wide at every width.
+   The 1100px breakpoint is what does the work, NOT the margin-versus-width
+   comparison an earlier version of this comment reasoned from: at 1024px the
+   margin (152) already exceeds the control (130), yet the goggles' box spans
+   x=862-992 against a content edge at 872, so they still overlap. Rounded up to
+   1100 for headroom rather than derived. */
+@media (max-width: 1100px) {
+  .browse-filters .size-filter { flex: 1 1 100%; }
+  /* Same remedy for Match's header. `justify-content: space-between` throws the
+     level pills at the right edge, which is exactly where the goggles are;
+     measured 2026-07-30, "Shades" and "Families" ran underneath at 768px and
+     "Families" at 1024px. A full-basis row drops them below the heading and
+     clear of it, left-aligned, instead of squeezing the heading with padding. */
+  .match-head .level { flex: 1 1 100%; }
+}
+@media (max-width: 760px) { .browse-filters { gap: var(--s2) var(--s3); } }
 .browse-filters select {
   font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink);
   background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -314,7 +362,10 @@ main { flex: 1; min-height: 0; position: relative; }
   .chord-wheel { max-width: 96vw; }
   /* 2rem a side is a fifth of a 375px screen. */
   .wheel-controls { padding: var(--s4) var(--s4) var(--s6); }
-  .browse-view { padding: var(--s4); }
+  /* One gutter for all three pages, so the left margin does not jump between
+     tabs on a phone either. Browse used to set this alone, Match never did and
+     kept 2rem — a sixth of a 390px screen. */
+  :root { --page-gutter: 1rem; }
   .browse-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   /* Panels become bottom sheets */
   .panel {
@@ -331,8 +382,8 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 
 /* Match page */
-.match-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
-.match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
+.match-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
+.match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
 .match-head h1 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; }
 .match-view .lede { color: var(--ink-muted); font-size: 0.9rem; margin-top: var(--s2); max-width: 80ch; }
 .match-view .level { display: inline-flex; gap: var(--s2); }
@@ -368,6 +419,23 @@ main { flex: 1; min-height: 0; position: relative; }
 .sug .sc { font-size: 0.68rem; color: var(--ink-muted); }
 .sug .plus { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--ink-muted); flex: 0 0 auto; }
 .sug:hover .plus { border-color: var(--accent); color: var(--accent); }
+/* THE SHADE PICKER IS A COLOUR CHOOSER, so the colour is the card.
+   It was a list of full-width rows in which the ramp was 56x22px and the other
+   ~630px were empty — on a 1440px screen the content was the smallest thing in
+   its own row. Now it is the swatch-grid pattern the You tab already uses:
+   ramp across the card, name beneath. Same component, same markup, different
+   shape; `.sugs` elsewhere (the "add a shade" column beside a built palette) is
+   untouched, because there the row form is right — it carries a score and a
+   plus button and lives in a narrow column. */
+.picker .sugs { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s3); }
+.picker .sug { display: block; padding: 0; overflow: hidden; }
+.picker .sug .cl { width: auto; height: 64px; border-radius: 0; }
+.picker .sug .meta { padding: var(--s2) var(--s3); }
+.picker .sug .nm { font-size: 0.82rem; }
+@media (max-width: 560px) {
+  .picker .sugs { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .picker .sug .cl { height: 52px; }
+}
 .picker { margin-top: var(--s6); }
 .picker-input { font-family: var(--font-ui); font-size: 0.9rem; color: var(--ink); background: none; border: none; border-bottom: 1px solid var(--hairline); padding: var(--s2); width: 260px; max-width: 100%; margin-bottom: var(--s4); }
 .picker-input:focus { outline: none; border-bottom-color: var(--accent); }
@@ -439,7 +507,18 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--link); border-color: var(--link); color: var(--paper-hi); font-weight: 700;
 }
 /* The You tab. */
-.you-view { max-width: 720px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s12); }
+/* 720px is a reading measure, and this page is mostly NOT reading — it is two
+   grids of colour with prose between them. The shared `--page-w` gives the
+   grids the width; the caps below keep the PROSE at a reading measure. */
+.you-view { padding-top: var(--s6); padding-bottom: var(--s12); }
+/* The prose keeps a reading measure while the grids take the shared width. */
+.you-intro p, .you-combos-lede { max-width: 46rem; }
+
+/* The goggles float over the top-right of every screen, and on a phone the You
+   tab's h1 is the widest thing up there — the chip landed on the words. Nudge
+   the heading clear rather than moving the control, which is the owner's open
+   question in TODO.md and a bigger decision than this. */
+@media (max-width: 760px) { .you-intro h1 { padding-right: 8.5rem; } }
 .you-intro h1 { font-family: var(--font-display); font-weight: 500; margin: 0 0 var(--s3); }
 .you-intro p { color: var(--ink-muted); margin: 0 0 var(--s3); }
 .you-privacy { font-size: 0.85rem; border-left: 2px solid var(--link); padding-left: var(--s3); }
@@ -558,13 +637,32 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--link); color: var(--paper-hi); font-weight: 700;
 }
 
-/* Where this palette came from — never behind a disclosure. */
+/* Where this palette came from — never behind a disclosure.
+   A CITATION, MARKED AS ONE, rather than a fourth coloured left rule.
+   Six rules on this site draw a 2px coloured rule down the left of a block of
+   small muted prose: .you-privacy, .reading-caveat, .you-note (which
+   .shared-season recolours), .you-provenance, .fit-caveat and .probe-note.
+   Three of them stack consecutively on the You tab, so the device stopped
+   meaning "read this" and started meaning "text".
+   (An earlier version of this list named "the goggles note", which does not
+   exist — the wheel's empty note has no rule — and omitted .reading-caveat and
+   .probe-note, which do. Counted with grep on 2026-07-30.)
+   This one is not a notice at all — it is a source, and a source is set apart
+   by a rule ABOVE, not by an alert stripe down its side. Nothing was deleted:
+   every word still renders.
+   HONEST SCOPE, corrected 2026-07-30 after a reviewer counted: this removes ONE
+   of the coloured rules, not all but two. Five remain — .you-privacy,
+   .reading-caveat, .you-note (which .shared-season extends), .fit-caveat and
+   .probe-note — so the device is still doing several jobs. An earlier version
+   of this comment claimed the two notices were "now the only things wearing
+   it", which was wrong by three and contradicted its own list. It also promised
+   small caps that were never implemented. Thinning the rest is worth doing and
+   is not done here. */
 .you-provenance {
   font-size: 0.82rem; color: var(--ink-muted); line-height: 1.55;
-  border-left: 2px solid var(--link); padding-left: var(--s3);
+  border-top: 1px solid var(--hairline); padding-top: var(--s3);
   margin: 0 0 var(--s4); max-width: 46rem;
 }
-.you-provenance.season { border-left-color: var(--accent); }
 
 .you-swatches {
   display: grid; gap: var(--s2);
@@ -591,7 +689,7 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 .you-swatch[aria-selected='true'] span,
 .fit-pair[aria-selected='true'] .fit-name { color: var(--ink); font-weight: 700; }
-.fit-pair[aria-selected='true'] { background: var(--paper-2); }
+.fit-pair[aria-selected='true'] { background: var(--paper-2); border-color: var(--link); }
 .you-note {
   margin-top: var(--s4); font-size: 0.82rem; color: var(--ink-muted);
   border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
@@ -628,8 +726,12 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Ideal beside nearest-in-the-book. The gap between the two columns IS the
    information, so the pair must read as a pair at any width. */
 .season-fit { margin-top: var(--s5); }
-.season-fit h4 {
-  font-family: var(--font-display); font-size: 1.05rem; font-weight: 500;
+/* Sized to match `.you-combos h2`, because the two ARE peer sections and were
+   only styled differently because one had been marked up as an h4. Reading the
+   page top to bottom, "What the book has for X" and "Combinations" should land
+   with the same weight. */
+.season-fit h2 {
+  font-family: var(--font-display); font-weight: 500; font-size: 1.3rem;
   margin: 0 0 var(--s3);
 }
 .fit-pairs { margin: 0 0 var(--s3); }
@@ -642,7 +744,13 @@ main { flex: 1; min-height: 0; position: relative; }
   border-bottom-color: var(--hairline); border-radius: var(--radius);
   background: none; text-align: left; color: inherit;
 }
-.fit-pair:hover { background: var(--paper-2); }
+/* A BORDER, not a background tint. The tint was `--paper-2`, which measured
+   1.05:1 against the row — and 1.00:1 in the bottom-right of the viewport,
+   where the body's fixed gradient reaches --paper-2 itself and the hover became
+   literally invisible. A tint can never be safe over a gradient. `--link` is
+   6.09:1 on paper-1 and 5.53:1 on paper-2, so the affordance holds wherever the
+   row happens to sit. */
+.fit-pair:hover { border-color: var(--link); }
 .fit-pairs i {
   width: 26px; height: 26px; flex: 0 0 auto;
   border-radius: var(--radius); border: 1px solid var(--hairline);
@@ -928,6 +1036,16 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Accessibility goggles — multi-select filter. Floats in the top-right corner
    of the content area (just below the header), in the same spot on every view.
    It's the positioning context for its own drop-down menu. */
+/* Back on the WINDOW edge, where it was.
+   It was briefly aligned to the content column, on the reasoning that a control
+   floating 335px out in the margin belongs to nothing. The owner disagreed and
+   they are the one looking at it: "i also liked it when the accessibilty
+   goggles were on the right side, so not bound by the actual area in
+   wheel/match/browse/you, now that it's moved in towards the main content, it's
+   a bit distracting." It is a utility that applies to the whole site rather
+   than to the page under it, and out of the way is the point.
+   The reserve the filter rows keep for it is computed from this rather than
+   assumed — see `.browse-filters` and `.match-head`. */
 .a11y-goggles { position: absolute; top: var(--s4); right: var(--s8); z-index: 5; text-align: left; }
 .a11y-goggles > summary {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: var(--s2);
@@ -971,7 +1089,20 @@ main { flex: 1; min-height: 0; position: relative; }
   border: 1px solid var(--hairline); border-radius: var(--radius); cursor: pointer;
 }
 .sample-src:hover { border-color: var(--link); }
-.sample-src-ic { width: 28px; text-align: center; font-size: 1.2rem; }
+/* Phosphor sizes to 1em, so font-size still drives the glyph exactly as it drove
+   the emoji. What is new is that `color` works: an emoji is an OS-rendered image
+   and ignores it. Muted by default so the icon sits behind its label instead of
+   competing with it. See the hover rule below for which colour it takes. */
+.sample-src-ic {
+  width: 28px; font-size: 1.35rem; color: var(--ink-muted);
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+/* --link, not --accent. Accent measures 2.92:1 on this card, so hovering made
+   the icon HARDER to see than at rest (--ink-muted, 7.79:1) — and 2.92 is the
+   exact value `.fit-band` was moved away from in an earlier release for the
+   same reason. --link is 6.09:1 and matches the border the card already takes
+   on hover. */
+.sample-src:hover .sample-src-ic { color: var(--link); }
 .sample-src-tx { display: flex; flex-direction: column; }
 .sample-src-tx small { color: var(--ink-muted); font-size: 0.78rem; }
 

@@ -72,27 +72,66 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Known gap: Back does not close a full-screen overlay
 
-- [ ] **On a phone, Back with the camera or picker open leaves the site.** There
-      is no Escape key on a phone, these overlays fill the screen, and Back is
-      what "cancel" means — so the most natural gesture does the worst thing.
-      Found by probing on 2026-07-29. **Two implementations were tried and both
-      reverted**, so a third attempt should start from what they taught:
-      • *Push an entry per overlay, pop it on close.* Broke the capture flow.
-        FaceCapture unmounts straight into ProbeReview, `history.back()` is
-        asynchronous, and the queued pop landed AFTER the next overlay had
-        pushed — closing the review screen the instant it opened.
-      • *Pool one entry per RUN of overlays, module-level count, deferred pop.*
-        Fixed the handoff, then lost to `urlSync`: its `replaceState` overwrites
-        whatever entry is current, which is the overlay's, wiping the
-        `{ overlay: true }` marker the cleanup keys off. Result was a dead entry
-        and a Back press that visibly did nothing.
-      The diagnosis is that `Overlay` and `urlSync` are fighting over the same
-      history entry, so the fix is a SHARED OWNER for it — most likely urlSync
-      learning that an overlay is open, rather than either side pushing
-      independently. `Overlay.tsx` carries the same note at the code.
-      Not attempted a third time mid-loop: three distinct failure modes on one
-      issue is the signal to stop and design, which is what CLAUDE.md's
-      debugging guidance says.
+- [x] ~~**On a phone, Back with the camera or picker open leaves the site.**~~ —
+      fixed on 2026-07-30, at the third attempt, after the owner hit it on a
+      desktop too: *"clicking back on sample should close that drop down, right
+      now back actually goes back on the URL. so i will kick myself out of the
+      site."*
+      The diagnosis recorded here was right: the fix was a SHARED OWNER for the
+      history entry, not a third attempt from either side. `src/overlayHistory.ts`
+      is a registry of open overlays and their closers; `urlSync` reads it and is
+      the only thing that touches `history`. `Overlay` now only reports that it
+      is open.
+      Two details the earlier attempts had no way to get right:
+      • The count is observed through `useSyncExternalStore`, so the
+        FaceCapture -> ProbeReview handoff (one overlay unmounting into the next
+        in a single commit) never presents as a dip to zero.
+      • The state-sync effect is SUSPENDED while an overlay is up, so its
+        `replaceState` can no longer overwrite the marker — the exact way
+        attempt 2 died.
+      Closing with the x pops the marker; closing by choosing a destination lets
+      the marker become that destination's entry, so Back lands on the state
+      from before the overlay opened. `tests/browser/overlayBack.spec.ts` covers
+      both, plus both historic failure modes.
+
+## Known gap: Back skips the whole sampler instead of stepping back through it
+
+- [ ] **Choosing a destination inside the sampler makes Back jump past the whole
+      task.** Owner, 2026-07-30, having seen it: *"i think ideally it just goes
+      back to the previous page, instead of dropping back to the main page."*
+      **Measured** on 2026-07-30 (not reasoned): from the wheel, Sample -> Pick a
+      color -> Explore this color -> a nearest colour -> "Match Deep Blues" lands
+      on `#/match?keys=deep-blues`. Back returns to **the wheel**, not to the
+      sampler's list of nearest colours.
+      Why: the whole sampler run gets ONE history entry (the marker urlSync
+      pushes when the first overlay opens). Its internal screens — card list,
+      picker, nearest colours — are React state with no entry of their own, and
+      choosing a destination turns the marker into that destination. So Back
+      steps over the task rather than through it.
+      A fix means an entry per SCREEN rather than per task, which is the shape
+      that failed as attempt 1 in the other Back gap above. It should be
+      tractable now for the reason that one is fixed: `overlayHistory.ts` gives
+      a single owner, and the count is observed post-commit, so the
+      unmount-into-the-next handoff no longer races. The screens would need to
+      report their own identity, which they currently do not.
+      `tests/browser/overlayBack.spec.ts` PINS the present behaviour, so
+      changing it shows up as a deliberate diff rather than a silent one.
+
+## Found by review, deliberately not fixed
+
+- [ ] **`.search-sample` is largely dead CSS.** Measured 2026-07-30: `SearchBox`
+      renders inside `<nav className="nav">`, so `.nav button` (0,1,1) outranks
+      `.search-sample` (0,1,0) and `.nav button:hover` (0,2,1) outranks
+      `.search-sample:hover` (0,1,1). Six declarations never take effect — the
+      button paints `--ink-muted` on no background with no border, i.e. as a
+      plain nav item, not the bordered pill the rule and its comment describe.
+      **Left alone on purpose**: what renders today is what the owner reviewed
+      and approved, and the accidental result has BETTER contrast than the rule
+      intends (12.90 against the 2.92 `--accent` would give — the very ratio
+      removed from `.sample-src-ic` in this same pass). Fixing the specificity
+      would change the header's appearance, which is a design decision rather
+      than a defect repair. Either raise the specificity and re-approve the look,
+      or delete the dead declarations; do not leave the rule claiming both.
 
 ## Owner's queued ideas (2026-07-30)
 

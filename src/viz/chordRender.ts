@@ -153,6 +153,17 @@ export function renderChord(
     .attr('dy', '0.35em')
     .attr('transform', `rotate(${anchorDeg - TILT_DEG})`)
 
+  // NO IDLE INSTRUCTION IN THE CENTRE. One was built here on 2026-07-30 — a
+  // two-line "point at a colour to preview it" that retired itself on first
+  // hover — and the owner rejected it on sight: "i don't like the text that
+  // tells me what to do. its distracting. i liked it better with a clean
+  // overlay. people can self discover the wheel chord diagram ... it makes
+  // screenshots horrible."
+  //
+  // The last clause is the one to remember. This wheel is the image people
+  // share, so its resting state is a picture, not a UI. The centre stays empty
+  // until a hover puts a name in it. Do not add a prompt here again.
+
   // --- Nearest-object index (the "snap") ------------------------------------
   // Sample points along each ribbon's centerline (a quadratic Bézier through
   // the origin, matching d3.ribbon) and index them so any cursor position

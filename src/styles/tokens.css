@@ -40,6 +40,29 @@
   --s1: 0.25rem; --s2: 0.5rem; --s3: 0.75rem; --s4: 1rem;
   --s6: 1.5rem; --s8: 2rem; --s12: 3rem;
   /* layout */
+
+  /* ONE PAGE WIDTH FOR MATCH, BROWSE AND YOU, in golden section with the
+     viewport. Owner, 2026-07-30: the three were "all different", they liked the
+     You page constrained, and asked "can we pick a golden ratio value for all
+     the pages?"
+
+     A single px number would not be a golden ratio, it would just be a number.
+     The ratio is the PROPORTION: the column is 1/phi (0.618) of the viewport, so
+     column : margins = 1.618 : 1 at any size. 1440px gives an 890px column with
+     275px either side; 1920px gives 1187px.
+
+     The floor is 45rem = 720px, which is the measure the You page already had
+     and the owner liked, so nothing narrows below what they approved. It also
+     rescues small screens: 61.8vw of a 390px phone is 241px, which would be
+     absurd. The floor plus the `max()` at the call site (see the three page
+     containers in app.css) means a phone simply gets full width minus its
+     gutter.
+
+     The cap is 80rem = 1280px, so a very large monitor stops scaling rather
+     than running to a 1580px line. */
+  --page-w: clamp(45rem, 61.8vw, 80rem);
+  --page-gutter: 2rem;
+
   --panel-width: 400px;
   --radius: 3px;
   --radius-pill: 999px;

@@ -167,6 +167,28 @@ Never treat a plan as a description of the current code.
   the honest move is to add it here, not to cite this rule for something it
   does not say.
 
+  **Known debt, counted 2026-07-30 rather than asserted:** nine bare `rgba()`
+  values in `app.css` sit outside all three exemptions. Named by SELECTOR, not
+  by line number — the first version of this paragraph cited line numbers and
+  they were stale in the same commit that added them, because that commit's own
+  edits moved the file. Selectors survive an edit; line numbers do not.
+
+  Derived by walking the file and attributing each `rgba()` to the rule it sits
+  in, rather than read off by eye:
+
+  - `.cam-reticle` (two, one of which retypes `--accent` as raw channels)
+  - `.face-oval`, `.infotip-body`, `.probe-dot.is-white`, `.probe-dot b`
+  - `.reading-badge.ok` and `.reading-badge.rough`, which retype `--link` and
+    `--accent` as raw channels
+  - `.a11y-menu`, whose shadow hard-codes `rgba(47, 42, 38, …)` — the exact
+    value `--ink-rgb` exists to abolish, and which `.panel`, `.search-results`
+    and `.you-doorways` all correctly write as `rgb(var(--ink-rgb) / …)`
+
+  A tenth, in `.disc-face`, is inside exemption 2 and is fine.
+
+  So this rule currently describes an intention, not the file. Do not read
+  "exactly three" as a measurement until that list is empty.
+
   **`opacity` on text evades this rule entirely.** Fading text changes its
   rendered contrast while the token stays correct, so no audit of colour
   values can see it. It shipped twice: `.you-floor em` at `opacity: 0.7`
@@ -264,7 +286,8 @@ four true.**
 4. **Weight is paid by the feature that incurs it.** Anything large must
    lazy-load on entering its tab, never in the main bundle.
 
-Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision. Dev: vite,
+Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision,
+@phosphor-icons/react. Dev: vite,
 typescript, vitest, @vitejs/plugin-react, tsx, @types/react,
 @types/react-dom, @types/d3, @types/node, jsdom, @testing-library/react,
 @testing-library/dom, @playwright/test, oxlint, @vitest/coverage-v8,
@@ -281,6 +304,16 @@ the linter (`make lint`, one package, config in `.oxlintrc.json`);
 never run?"; @axe-core/playwright = the WCAG audit in
 `tests/browser/a11y.spec.ts` — non-negotiable for a site that ships
 accessibility goggles;
+@phosphor-icons/react = the icon set, added 2026-07-30 on the owner's call —
+*"i'm okay with an icon library instead of emojis. gives us more flexibility."*
+It replaces emoji, which the OS renders: four cards drew four different
+illustration styles, changed shape per platform, and could take neither a stroke
+weight nor a token colour, so nothing tied them to the hairlines the rest of the
+site is drawn with. **Import every glyph by name** — the barrel is ~9000 icons
+and only named imports tree-shake. **Measured 2026-07-30: +12.15 kB raw,
++4.10 kB gzipped** for four icons plus the shared renderer, which is why it sits
+in the main bundle rather than lazy-loading: rule 4 below is about weight worth
+deferring, and 4 kB is not it. Re-measure if the count grows a lot;
 @mediapipe/tasks-vision = on-device face detection for the You tab,
 Apache-2.0 with zero transitive dependencies, lazy-loaded and self-hosted
 from `public/mediapipe/`. **~3.7 MB over the wire** (measured 2026-07-29:
@@ -292,7 +325,7 @@ pays.
 
 ## Testing: two suites, and why
 
-`make test` (vitest + jsdom, ~850 checks as of 2026-07-29, seconds) proves the site
+`make test` (vitest + jsdom, 882 checks as of 2026-07-30, seconds) proves the site
 *computes* the right answer. jsdom does no layout and applies no cascade,
 so it structurally CANNOT see fonts, colours, sizes or positions.
 
@@ -319,8 +352,8 @@ a reason, or disable it inline where the reasoning belongs (see
 `ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
 
 **The three ink tokens must stay WCAG AA (>= 4.5:1) against all THREE papers.**
-`tests/browser/a11y.spec.ts` audits nine screens with axe and will fail if
-they don't. Before touching `--ink*` or `--paper*`, re-measure with
+`tests/browser/a11y.spec.ts` audits fourteen screens with axe and will fail
+if they don't. (Thirteen `test()` cases — one of them audits two screens.) Before touching `--ink*` or `--paper*`, re-measure with
 culori's `wcagContrast` — the same function the goggles use. Note that
 `--ink-faint` cannot simply be darkened "until it passes": that lands it
 on top of `--ink-muted`. The three were solved together for distinct

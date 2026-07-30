@@ -110,7 +110,9 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
   // useRovingFocus exists for. Without it a fifty-swatch grid would be fifty
   // tab stops, which is the exact defect v1.6.0 fixed in the sampler.
   const grid = useRovingFocus()
-  const [picked, setPicked] = useState<number | null>(null)
+  // The pick is a colour AND, when it came from the fit list, the row it came
+  // from. See SeasonFit's `selectedRow` for why the row cannot be derived.
+  const [picked, setPicked] = useState<{ id: number; row: number | null } | null>(null)
 
   // EVERYTHING ON SCREEN IS A VALID STARTING POINT, which is what the owner
   // asked for: "this way anything on that page can be interactive as a starting
@@ -128,9 +130,11 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
     return ids
   }, [shown, pairs, which])
 
-  const selected = picked !== null && selectable.has(picked)
-    ? picked
+  const selected = picked !== null && selectable.has(picked.id)
+    ? picked.id
     : shown[0]?.id ?? null
+  // Only honour the row while the pick that carried it is still the selection.
+  const selectedRow = picked !== null && picked.id === selected ? picked.row : null
 
   // Tabbable by index so the grid keeps exactly one tab stop even when the
   // page's selection is a fit row rather than a swatch — matching on id alone
@@ -194,7 +198,7 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
         {shown.map((c, i) => (
           <button key={c.id} type="button" className="you-swatch" role="option"
             aria-selected={c.id === selected} {...grid.itemProps(i === swatchFocus)}
-            onClick={() => setPicked(c.id)}
+            onClick={() => setPicked({ id: c.id, row: null })}
             title={reasonFor(c.id) || c.name}>
             <i style={{ background: c.hex }} />
             <span>{c.name}</span>
@@ -213,7 +217,8 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
 
       {which === 'season' && (
         <SeasonFit sub={activeSeason} pairs={pairs}
-          selectedId={selected} onSelect={setPicked} />
+          selectedId={selected} selectedRow={selectedRow}
+          onSelect={(id, row) => setPicked({ id, row })} />
       )}
 
       {/* The motivating case for the whole feature: "someone finds their season

@@ -1,5 +1,57 @@
 # TODO — completed
 
+## v1.10.0 — a design review, and what it turned up (2026-07-30)
+
+Owner: *"can we use those to see if there are any improvements we can make to
+the site?"*, then *"otherwise let's do a multi subagent bug, documentation,
+review ... never assume the docs are correct, confirm it."*
+
+- [x] **Three UI/UX skills audited against the site**, with each rejected rule
+      recorded and its reason — most are written for greenfield marketing pages
+      and conflict with this repo's documented brief (`20981d5`).
+- [x] **Match's Shades level became a colour chooser**: each shade had a 56x22px
+      ramp in a 690px row, so the colour was the smallest thing in it. All 23
+      now fit above the fold as cards (`2c20e02`).
+- [x] **One page width for Match, Browse and You**, in golden section with the
+      viewport — the column is 1/phi of the window, floored at 45rem so a phone
+      gets full width, capped at 80rem. Measured 0.61801 at 1440px (`5889c70`).
+- [x] **Icons replaced emoji**, `@phosphor-icons/react` at weight light,
+      +12.15 kB raw / +4.10 kB gzipped, named imports only (`2c20e02`).
+- [x] **Back closes a full-screen overlay** from any depth instead of leaving
+      the site — the third attempt at this, and the one that worked, because
+      `overlayHistory.ts` gives the history entry a single owner (`f6f19b0`).
+      Fixed again in `c9f1e7f` after review found it broken on the header route.
+- [x] **Browse on a phone reaches a colour in the first screenful**: the filter
+      bar went 157.75px -> 96.75px, the first plate y=479 -> y=418 (`20981d5`).
+- [x] **The You tab's heading levels stopped skipping** h1 -> h4 -> h2; the fit
+      panel is an h2, a peer of Combinations (`20981d5`).
+- [x] **Plate captions share a baseline again** — `.plate-number` was wrapping
+      between "No." and the number (`2c20e02`).
+
+Found by review, all of it invisible to a green suite:
+
+- [x] **An infinite render loop burned a full CPU core on the You tab**, for as
+      long as it was open, re-ranking all 338 combinations each pass. 2.99s of
+      script per 3s idle window against 0.000s elsewhere; silent in production.
+      Pre-existing. `tests/browser/idleCpu.spec.ts` now measures three tabs
+      through CDP (`c9f1e7f`).
+- [x] **A hover state measured 1.00:1** where the page gradient reached the
+      colour the hover used, i.e. invisible in part of the viewport. A tint can
+      never be safe over a gradient; it is a border now (`c9f1e7f`).
+- [x] **An icon hover DROPPED contrast** 7.79 -> 2.92, the exact value
+      `.fit-band` was moved away from in an earlier release (`c9f1e7f`).
+- [x] **Three tests guarded nothing**, each proven by planting the bug — one of
+      them the guard for a regression the owner reported personally (`c9f1e7f`).
+- [x] **`aria-selected` marked every duplicate fit row**, then, after the first
+      fix, marked the wrong one. Row identity now travels with the pick
+      (`c9f1e7f`, `21ad988`).
+- [x] **A real navigation arriving with an overlay open was swallowed and
+      reversed** — a pasted deep link vanished with no sign it was ignored
+      (`21ad988`).
+- [x] **Two rounds of documentation correction**, the second finding that the
+      first had introduced fresh errors, including line numbers stale in the
+      same commit that wrote them (`503f6e0`).
+
 ## v1.9.2 — every colour on the You page is a starting point (2026-07-30)
 
 Owner: *"i also want the 'what the book has for ...' those list of colors also

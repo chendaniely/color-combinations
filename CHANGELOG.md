@@ -28,6 +28,90 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.10.0 — 2026-07-30 — A design review, and what it turned up
+
+The owner installed three UI/UX design skills and asked whether they would find
+improvements to this site. This release is the answer, plus everything the
+review of that work uncovered.
+
+> *"i want to test something new. i just installed a lot of ui/ux skills the
+> froenend design, ui/ux pro max, tastes skills. can we use those to see if
+> there are any improvements we can make to the site?"*
+
+**Most of what those skills say does not apply here**, and saying so was half
+the value. They are written for greenfield marketing pages. Followed literally
+they would have dropped EB Garamond, abandoned the warm palette this book is
+made of, and installed a CSS framework. Each rejection is recorded with its
+reason in [`docs/2026-07-30-ui-ux-skill-audit.md`](docs/2026-07-30-ui-ux-skill-audit.md).
+
+### What changed on screen
+
+**Match's Shades level is a colour chooser again.** Each shade had a 56×22px
+ramp in a 690px-wide row — on a colour site, the colour was the smallest thing
+in its own row. All 23 now fit above the fold as cards.
+
+**Match, Browse and You share one page width**, in golden section with the
+window: the column is 1/φ (0.618) of the viewport, so column-to-margin is
+1.618 : 1 at any size. Measured 890px at 1440 and 1187px at 1920. It floors at
+720px so a phone gets full width minus a gutter, and caps at 1280px so a large
+monitor stops scaling.
+
+> *"the page width across the match/browse/you are all different … can we pick
+> a golden ratio value for all the pages?"*
+
+**Icons instead of emoji.** Emoji are drawn by the operating system, so the four
+ways into a colour looked like four different illustration styles and changed
+shape between platforms. Phosphor at `light` weight, +4.10 kB gzipped.
+
+> *"i'm okay with an icon library instead of emojis. gives us more flexibility."*
+
+**Back now closes a full-screen overlay** — the sampler, the camera, the picker
+— from whatever depth you have reached, instead of leaving the site.
+
+> *"clicking 'back' on sample should close that drop down, right now back
+> actually goes back on the URL. so i will kick myself out of the site"*
+
+**Browse on a phone** reaches a colour in the first screenful instead of the
+second: the filter bar went from 157.75px to 96.75px. Smaller things: the `No.`
+label in plate captions no longer breaks across two lines, and the You tab's
+heading levels no longer skip from `h1` to `h4`.
+
+### Two changes the owner reverted, and was right to
+
+A prompt in the middle of the wheel telling you what to do, and the
+accessibility control aligned to the content column. Both are recorded rather
+than quietly dropped, because the reasoning is the useful part:
+
+> *"i mostly don't liek the text on the wheel. it makes screenshots horrible."*
+
+The wheel is the image people share, so its resting state has to be a picture
+rather than a UI.
+
+### What the review found, which is the real story
+
+Four review agents, run twice, each required to verify by measuring rather than
+by reading. **Everything below was invisible to a green suite** — lint, 875 unit
+tests, 127 browser tests and the build all passed with every one of these
+present.
+
+- **The You tab burned a full CPU core, indefinitely**, on any machine, for as
+  long as the tab was open. A render loop, silent in production. Now idle.
+  This one predates the release; it was found by measuring, not by looking.
+- **Back was broken on its primary route.** The fix shipped working from Match
+  and broken from the header button, because the test used the one route that
+  avoids the bug.
+- **A hover state measured 1.00:1** — literally invisible — in the part of the
+  screen where the page gradient reaches the colour the hover used.
+- **Three tests guarded nothing**, each proven by planting the bug. One of them
+  was the guard for a regression the owner had reported personally.
+- Two rounds of documentation corrections, the second of which found that the
+  first had introduced fresh errors, including a paragraph of line numbers that
+  were stale in the same commit that wrote them.
+
+> *"never assume the docs are correct, confirm it."*
+
+---
+
 ## v1.9.2 — 2026-07-30 — Every colour on the You page is a starting point
 
 **"What the book has for Deep Autumn" is now clickable.** Each row of that panel

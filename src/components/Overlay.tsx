@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { registerOverlay } from '../overlayHistory'
 
 // The one full-screen modal used by every sampler, camera and capture screen.
 //
@@ -34,6 +35,16 @@ export function Overlay({ label, onClose, closeLabel = 'Close', className, child
   children: ReactNode
 }) {
   const ref = useRef<HTMLDialogElement>(null)
+
+  // BACK CLOSES THIS, and the mechanism lives entirely in urlSync — see
+  // src/overlayHistory.ts for why it had to. All this component does is say it
+  // is open and hand over the way to close it. It touches no history itself,
+  // which is precisely what the two reverted attempts got wrong.
+  //
+  // `onClose` is in the deps because a parent that re-creates the callback each
+  // render must not leave a stale closer registered; re-registering is cheap
+  // and the count is unchanged across the swap.
+  useEffect(() => registerOverlay(onClose), [onClose])
 
   useEffect(() => {
     const el = ref.current
@@ -74,26 +85,6 @@ export function Overlay({ label, onClose, closeLabel = 'Close', className, child
     }
   }, [])
 
-  // BACK DOES NOT CLOSE THIS YET, and that is a known gap rather than an
-  // oversight — see the entry in TODO.md.
-  //
-  // On a phone there is no Escape key, these overlays fill the screen, and Back
-  // is what "cancel" means. Two implementations were tried on 2026-07-29 and
-  // both were reverted:
-  //
-  // 1. Push an entry per overlay, pop it on close. Broke the capture flow:
-  //    FaceCapture unmounts straight into ProbeReview, `history.back()` is
-  //    asynchronous, and the queued pop landed after the next overlay had
-  //    pushed — closing the review screen the instant it opened.
-  // 2. Pool one entry per RUN of overlays with a module-level count and a
-  //    deferred pop. Fixed the handoff, then lost to `urlSync`: its
-  //    `replaceState` overwrites whatever entry is current, which is the
-  //    overlay's, wiping the `{ overlay: true }` marker the cleanup keys off.
-  //    Result was a dead entry and a Back press that did nothing.
-  //
-  // The two mechanisms are fighting over the same history entry, so the fix is a
-  // shared owner for it rather than a third attempt from either side. Recorded
-  // rather than attempted again mid-loop.
   return createPortal(
     <dialog
       ref={ref}

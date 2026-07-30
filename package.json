@@ -1,7 +1,7 @@
 {
   "name": "color-combinations",
   "private": true,
-  "version": "1.9.2",
+  "version": "1.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.0",
+    "@phosphor-icons/react": "^2.1.10",
     "culori": "^4.0.2",
     "d3": "^7.9.0",
     "react": "^19.1.0",
