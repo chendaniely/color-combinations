@@ -149,12 +149,15 @@ describe('the colours', () => {
   })
 
   it('discloses that the book leans warm, so a short list is not a bug', async () => {
-    // Wada's palette runs 109 warm to 48 cool; a cool visitor gets less.
+    // Wada's palette leans warm, so a cool visitor gets a shorter list. The
+    // exact counts are computed from the book (see `warmCool` in src/data.ts),
+    // so this asserts the DISCLOSURE exists rather than a number that would go
+    // stale — which is precisely what happened to the old hardcoded 109/48.
     const cool: SkinReading = { ...WARM_DEEP, undertone: 'cool', skinHue: 33 }
     const { container } = render(
       <PaletteTabs reading={cool} season={null} dispatch={vi.fn()} />)
     await ready()
-    expect(container.textContent).toMatch(/leans warm|109/i)
+    expect(container.textContent).toMatch(/leans warm/i)
   })
 })
 

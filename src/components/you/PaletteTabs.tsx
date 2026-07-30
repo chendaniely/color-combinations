@@ -4,7 +4,7 @@ import { colorsForSeason } from '../../core/seasonColors'
 import { classifySeason, parentOf, seasonById } from '../../core/seasons'
 import type { Action } from '../../core/state'
 import type { ColorRecord, SkinReading } from '../../core/types'
-import { dataset, type SeasonData } from '../../data'
+import { dataset, warmCool, type SeasonData } from '../../data'
 import { ShareLink } from '../ShareLink'
 import { PaletteProvenance } from './PaletteProvenance'
 import { SeasonChooser } from './SeasonChooser'
@@ -13,11 +13,11 @@ import { useSeasonData } from './useSeasonData'
 
 type Which = 'measured' | 'season'
 
-// Wada's palette is lopsided — 109 of its 157 colours read warm against 48
-// cool — so a cool-toned visitor gets a structurally shorter list. Saying so is
-// the difference between an honest constraint and an apparent bug.
-const WARM_COUNT = 109
-const COOL_COUNT = 48
+// Wada's palette is lopsided, so a cool-toned visitor gets a structurally
+// shorter list. Saying so is the difference between an honest constraint and an
+// apparent bug — which is why the numbers are COMPUTED (see `warmCool` in
+// src/data.ts) rather than written here. They were written here, as 109 and 48,
+// and the rule that decides warm from cool gives 110 and 47.
 const SHORT_LIST = 30
 
 interface Props {
@@ -170,9 +170,9 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
       {which === 'measured' && measured.length < SHORT_LIST && (
         <p className="you-note">
           A shorter list than some people get, and that is the book rather than
-          you: Wada's palette <b>leans warm</b> — {WARM_COUNT} of its 157 colours
-          read warm against {COOL_COUNT} cool — so cooler colouring has fewer to
-          draw on here.
+          you: Wada's palette <b>leans warm</b> — {warmCool.warm} of its{' '}
+          {dataset.data.colors.length} colours read warm against {warmCool.cool}{' '}
+          cool — so cooler colouring has fewer to draw on here.
         </p>
       )}
     </section>

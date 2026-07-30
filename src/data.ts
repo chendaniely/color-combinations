@@ -13,6 +13,7 @@ import colorsRaw from '../data/processed/colors-data.json'
 import sourcesRaw from '../data/reference/sources.json'
 import { accessibilityProfile, allowedComboIds } from './color/accessibility'
 import { fitBand } from './color/colorDistance'
+import { isWarm } from './color/personalPalette'
 import { index, type Indexed } from './core/dataset'
 import {
   validatePccsGrid,
@@ -102,6 +103,21 @@ export function loadSeasonData(): Promise<SeasonData> {
   })()
   return pending
 }
+
+/**
+ * How the book splits warm against cool, by the same rule the palette scorer
+ * uses (`isWarm`).
+ *
+ * COMPUTED, not written down. The site quotes this at visitors — in the You tab,
+ * the About panel and the README — as an honest disclosure that a cool-toned
+ * person gets a shorter list. It said "109 warm against 48 cool" in all three
+ * places and the rule gives 110 and 47: a number in prose that nothing checked,
+ * drifting quietly. Deriving it means the disclosure cannot be wrong again.
+ */
+export const warmCool: { warm: number; cool: number } = (() => {
+  const warm = dataset.data.colors.filter(isWarm).length
+  return { warm, cool: dataset.data.colors.length - warm }
+})()
 
 // Which accessibility lenses each combination passes — computed once at load.
 export const accessProfile = accessibilityProfile(dataset)

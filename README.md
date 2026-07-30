@@ -58,7 +58,8 @@ Run these from the project folder. `make help` lists them all.
 
 There are **two** test suites, and the split matters.
 
-`make test` is the fast one — around 600 checks in a few seconds. It runs
+`make test` is the fast one — around 850 checks in a few seconds (that count is
+a snapshot, not a promise; it was 600 two releases ago). It runs
 without a browser, using a simulated one called jsdom. That makes it quick
 enough to run constantly, but jsdom has a hard limit: **it never actually
 draws anything.** It does no layout and applies no CSS. So it can confirm the
@@ -173,9 +174,11 @@ Below that are the book's combinations, ordered by how much of each one is
 yours, with any color that *isn't* yours outlined. A four-step control decides
 how strict the list is.
 
-One thing worth knowing: Wada's palette leans warm — 109 of its 157 colors read
-warm against 48 cool — so cool-toned visitors get a shorter list here. That's
-the book, not you, and the page says so.
+One thing worth knowing: Wada's palette leans warm — 110 of its 157 colors read
+warm against 47 cool — so cool-toned visitors get a shorter list here. That's
+the book, not you, and the page says so. (Those two numbers are computed from the
+book at load time rather than typed in, because for several releases they were
+typed in as 109 and 48 and nothing checked them.)
 
 #### Where the seasons come from
 

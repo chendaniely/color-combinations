@@ -50,7 +50,8 @@ a check that needs a person. See `TODO-completed.md` for what went.
       would be the first lens; a sampled photo, a saved palette and an
       accessibility filter are the obvious next ones.
       NOT the same thing as swapping the corpus, which was considered and
-      rejected: 22 modules read `combinations`, and no other published colour
+      rejected: most of `src/` reads `combinations` — 26 modules as of
+      2026-07-29, and the count only grows — and no other published colour
       book has any. See the reframe in
       `docs/superpowers/specs/2026-07-29-pccs-season-datasets-design.md`.
 

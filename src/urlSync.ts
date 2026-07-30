@@ -6,7 +6,7 @@
 //
 // Why the split matters beyond tidiness — `tests/core-purity.test.ts` forbids
 // browser globals in src/core, and that rule is what makes the encoder testable
-// without a browser at all. 29 assertions about hostile URLs run in
+// without a browser at all. 21 hostile URLs run in
 // milliseconds because of it.
 import { useEffect, useRef } from 'react'
 import { isColorKey, keyColorId } from './core/dataset'

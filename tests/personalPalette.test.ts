@@ -78,7 +78,7 @@ describe('scorePalette', () => {
 })
 
 // The honest failure mode of this whole feature is a visitor getting an empty
-// palette — most likely a cool-toned one, since Wada's book runs 109 warm to 48
+// palette — most likely a cool-toned one, since Wada's book runs 110 warm to 47
 // cool. Every band the analysis can report must return something WEARABLE, not
 // merely non-empty.
 //
