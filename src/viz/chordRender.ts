@@ -153,25 +153,16 @@ export function renderChord(
     .attr('dy', '0.35em')
     .attr('transform', `rotate(${anchorDeg - TILT_DEG})`)
 
-  // What to DO with the wheel, in the one place the eye is already looking.
+  // NO IDLE INSTRUCTION IN THE CENTRE. One was built here on 2026-07-30 — a
+  // two-line "point at a colour to preview it" that retired itself on first
+  // hover — and the owner rejected it on sight: "i don't like the text that
+  // tells me what to do. its distracting. i liked it better with a clean
+  // overlay. people can self discover the wheel chord diagram ... it makes
+  // screenshots horrible."
   //
-  // The wheel is the first thing a visitor meets and it explained nothing: the
-  // only guidance on the screen was a 0.75rem italic line at the very bottom,
-  // about zooming out. The hollow centre is empty until a hover fills it, so the
-  // instruction can sit exactly where its answer will appear and be replaced by
-  // it. No new state — `dimming` is already toggled on this group for every
-  // hover, so CSS hides the prompt from the same signal.
-  //
-  // "Point at", not "hover": press-and-drag scrubs this same preview on a
-  // touchscreen, and a hover-only word would be wrong on half the devices.
-  const idleHint = g.append('text')
-    .attr('class', 'wheel-idle-hint')
-    .attr('text-anchor', 'middle')
-    .attr('transform', `rotate(${anchorDeg - TILT_DEG})`)
-  idleHint.append('tspan').attr('x', 0).attr('dy', '-0.6em')
-    .text('Point at a colour or a pair')
-  idleHint.append('tspan').attr('x', 0).attr('dy', '1.6em')
-    .text('to preview it. Click to open.')
+  // The last clause is the one to remember. This wheel is the image people
+  // share, so its resting state is a picture, not a UI. The centre stays empty
+  // until a hover puts a name in it. Do not add a prompt here again.
 
   // --- Nearest-object index (the "snap") ------------------------------------
   // Sample points along each ribbon's centerline (a quadratic Bézier through

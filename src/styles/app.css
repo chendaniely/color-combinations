@@ -88,26 +88,6 @@ main { flex: 1; min-height: 0; position: relative; }
   stroke-linejoin: round;
   pointer-events: none;
 }
-/* The idle prompt, in the hollow the hover name will fill.
-   Same halo trick, because it sits over the same ribbon crossings. It goes at
-   the first hover and does not come back: `dimming` is added to this group
-   whenever anything is under the pointer, so one selector covers every route in
-   and out, and someone who has already used the wheel is never told again. */
-/* Full --ink and a fat halo, NOT --ink-muted and a thin one, which is how this
-   was first written and could barely be read: 14px type sits over the densest
-   part of the diagram, where about a thousand ribbons cross, and a 4px moat
-   leaves colour showing between the letterforms. The 30px hover label gets away
-   with a 5px moat because it is 30px. Small type over noise needs more, not the
-   same. Checked by screenshot, which is the only thing that can check it. */
-.chord-wheel .wheel-idle-hint {
-  font-family: var(--font-ui); font-size: 14px; fill: var(--ink);
-  letter-spacing: 0.01em;
-  stroke: var(--paper-1); stroke-width: 7px; paint-order: stroke;
-  stroke-linejoin: round;
-  pointer-events: none;
-  transition: opacity var(--dur) var(--ease);
-}
-.chord-wheel .dimming .wheel-idle-hint { opacity: 0; }
 /* max-width is load-bearing: .wheel-view centres its children, so a control
    bar wider than the viewport overflows BOTH sides and the page scrolls
    sideways. At 375px the four granularity buttons plus 2rem of side padding
@@ -194,7 +174,22 @@ main { flex: 1; min-height: 0; position: relative; }
 .swatch-cell { aspect-ratio: 1; border: none; border-radius: var(--radius); }
 
 /* Browse */
-.browse-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
+/* THE THREE PAGES SHARE ONE WIDTH, in golden section with the viewport — see
+   --page-w in tokens.css for the reasoning. They were three different
+   treatments: Browse and Match ran edge to edge with 2rem gutters, You was
+   capped at 720px with 1rem gutters, so moving between tabs moved the left
+   margin. Owner, 2026-07-30: "the page width across the match/browse/you are
+   all different ... let's make sure those parts of the UI are consistent and
+   also works for mobile."
+   `box-sizing: border-box` is global (line 4), so max-width has to carry the
+   gutters as well as the column. */
+.browse-view, .match-view, .you-view {
+  max-width: calc(var(--page-w) + 2 * var(--page-gutter));
+  margin-inline: auto;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
+.browse-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
 .browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
 /* Keep the filter controls clear of the accessibility goggles, which are
    absolutely positioned at the top right and float over this row at every width.
@@ -358,7 +353,10 @@ main { flex: 1; min-height: 0; position: relative; }
   .chord-wheel { max-width: 96vw; }
   /* 2rem a side is a fifth of a 375px screen. */
   .wheel-controls { padding: var(--s4) var(--s4) var(--s6); }
-  .browse-view { padding: var(--s4); }
+  /* One gutter for all three pages, so the left margin does not jump between
+     tabs on a phone either. Browse used to set this alone, Match never did and
+     kept 2rem — a sixth of a 390px screen. */
+  :root { --page-gutter: 1rem; }
   .browse-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   /* Panels become bottom sheets */
   .panel {
@@ -375,7 +373,7 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 
 /* Match page */
-.match-view { height: 100%; overflow-y: auto; padding: var(--s6) var(--s8) var(--s12); }
+.match-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
 .match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
 .match-head h1 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; }
 .match-view .lede { color: var(--ink-muted); font-size: 0.9rem; margin-top: var(--s2); max-width: 80ch; }
@@ -507,8 +505,8 @@ main { flex: 1; min-height: 0; position: relative; }
    (see the max-width: 46rem caps below and on the note blocks): more swatches
    per row, a shorter page, and lines that are still comfortable to read.
    Nothing changes below 1200px, where there is no spare width to give. */
-.you-view { max-width: 720px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s12); }
-@media (min-width: 1200px) { .you-view { max-width: 1040px; } }
+.you-view { padding-top: var(--s6); padding-bottom: var(--s12); }
+/* The prose keeps a reading measure while the grids take the shared width. */
 .you-intro p, .you-combos-lede { max-width: 46rem; }
 
 /* The goggles float over the top-right of every screen, and on a phone the You
@@ -1017,7 +1015,22 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Accessibility goggles — multi-select filter. Floats in the top-right corner
    of the content area (just below the header), in the same spot on every view.
    It's the positioning context for its own drop-down menu. */
-.a11y-goggles { position: absolute; top: var(--s4); right: var(--s8); z-index: 5; text-align: left; }
+/* Pinned to the CONTENT COLUMN's right edge, not the viewport's.
+   Once the three pages became a centred column in golden section, a control
+   fixed to the window edge floated out in the margin — 335px clear of the
+   content on a 1920px screen, visually belonging to nothing. Worse, the 10rem
+   reserve that `.browse-filters` and `.match-head` keep for it became dead
+   space inside the column at wide sizes (where the goggles no longer reach it)
+   while still being too small at ~1024px (where they do).
+   Aligning it to the column makes that reserve exactly right at every width,
+   which is what turns it from a guess into a measurement.
+   `100%` of `main`, not `100vw`: vw includes the scrollbar. */
+.a11y-goggles {
+  position: absolute; top: var(--s4); z-index: 5; text-align: left;
+  right: calc(
+    (100% - min(100%, var(--page-w) + 2 * var(--page-gutter))) / 2
+    + var(--page-gutter));
+}
 .a11y-goggles > summary {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: var(--s2);
   padding: var(--s1) var(--s3); border: 1px solid var(--ink-faint); border-radius: var(--radius);

@@ -134,25 +134,69 @@ fit above the fold and the colour is the largest thing in its own card. `.sugs`
 elsewhere is untouched: in the narrow "add a shade" column beside a built
 palette, the row form is right, because it carries a score and a plus button.
 
-### The wheel says what to do with it
+### The wheel said what to do with it, and now does not again
 
-The hollow centre is empty until a hover fills it, so the instruction sits
-exactly where its answer will appear and is replaced by it. No new state:
-`dimming` is already toggled for every hover, so one CSS selector retires the
-prompt for good once the wheel has been used. "Point at", not "hover", because
-press-and-drag scrubs the same preview on a touchscreen.
+**Built, then reverted the same day on the owner's review.** Recorded rather than
+deleted, because the reasoning is the useful part.
 
-First version was `--ink-muted` with a 4px halo and was barely legible over a
-thousand crossing ribbons. The 30px hover label gets away with a 5px moat
-because it is 30px; small type over noise needs more. Now full `--ink` at 7px.
+The finding was real: the wheel is the first thing a visitor meets and the only
+guidance on the screen was a 0.75rem italic line at the bottom, about zooming
+out. So a two-line prompt went in the hollow centre — where the hover name
+appears, replaced by it, and retired for good after the first hover.
 
-### The You page stops holding its grids to a reading measure
+The owner rejected it on sight:
 
-720px is right for prose and wrong for two grids of colour, which is how the page
-became 3054px tall inside a 1440px window with two thirds of the width empty. The
-column widens to 1040px above 1200px and the prose keeps its 46rem measure, so
-the grids get more per row and the lines stay readable. Nothing changes below
-1200px, where there is no spare width to give.
+> i don't like the text that tells me what to do. its distracting. i liked it
+> better with a clean overlay. people can self discover the wheel chord diagram
+> ... it makes screenshots horrible.
+
+**The screenshot argument is the one that settles it.** This wheel is the image
+people share, so its resting state has to be a picture rather than a UI. That is
+a fact about the artefact that no amount of usability reasoning outweighs, and
+none of the three skills could have supplied it — `frontend-design` in fact
+argues the opposite, that the hero should be the most characteristic thing in
+the subject's world, which the wheel already is *without* being annotated.
+
+The self-discovery half is also a fair read: hovering a big colourful circle is
+close to the first thing anyone tries.
+
+`chordRender.ts` carries a note at the centre-label code so the next session does
+not helpfully re-add it.
+
+### One page width, in golden section with the viewport
+
+*Superseded the You-page-only widening that was here first.* The owner's read on
+seeing it: **"the page width across the match/browse/you are all different. i
+liked it when it is a bit more constrained in the you page. so let's make sure
+those parts of the UI are consistent and also works for mobile"**, and then, when
+offered three fixed candidates, **"can we pick a golden ratio value for all the
+pages?"**
+
+They were three treatments: Browse and Match ran edge to edge with 2rem gutters,
+You was capped at 720px with 1rem, so the left margin moved under you between
+tabs.
+
+A single px number would not be a golden ratio, it would be a number. The ratio
+is the **proportion**: the column is 1/φ (0.618) of the viewport, so
+column : margins = 1.618 : 1 at any size. Measured — 1440px gives an 890px
+column, 1920px gives 1187px, and 890/1440 = 0.618 exactly.
+
+- **Floor 45rem (720px)** — the measure the You page already had and the owner
+  liked, so nothing narrows below what they approved. It is also what rescues
+  small screens: 61.8vw of a 390px phone is 241px, which would be absurd.
+- **Cap 80rem (1280px)** — a very large monitor stops scaling rather than running
+  to a 1580px line.
+- **Phones** get full width minus one shared gutter, and the gutter is now one
+  value for all three (Match had kept 2rem, a sixth of a 390px screen).
+
+**The accessibility control moved with it.** It was pinned to the window edge,
+which left it stranded 335px out in the margin on a wide screen, and made the
+10rem reserve the filter rows keep for it wrong at every width except by
+accident — dead space at 1280px, too small at 1024px. It now sits on the content
+column's right edge, which makes that reserve exactly right everywhere.
+
+`tests/browser/pageWidth.spec.ts` pins the width, the left edge, the proportion,
+the phone behaviour, and the goggles alignment.
 
 ### Two small ones
 
