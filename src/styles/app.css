@@ -235,7 +235,30 @@ main { flex: 1; min-height: 0; position: relative; }
 .search-swatch { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
 
 /* Footer */
-.footer { display: flex; justify-content: flex-end; padding: var(--s2) var(--s6); }
+/* The corner mark: pinned, not in the flow.
+   It was a plain footer, which on a short page lands at the bottom of the
+   viewport and LOOKS pinned — so the You tab, the first genuinely long page,
+   was where it visibly scrolled away.
+   Kept small and translucent-backed so it never fights the content it sits
+   over, and pointer-events are off except on the link itself. */
+.site-mark {
+  position: fixed; right: var(--s4); bottom: var(--s4); z-index: 6;
+  display: flex; align-items: center; gap: var(--s2);
+  pointer-events: none;
+}
+.site-version {
+  pointer-events: auto;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.02em;
+  color: var(--ink-muted); text-decoration: none;
+  background: rgb(var(--ink-rgb) / 0.06); border-radius: var(--radius-pill);
+  /* 24x24 is the WCAG 2.2 minimum target size, and the type here is small
+     enough that padding alone did not reach it — tests/browser/mobile.spec.ts
+     caught this the moment the badge was added. The box is bigger than the
+     text looks, which is the point. */
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 24px; min-width: 24px; padding: 0 var(--s2);
+}
+.site-version:hover { color: var(--ink); text-decoration: underline; }
 .hanko {
   width: 26px; height: 26px; background: var(--accent); color: var(--paper-1);
   font-size: 13px; display: flex; align-items: center; justify-content: center;

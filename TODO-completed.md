@@ -1,5 +1,28 @@
 # TODO — completed
 
+## v1.8.3 — corner mark, version badge, choosing a colour (2026-07-30)
+
+- [x] **The corner seal is pinned.** It lived in a plain `<footer>`, which on
+      short pages lands at the viewport bottom and looks fixed; the You tab was
+      the first page long enough to reveal otherwise. Pointer-events off except
+      on the link, so it never blocks a corner of every screen (`9b4dfcf`).
+- [x] **The released version is shown in that corner**, injected from
+      `package.json` at build time and linked to its own CHANGELOG entry.
+      `tests/docsMatchReality.test.ts` asserts package.json, the newest CHANGELOG
+      heading and the README status line agree, and that the component holds no
+      literal version — the owner asked for "always in sync", and a test is the
+      only way that is true rather than intended (`9b4dfcf`).
+- [x] **The You tab doorways appear above the combinations as well as below**,
+      because fifty swatches plus a combination grid is a long way to scroll
+      before learning there is anywhere to go (`9b4dfcf`).
+- [x] **"Start a palette from ..." follows the visitor's pick.** The swatch grid
+      became a listbox with roving focus — ONE tab stop rather than fifty, arrows
+      to move within it — instead of assuming the first colour (`9b4dfcf`).
+- [x] **Fixed a regression introduced in the same commit:** the version link was
+      under the WCAG 2.2 24x24 target minimum, caught by the existing
+      phone-width suite (`9b4dfcf`).
+
+
 ## v1.8.2 — the You tab's doorways (2026-07-30)
 
 Owner: *"the list of colors that's let's the user explore is only 1 color … it

@@ -2007,3 +2007,57 @@ Also invented a function that did not exist (`seasonNameOf`) while wiring the
 label through; the typechecker caught it immediately, and the real fix was to
 report the label from `PaletteTabs`, which is the only component that can see the
 code-split season data.
+
+## 2026-07-30 — Session 23: corner mark, version badge, choosing a colour (v1.8.3)
+
+**Owner, on the You page layout:**
+
+> on the you page, right above conbinations, i'd like a copy/repeat of the browse
+> and start a pallete buttons on the bottom fo the page. it makes it easier to
+> see if someone is only at the top of the page (there's a long list of colors).
+> to make the "start a pallete from ..." button a bit more flexiable, i'd like
+> the user to click and select one of the colors that is eaither on the measured
+> for you or the seaon, and it will allow them to start a pallete from one they
+> choose. not just assume the first one.
+
+**Owner, on the version number:**
+
+> somewhere in the bottom right corner or something we should also track the
+> version/release number. we should do soemthing where that number is always in
+> sync with the latest changelog and other doc numbers.
+
+**Owner, reporting the seal bug:**
+
+> when i scroll down on the "you" page, the "se" character symbol on the borrom
+> right, scrolls up when i scoll, it's not locked ot the bottom right corner
+
+All three landed together because they are the same corner and the same page.
+
+### Notes
+
+- The seal was never fixed. It sat in a plain `<footer>`, which on short pages
+  lands at the bottom of the viewport and is indistinguishable from pinned. The
+  You tab was simply the first page long enough to reveal it.
+- The swatch grid became a listbox with `useRovingFocus` — the pattern already in
+  the repo — so fifty swatches are ONE tab stop rather than fifty. That was not
+  in the request, but adding fifty interactive elements without it would have
+  recreated the exact defect v1.6.0 fixed in the sampler.
+- The version is injected from `package.json`, and a test asserts it agrees with
+  the newest CHANGELOG heading and the README status line, and that the component
+  holds no literal version. The owner asked for it to "always be in sync"; a test
+  is the only way that is true rather than intended.
+
+### What Claude got wrong
+
+- **Introduced a WCAG 2.2 target-size regression** with the version badge: at
+  0.62rem with small padding it was under the 24x24 minimum, and
+  `tests/browser/mobile.spec.ts` failed immediately. Caught by the suite, not by
+  me.
+- **Wrote a scroll test that passed vacuously.** The first version scrolled the
+  Browse page, which at the test viewport is not tall enough to scroll at all, so
+  it timed out waiting rather than asserting anything. Moved to the You tab,
+  which is the page the bug was reported on.
+- **Argued the wrong thing about Match > Colors earlier in the session**, saying
+  the entry cards should appear at any level. Levels 1 and 2 already have a
+  working `ShadePicker`; only level 0 is a dead end, which is what the owner had
+  been describing. Corrected after reading `MatchPage` rather than assuming.

@@ -5,6 +5,7 @@ import { classifySeason, parentOf, seasonById } from '../../core/seasons'
 import type { Action } from '../../core/state'
 import type { ColorRecord, SkinReading } from '../../core/types'
 import { dataset, warmCool, type SeasonData } from '../../data'
+import { useRovingFocus } from '../useRovingFocus'
 import { ShareLink } from '../ShareLink'
 import { PaletteProvenance } from './PaletteProvenance'
 import { SeasonChooser } from './SeasonChooser'
@@ -32,6 +33,10 @@ interface Props {
   // travels with it because only this component knows what the season is
   // called — the season data is code-split and YouView never sees it.
   onPaletteChange?: (ids: ReadonlySet<number>, label: string) => void
+  // Which colour the visitor has picked to start a palette from. Reported up so
+  // the doorways can name it — they used to assume the first, which is a guess
+  // about someone looking at fifty swatches.
+  onSelectColor?: (id: number) => void
 }
 
 // Thin wrapper: the season datasets are code-split, so they are not here on
@@ -49,7 +54,7 @@ export function PaletteTabs(props: Props) {
   return <PaletteTabsReady {...props} data={data} />
 }
 
-function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: Props & {
+function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelectColor, data }: Props & {
   data: SeasonData
 }) {
   const { seasonColors, seasonRules, toneBands } = data
@@ -91,6 +96,20 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
   // `shown` is referentially stable: both branches of the ternary are useMemo
   // results. So this fires exactly when the shown list changes.
   const shownLabel = reading && which === 'measured' ? 'Your colours' : activeSeason.name
+
+  // One tab stop for the whole grid, arrows to move within it — the pattern
+  // useRovingFocus exists for. Without it a fifty-swatch grid would be fifty
+  // tab stops, which is the exact defect v1.6.0 fixed in the sampler.
+  const grid = useRovingFocus()
+  const [picked, setPicked] = useState<number | null>(null)
+  // The pick belongs to the list being shown, so switching tab or season starts
+  // it over rather than leaving a selection pointing into the old palette.
+  const selected = picked !== null && shown.some((c) => c.id === picked)
+    ? picked
+    : shown[0]?.id ?? null
+  useEffect(() => {
+    if (selected !== null) onSelectColor?.(selected)
+  }, [selected, onSelectColor])
   useEffect(() => {
     onPaletteChange?.(new Set(shown.map((c) => c.id)), shownLabel)
   }, [shown, shownLabel, onPaletteChange])
@@ -141,9 +160,13 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
       <PaletteProvenance which={which} reading={reading}
         active={activeSeason} parent={parent} />
 
-      <div className="you-swatches">
+      <div className="you-swatches" role="listbox" aria-label="Your colours — pick one to start a palette from"
+        ref={grid.ref} onKeyDown={grid.onKeyDown}>
         {shown.map((c) => (
-          <div key={c.id} className="you-swatch" title={reasonFor(c.id) || c.name}>
+          <button key={c.id} type="button" className="you-swatch" role="option"
+            aria-selected={c.id === selected} {...grid.itemProps(c.id === selected)}
+            onClick={() => setPicked(c.id)}
+            title={reasonFor(c.id) || c.name}>
             <i style={{ background: c.hex }} />
             <span>{c.name}</span>
             {which === 'season' && bandOf.get(c.id) && (
@@ -151,7 +174,7 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
                 {bandOf.get(c.id)}
               </span>
             )}
-          </div>
+          </button>
         ))}
       </div>
 

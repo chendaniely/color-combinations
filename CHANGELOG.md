@@ -28,6 +28,40 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.8.3 — 2026-07-30 — A mark that stays put, and a colour you choose
+
+Four small things, all reported by the owner from actually using the site.
+
+**The seal in the corner scrolled away.** It looked pinned everywhere else,
+because on short pages a footer lands at the bottom of the window and there is
+no way to tell the difference. The You tab — fifty colour swatches and a grid of
+combinations — was the first page long enough to give it away. It is now
+genuinely fixed, and it does not intercept clicks meant for the page beneath it.
+
+**The version number sits next to it**, and links to its own entry in this file.
+It is read from the project's own version at build time rather than typed into
+the page, and a test now refuses to let the version, this changelog and the
+README disagree with one another. That test exists because the release before
+last found a hand-written number that had been wrong in three places for months
+— and this number is on every screen, in front of everyone.
+
+**The two "take these further" buttons now appear above the colours as well as
+below them.** With fifty swatches and a combination grid in between, anyone
+reading from the top had a long way to scroll before discovering there was
+anywhere to go.
+
+**And "Start a palette from …" now starts from a colour you choose.** It used to
+pick the first one and hope. You can click any swatch — or arrow-key across them
+— and the button retargets to it. The grid is a single stop when tabbing through
+the page rather than fifty, which matters rather a lot when there are fifty.
+
+One regression, caught by the site's own tests before it shipped: the new version
+badge was smaller than the minimum size a finger can reliably hit, and the
+phone-width suite failed the moment it was added. Its target is now bigger than
+its text looks.
+
+---
+
 ## v1.8.2 — 2026-07-30 — Taking all your colours with you
 
 Reported by the owner, and diagnosed by them too:
