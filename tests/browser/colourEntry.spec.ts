@@ -67,13 +67,26 @@ test.describe('the sample button says what it is', () => {
     // The label is what makes it discoverable; a bare icon is not, whichever
     // glyph it carries.
     await expect(button).toContainText(/sample/i)
-    // Assert the INTENT, not the drawing. This used to count `<svg circle>` on
-    // the reasoning that "a camera has a lens", which held only while the path
-    // was hand-drawn here; the icon now comes from Phosphor, which draws the
-    // same camera without a <circle>, and the test failed on a change that was
-    // purely an improvement. A shape heuristic tests the artwork, and the thing
-    // worth pinning is that this button says camera rather than pencil.
+    // The label AND the drawing.
+    //
+    // This asserted only `[data-icon="camera"]` for a while, on the reasoning
+    // that intent beats artwork. A reviewer showed that is too weak: the
+    // attribute is written by hand here, so importing `Pencil as Camera`
+    // renders a pencil and the test named "not a bare pencil" passes. So also
+    // compare the rendered path against the gallery's camera card, which comes
+    // from the same import — swap one and they diverge.
+    // (The glyph's identity against the LIBRARY is checked in the fast suite,
+    // in tests/colorEntry.test.tsx, where it costs no browser.)
     await expect(button.locator('[data-icon="camera"]')).toHaveCount(1)
+    const headerPath = await button.locator('svg path').first().getAttribute('d')
+
+    await button.click()
+    await page.getByRole('dialog', { name: /sample a color/i }).waitFor()
+    const cardPath = await page
+      .getByRole('button', { name: /^camera/i }).locator('svg path').first()
+      .getAttribute('d')
+    expect(headerPath, 'the header icon is not the camera the cards use')
+      .toBe(cardPath)
   })
 
   test('still opens the same gallery, with the camera offered there too',

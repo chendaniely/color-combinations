@@ -25,7 +25,24 @@
 // never sees the momentary dip to zero that killed attempt 1.
 type Closer = () => void
 
-const closers = new Set<Closer>()
+// An ARRAY OF UNIQUE ENTRIES, not a Set of functions, and that is a bug fix
+// rather than a style choice.
+//
+// `ColorSampler` registers its task-level dismiss (`onClose`) and then hands
+// THE SAME FUNCTION REFERENCE to its card-list `<Overlay onClose={onClose}>`,
+// which registers it again. A `Set` keyed by reference collapsed those two into
+// one member. Stepping from the card list into a capture screen unmounts that
+// Overlay, whose cleanup deleted the shared reference — taking the task-level
+// dismiss with it — and ColorSampler's effect did not re-run to restore it,
+// because `onClose` had not changed. The result was the headline feature
+// failing on its primary route: Back left the overlay open, and the press after
+// it left the site.
+//
+// Wrapping each registration in its own object makes two registrations of one
+// function two entries, so an unregister can only ever remove its own.
+interface Entry { close: Closer }
+
+const entries: Entry[] = []
 const listeners = new Set<() => void>()
 
 function emit(): void {
@@ -34,10 +51,12 @@ function emit(): void {
 
 /** Called by `Overlay` on mount. The returned function unregisters it. */
 export function registerOverlay(close: Closer): () => void {
-  closers.add(close)
+  const entry: Entry = { close }
+  entries.push(entry)
   emit()
   return () => {
-    closers.delete(close)
+    const i = entries.indexOf(entry)
+    if (i !== -1) entries.splice(i, 1)
     emit()
   }
 }
@@ -48,7 +67,7 @@ export function subscribeOverlays(fn: () => void): () => void {
 }
 
 export function anyOverlayOpen(): boolean {
-  return closers.size > 0
+  return entries.length > 0
 }
 
 /**
@@ -63,8 +82,15 @@ export function anyOverlayOpen(): boolean {
  * Which is why `ColorSampler` registers its own dismiss here as well as its
  * current screen's. A capture screen's own close steps BACK to the card list,
  * so calling only that would walk the task backwards one screen per press.
- * Innermost first, then the task's, and one press ends it from any depth.
+ *
+ * EVERY entry is called, and the order is deliberately not load-bearing. An
+ * earlier comment here claimed "innermost first", which was wrong twice over:
+ * React runs child effects before parent ones, so a child Overlay registers
+ * BEFORE the task that owns it, and the reversed walk therefore ran the task
+ * first. Rather than encode a subtlety of effect ordering, this calls all of
+ * them over a snapshot — the task-level dismiss unmounts the rest anyway, and a
+ * closer that runs against an unmounting component is a no-op.
  */
 export function closeAllOverlays(): void {
-  for (const close of [...closers].reverse()) close()
+  for (const { close } of [...entries]) close()
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Action, AppState } from '../../core/state'
 import { FaceCapture, type CaptureResult } from '../sample/FaceCapture'
 import { ProbeReview } from '../sample/ProbeReview'
@@ -34,6 +34,22 @@ export function YouView({ state, dispatch }: {
     if (!capturingNow) return
     return registerOverlay(() => { setCapture(null); setCapturing(false) })
   }, [capturingNow])
+
+  // useCallback, and it is a PERFORMANCE FIX rather than tidiness.
+  //
+  // PaletteTabs lists this in an effect's deps and calls it with a freshly
+  // built Set. An inline arrow here therefore closed the loop: new callback ->
+  // effect re-runs -> setVisiblePalette with a new Set identity -> re-render ->
+  // new callback. Measured with CDP over a 3s idle window on the built site:
+  // the You tab burned 2.99s of script time (a full core, indefinitely) against
+  // 0.000s on every other tab, re-ranking all 338 combinations each pass. It is
+  // silent in production — React only names it in dev — so no console test
+  // could ever have caught it. Wrapping this brought the same measurement to
+  // 0.000s with nothing else changed.
+  const onPaletteChange = useCallback((ids: ReadonlySet<number>, label: string) => {
+    setVisiblePalette(ids)
+    setPaletteLabel(label)
+  }, [])
 
   const reading = state.you.reading
   // A shared link carries a season but never a reading — the owner's privacy
@@ -119,7 +135,7 @@ export function YouView({ state, dispatch }: {
           )}
 
           <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
-            onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }}
+            onPaletteChange={onPaletteChange}
             onSelectColor={setSelectedColorId} />
 
           {visiblePalette && (

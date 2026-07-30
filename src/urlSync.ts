@@ -117,6 +117,28 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
   const marker = useRef(false)
   /** Pops we caused ourselves, which must not be read as the visitor moving. */
   const selfPops = useRef(0)
+  /**
+   * The marker is still the current entry and the next write must REPLACE it.
+   *
+   * Without this the state effect below saw a changed view and PUSHED, leaving
+   * the marker behind as a duplicate of the pre-overlay entry — so one Back
+   * press visibly did nothing. Measured: Browse -> Sample -> Pick -> Explore ->
+   * Match, then Back gave #/browse, #/browse, /. That is the same dead entry
+   * this whole mechanism records as attempt 2's failure mode, arriving by a
+   * different door.
+   */
+  const overwriteMarker = useRef(false)
+
+  // A marker left over from a previous page life. `history.state` survives a
+  // reload, and a Forward can land back on one, so a page can start sitting on
+  // an entry flagged as an overlay with no overlay open. Clearing the flag
+  // stops the next close from trying to pop an entry that is not ours.
+  useEffect(() => {
+    if (history.state?.overlay && !anyOverlayOpen()) {
+      history.replaceState(null, '',
+        `${location.pathname}${location.search}${location.hash}`)
+    }
+  }, [])
 
   useEffect(() => {
     if (overlayOpen && !marker.current) {
@@ -151,6 +173,8 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
       if (encodeState(state) === written.current && history.state?.overlay) {
         selfPops.current += 1
         history.back()
+      } else if (history.state?.overlay) {
+        overwriteMarker.current = true
       }
     }
   }, [overlayOpen, state])
@@ -185,7 +209,13 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
     // replace: those are refinements of a view you are already looking at.
     const opened = state.selection !== null && state.selection !== lastSelection.current
     const changedView = state.view !== lastView.current
-    if (opened || changedView) history.pushState(null, '', url)
+    // Overwriting a live marker always replaces, whatever kind of change this
+    // is: the marker occupies the slot this write belongs in, and pushing over
+    // it would strand it as a duplicate the visitor has to press Back through.
+    if (overwriteMarker.current) {
+      history.replaceState(null, '', url)
+      overwriteMarker.current = false
+    } else if (opened || changedView) history.pushState(null, '', url)
     else history.replaceState(null, '', url)
 
     written.current = hash

@@ -189,14 +189,21 @@ column, 1920px gives 1187px, and 890/1440 = 0.618 exactly.
 - **Phones** get full width minus one shared gutter, and the gutter is now one
   value for all three (Match had kept 2rem, a sixth of a 390px screen).
 
-**The accessibility control moved with it.** It was pinned to the window edge,
-which left it stranded 335px out in the margin on a wide screen, and made the
-10rem reserve the filter rows keep for it wrong at every width except by
-accident — dead space at 1280px, too small at 1024px. It now sits on the content
-column's right edge, which makes that reserve exactly right everywhere.
+**The accessibility control did NOT move with it**, though it briefly did. It is
+pinned to the window edge, which on a wide screen leaves it out in the margin —
+so it was aligned to the column, and the owner reverted that: *"i also liked it
+when the accessibilty goggles were on the right side ... now that it's moved in
+towards the main content, it's a bit distracting."* It is a site-wide utility
+rather than part of the page under it, and out of the way is the point.
 
-`tests/browser/pageWidth.spec.ts` pins the width, the left edge, the proportion,
-the phone behaviour, and the goggles alignment.
+The rows therefore keep clear of it themselves, with a **line break below
+1100px** rather than reserved padding. A flat 10rem reserve was wrong in both
+directions — dead space inside an 890px column at 1440px, and a third of the row
+on a 390px phone.
+
+`tests/browser/pageWidth.spec.ts` pins the width, the content's left edge, the
+proportion, the phone gutter, that the scroll containers stay full-bleed, and
+that no control overlaps the goggles at five widths.
 
 ### Two small ones
 

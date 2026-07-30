@@ -54,8 +54,9 @@
      The floor is 45rem = 720px, which is the measure the You page already had
      and the owner liked, so nothing narrows below what they approved. It also
      rescues small screens: 61.8vw of a 390px phone is 241px, which would be
-     absurd, and the floor plus the `min(100% - gutters, ...)` at the call site
-     means a phone simply gets full width minus its gutter.
+     absurd. The floor plus the `max()` at the call site (see the three page
+     containers in app.css) means a phone simply gets full width minus its
+     gutter.
 
      The cap is 80rem = 1280px, so a very large monitor stops scaling rather
      than running to a 1580px line. */

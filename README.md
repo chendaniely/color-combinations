@@ -77,7 +77,7 @@ Run these from the project folder. `make help` lists them all.
 
 There are **two** test suites, and the split matters.
 
-`make test` is the fast one — around 850 checks in a few seconds (that count is
+`make test` is the fast one — around 880 checks in a few seconds (that count is
 a snapshot, not a promise; it was 600 two releases ago). It runs
 without a browser, using a simulated one called jsdom. That makes it quick
 enough to run constantly, but jsdom has a hard limit: **it never actually
@@ -99,7 +99,8 @@ five defects now has a test that would have caught it. It needs a one-time
 `make install-browser` first, which downloads a private copy of Chromium
 (~95 MB) so the results are identical on every machine and in CI.
 
-Both suites run in CI on every push, and the site is not deployed unless both
+Both suites run in CI on every push **to `main`** (a push to a branch runs
+nothing — see `.github/workflows/deploy.yml`), and the site is not deployed unless both
 pass.
 
 `make lint` is a third, cheaper check: it reads the code for mistakes without
@@ -191,10 +192,15 @@ Then you get two palettes, and **they are not built the same way**:
 - **Measured for you** — worked out from your face by four stated rules. Hover
   any color and it tells you why it's there.
 - **A season palette** (Deep Autumn, Cool Summer, and so on) — the traditional
-  twelve-season system. **These lists are ours; they have no published source.**
+  twelve-season system. **The four parent seasons come from a published system;
+  the twelve sub-seasons are ours.** The site says which is which on screen, and
+  [Where the seasons come from](#where-the-seasons-come-from) explains it.
   They're here because they're useful if you've already had a color analysis
   done, and you can pick any of the twelve from the dropdown. Treat them as a
   second opinion, not a measurement of you.
+  (This bullet said the lists "have no published source" until 2026-07-30 — the
+  pre-v1.7.0 claim, left behind when the seasons became PCCS-derived. It
+  contradicted the app, the data file and this README's own later section.)
 
 Below that are the book's combinations, ordered by how much of each one is
 yours, with any color that *isn't* yours outlined. A four-step control decides
@@ -301,7 +307,8 @@ A few deliberate choices worth knowing:
 - **Someone opening your season link sees a clear note** saying it came from a
   link and that nothing on the page is a measurement of *them*, with an
   invitation to take their own photo.
-- **The Back button closes a panel** rather than leaving the site, which is what
+- **The Back button closes a panel, and closes a full-screen overlay — the color
+sampler, the camera, the picker — rather than leaving the site** rather than leaving the site, which is what
   most people expect and what the Android back gesture means. Changing a filter
   does not add a history entry, so browsing around doesn't bury you in them.
 - **The front page has no `#` in its address**, as it always has.

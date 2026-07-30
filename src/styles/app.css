@@ -197,22 +197,6 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 .browse-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
 .browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
-/* Keep the filter controls clear of the accessibility goggles, which float at
-   the top right of the window.
-   RESERVE ONLY WHAT THE MARGIN DOES NOT ALREADY GIVE. `(100vw - 100%) / 2` is
-   the free space beside this row — the page is a centred column, so once that
-   exceeds the goggles' width the row cannot reach them and no reserve is needed
-   at all. A flat `padding-right: 10rem` was wrong in both directions: dead space
-   inside a 890px column at 1440px, and too small at 1024px.
-   It was also applied unconditionally, which is 41% of a 390px phone. That
-   pushed each select onto a row of its own, so the filter bar stood 157.75px
-   tall and the first colour plate landed at y=471 of an 844px screen, below the
-   halfway line. Now 0 there, with the line break below doing the work instead.
-   Measured 2026-07-30: bar 157.75px -> 97px, first plate y=471 -> y=410.
-   DROPPING THE RESERVE ALONE IS NOT THE FIX, and looked like one — the bar
-   shrank exactly as intended and the goggles came down on top of the family
-   select. Found by screenshotting; the tests were checking height and padding,
-   neither of which can see two boxes overlapping. */
 /* No padding reserve at all. A LINE BREAK buys the space instead, and it costs
    nothing: the size pills are ~110px, so the goggles sit comfortably beside them
    and the selects get a clean row underneath. Padding took the space out of
@@ -521,12 +505,8 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 /* The You tab. */
 /* 720px is a reading measure, and this page is mostly NOT reading — it is two
-   grids of colour with prose between them. Holding the grids to the prose width
-   made the page 3054px tall inside a 1440px window with two thirds of the width
-   empty. So the column widens on a large screen and the PROSE keeps its measure
-   (see the max-width: 46rem caps below and on the note blocks): more swatches
-   per row, a shorter page, and lines that are still comfortable to read.
-   Nothing changes below 1200px, where there is no spare width to give. */
+   grids of colour with prose between them. The shared `--page-w` gives the
+   grids the width; the caps below keep the PROSE at a reading measure. */
 .you-view { padding-top: var(--s6); padding-bottom: var(--s12); }
 /* The prose keeps a reading measure while the grids take the shared width. */
 .you-intro p, .you-combos-lede { max-width: 46rem; }
@@ -660,11 +640,17 @@ main { flex: 1; min-height: 0; position: relative; }
    small muted prose: you-privacy, you-note, shared-season, you-provenance,
    fit-caveat and the goggles note. Three of them stack consecutively on the You
    tab, so the device stopped meaning "read this" and started meaning "text".
-   This one is not a notice at all — it is a source, and sources are set apart
-   by a rule ABOVE and small caps, not by an alert stripe. The two blocks that
-   really are notices (the privacy promise, the shared-link explainer) keep the
-   left rule and are now the only things wearing it, which gives it back its
-   meaning. Nothing was deleted: every word still renders. */
+   This one is not a notice at all — it is a source, and a source is set apart
+   by a rule ABOVE, not by an alert stripe down its side. Nothing was deleted:
+   every word still renders.
+   HONEST SCOPE, corrected 2026-07-30 after a reviewer counted: this removes ONE
+   of the coloured rules, not all but two. Five remain — .you-privacy,
+   .reading-caveat, .you-note (which .shared-season extends), .fit-caveat and
+   .probe-note — so the device is still doing several jobs. An earlier version
+   of this comment claimed the two notices were "now the only things wearing
+   it", which was wrong by three and contradicted its own list. It also promised
+   small caps that were never implemented. Thinning the rest is worth doing and
+   is not done here. */
 .you-provenance {
   font-size: 0.82rem; color: var(--ink-muted); line-height: 1.55;
   border-top: 1px solid var(--hairline); padding-top: var(--s3);
@@ -696,7 +682,7 @@ main { flex: 1; min-height: 0; position: relative; }
 }
 .you-swatch[aria-selected='true'] span,
 .fit-pair[aria-selected='true'] .fit-name { color: var(--ink); font-weight: 700; }
-.fit-pair[aria-selected='true'] { background: var(--paper-2); }
+.fit-pair[aria-selected='true'] { background: var(--paper-2); border-color: var(--link); }
 .you-note {
   margin-top: var(--s4); font-size: 0.82rem; color: var(--ink-muted);
   border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
@@ -751,7 +737,13 @@ main { flex: 1; min-height: 0; position: relative; }
   border-bottom-color: var(--hairline); border-radius: var(--radius);
   background: none; text-align: left; color: inherit;
 }
-.fit-pair:hover { background: var(--paper-2); }
+/* A BORDER, not a background tint. The tint was `--paper-2`, which measured
+   1.05:1 against the row — and 1.00:1 in the bottom-right of the viewport,
+   where the body's fixed gradient reaches --paper-2 itself and the hover became
+   literally invisible. A tint can never be safe over a gradient. `--link` is
+   6.09:1 on paper-1 and 5.53:1 on paper-2, so the affordance holds wherever the
+   row happens to sit. */
+.fit-pair:hover { border-color: var(--link); }
 .fit-pairs i {
   width: 26px; height: 26px; flex: 0 0 auto;
   border-radius: var(--radius); border: 1px solid var(--hairline);
@@ -1098,7 +1090,12 @@ main { flex: 1; min-height: 0; position: relative; }
   width: 28px; font-size: 1.35rem; color: var(--ink-muted);
   display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
 }
-.sample-src:hover .sample-src-ic { color: var(--accent); }
+/* --link, not --accent. Accent measures 2.92:1 on this card, so hovering made
+   the icon HARDER to see than at rest (--ink-muted, 7.79:1) — and 2.92 is the
+   exact value `.fit-band` was moved away from in an earlier release for the
+   same reason. --link is 6.09:1 and matches the border the card already takes
+   on hover. */
+.sample-src:hover .sample-src-ic { color: var(--link); }
 .sample-src-tx { display: flex; flex-direction: column; }
 .sample-src-tx small { color: var(--ink-muted); font-size: 0.78rem; }
 

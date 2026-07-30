@@ -30,6 +30,32 @@ test.describe('Back closes an overlay', () => {
       expect(page.url()).toBe(url)
     })
 
+  // THE ROUTE THE FIRST VERSION OF THIS FILE MISSED, and the reason the feature
+  // shipped broken for a day. Every other test here reaches a capture screen
+  // via Match > Colors, which passes `initialSource` and therefore never mounts
+  // the card-list Overlay. The header Sample button does mount it — and that is
+  // exactly the case where ColorSampler's task dismiss and the card list shared
+  // one function reference and collapsed into a single registry entry.
+  //
+  // Symptom before the fix, measured: Back left the overlay open on the card
+  // list, and a second Back left the site for about:blank.
+  test('from the header, after stepping INTO a capture screen', async ({ page }) => {
+    await page.goto('./')
+    await page.locator('.chord-wheel').waitFor()
+    const url = page.url()
+
+    await page.locator('.search-sample').click()
+    await page.getByRole('button', { name: /pick a color/i }).click()
+    await expect(page.getByRole('dialog', { name: /pick a color/i })).toBeVisible()
+
+    await page.goBack()
+
+    // ONE press ends the task, from any depth. Not "steps back to the cards".
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.locator('.chord-wheel')).toBeVisible()
+    expect(page.url()).toBe(url)
+  })
+
   test('and the address bar never advertises the overlay', async ({ page }) => {
     await page.goto('./')
     await page.locator('.chord-wheel').waitFor()

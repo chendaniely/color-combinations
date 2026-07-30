@@ -52,6 +52,32 @@ test.describe('one page width everywhere', () => {
     })
   }
 
+  // THE OWNER'S OWN BUG, which had no test at all until a reviewer planted the
+  // regression and watched all 127 browser tests pass: "there is now a hideous
+  // scrollbar on the edge where the new boundry is."
+  //
+  // `.browse-view` and `.match-view` ARE the scroll containers, so constraining
+  // their width drags the scrollbar inward with them. The column is centred
+  // with padding for exactly this reason, and content width alone cannot tell
+  // the two implementations apart — both give an 890px column at 1440px. The
+  // box has to be measured.
+  for (const [name, sel] of [['Browse', '.browse-view'], ['Match', '.match-view']] as const) {
+    test(`${name} stays full-bleed so the scrollbar keeps to the window`,
+      async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 })
+        await columnAt(page, name, sel)
+        const box = await page.locator(sel).evaluate((el) => {
+          const b = el.getBoundingClientRect()
+          return { left: b.left, width: b.width, maxWidth: getComputedStyle(el).maxWidth }
+        })
+        expect(box.left, 'the scroll container is inset from the left').toBe(0)
+        expect(box.width, 'the scroll container is narrower than the window')
+          .toBeCloseTo(1440, 0)
+        expect(box.maxWidth, 'a max-width would move the scrollbar inward')
+          .toBe('none')
+      })
+  }
+
   test('the column and the page are in golden section on a large screen',
     async ({ page }) => {
       // The point of the value, and the thing a stray `max-width: 1100px` would
@@ -64,13 +90,17 @@ test.describe('one page width everywhere', () => {
   test('a phone gets full width minus its gutter, not 61.8% of 390px',
     async ({ page }) => {
       // 61.8vw of a phone is 241px, which would be absurd. The 45rem floor plus
-      // min(100% - gutters) is what stops the proportion applying where it
-      // makes no sense.
+      // the `max()` in `padding-inline` is what stops the proportion applying
+      // where it makes no sense.
       await page.setViewportSize({ width: 390, height: 844 })
       const { content, left } = await columnAt(page, 'Browse', '.browse-view')
       expect(content).toBeGreaterThan(330)
-      // One gutter in from the edge, not centred in a 241px column.
-      expect(left).toBeLessThanOrEqual(16)
+      // Derived from the token rather than typed as 16, which was the value the
+      // assertion sat exactly on — any gutter change flipped it, and the number
+      // appeared in two places that had to be edited together.
+      const gutter = await page.evaluate(() => parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--page-gutter')) * 16)
+      expect(left, 'not one gutter in from the edge').toBeCloseTo(gutter, 0)
     })
 
   // The goggles stay on the WINDOW edge — the owner's call, reverted from a

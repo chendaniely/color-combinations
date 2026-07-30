@@ -167,6 +167,15 @@ Never treat a plan as a description of the current code.
   the honest move is to add it here, not to cite this rule for something it
   does not say.
 
+  **Known debt, counted 2026-07-30 rather than asserted:** eight bare `rgba()`
+  values in `app.css` sit outside all three exemptions — translucent
+  white/black scrims at lines 503, 511, 598, 905, 911, and, worse, `--accent`
+  and `--link` retyped as raw channels at 503 and 621-622. One shadow at line
+  1065 hard-codes `rgba(47, 42, 38, …)`, which is the exact value `--ink-rgb`
+  was introduced to abolish and which four other shadows correctly use. So this
+  rule currently describes an intention, not the file. Do not read "exactly
+  three" as a measurement until that list is empty.
+
   **`opacity` on text evades this rule entirely.** Fading text changes its
   rendered contrast while the token stays correct, so no audit of colour
   values can see it. It shipped twice: `.you-floor em` at `opacity: 0.7`
@@ -303,7 +312,7 @@ pays.
 
 ## Testing: two suites, and why
 
-`make test` (vitest + jsdom, ~850 checks as of 2026-07-29, seconds) proves the site
+`make test` (vitest + jsdom, 882 checks as of 2026-07-30, seconds) proves the site
 *computes* the right answer. jsdom does no layout and applies no cascade,
 so it structurally CANNOT see fonts, colours, sizes or positions.
 
@@ -330,8 +339,8 @@ a reason, or disable it inline where the reasoning belongs (see
 `ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
 
 **The three ink tokens must stay WCAG AA (>= 4.5:1) against all THREE papers.**
-`tests/browser/a11y.spec.ts` audits nine screens with axe and will fail if
-they don't. Before touching `--ink*` or `--paper*`, re-measure with
+`tests/browser/a11y.spec.ts` audits thirteen screens with axe and will fail
+if they don't. Before touching `--ink*` or `--paper*`, re-measure with
 culori's `wcagContrast` — the same function the goggles use. Note that
 `--ink-faint` cannot simply be darkened "until it passes": that lands it
 on top of `--ink-muted`. The three were solved together for distinct
