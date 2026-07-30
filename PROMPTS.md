@@ -1966,3 +1966,44 @@ deriving it instead.
   correct — it means over the wire, measured at 3.7 MB — but `public/mediapipe`
   is 12 MB on disk and I took the claim for a discrepancy until I measured the
   transfer. Now states both, so the next reader does not repeat it.
+
+## 2026-07-30 — Session 22: the You tab's doorways (v1.8.2)
+
+**Owner bug report, with the diagnosis included:**
+
+> in the you page: when i click build a palette in match or browse these in the
+> book. the list of colors that's let's the user explore is only 1 color. even
+> when there are more listed in "every color is yours" "all but one", "half or
+> more", "anthing with a match". same when i pick the season. it seems that the
+> match and browse tabs are not made for the season and floor filters
+
+Correct on every point. Reproduced: 19 swatches and 24 combinations on the You
+tab, one chip after clicking through.
+
+**Owner decision:** offered three fixes; chose **"Teach Browse about palettes"**
+— Browse gains a real palette filter with the four-stop floor, Match keeps
+seeding one colour but stops claiming otherwise.
+
+### What was actually wrong
+
+Neither destination could hold a palette. Browse filtered on a single `colorId`;
+Match's `combosForSet` requires EVERY key present, so seeding nineteen colours
+would return zero combinations. `YouDoorways` therefore picked
+`dataset.data.colors.find(...)` — the lowest id in the BOOK — while both buttons
+said "these".
+
+### What Claude got wrong, within a day of an audit about exactly this
+
+**Claimed the Match button now seeds from the visitor's "best match".** True for
+a season palette, which arrives ranked from the join table. FALSE for the
+measured one: `measuredPalette` filters `scorePalette` without sorting, and
+`Scored` carries no numeric score to sort by. The claim was in the code comment,
+the button copy and the note underneath — three places, wrong, exactly the
+failure mode session 21 spent six passes hunting. Caught by checking
+`measuredPalette` rather than assuming, and corrected to "the first colour on
+screen" before shipping.
+
+Also invented a function that did not exist (`seasonNameOf`) while wiring the
+label through; the typechecker caught it immediately, and the real fix was to
+report the label from `PaletteTabs`, which is the only component that can see the
+code-split season data.

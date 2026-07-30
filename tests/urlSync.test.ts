@@ -31,12 +31,12 @@ describe('sanitising drops what the book has not got', () => {
   })
 
   it('drops browse filters the book has not got', () => {
-    const out = sanitise({ browse: { family: 'nope', shade: realFine.id, colorId: '999999' } })
-    expect(out.browse).toEqual({ family: '', shade: realFine.id, colorId: '' })
+    const out = sanitise({ browse: { family: 'nope', shade: realFine.id, colorId: '999999', palette: null } })
+    expect(out.browse).toEqual({ family: '', shade: realFine.id, colorId: '', palette: null })
   })
 
   it('omits the browse block entirely when nothing in it survives', () => {
-    const out = sanitise({ browse: { family: 'nope', shade: 'nope', colorId: '999999' } })
+    const out = sanitise({ browse: { family: 'nope', shade: 'nope', colorId: '999999', palette: null } })
     expect(out.browse).toBeUndefined()
   })
 

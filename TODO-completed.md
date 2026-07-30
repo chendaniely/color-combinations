@@ -1,5 +1,31 @@
 # TODO — completed
 
+## v1.8.2 — the You tab's doorways (2026-07-30)
+
+Owner: *"the list of colors that's let's the user explore is only 1 color … it
+seems that the match and browse tabs are not made for the season and floor
+filters"* — correct on every point.
+
+- [x] **Browse learned to filter by a whole palette**, with the same four-stop
+      floor the You tab uses — `rankCombinations` and `passesFloor` imported
+      from core rather than reimplemented. A dismissible chip names it. Verified
+      live: 19 colours give 34 combinations at "half or more", 2 at "every
+      colour is yours" (`12e9bc9`).
+- [x] **The doorway hands over the whole palette**, not
+      `dataset.data.colors.find(...)` — the lowest id in the book, which need not
+      even be a colour on screen (`12e9bc9`).
+- [x] **Match still seeds one colour, and the button says which.** Correct
+      rather than a shortcut: `combosForSet` requires every key present, so
+      nineteen colours would return zero combinations. The fix there was
+      honesty, not more colours (`12e9bc9`).
+- [x] **`setBrowseFilter` merges instead of replacing**, so touching a dropdown
+      no longer discards the palette the visitor carried in (`12e9bc9`).
+- [x] **Caught an overclaim of my own before shipping:** "seeds from your best
+      match" is true for a season palette and false for a measured one, which
+      is not sorted at all. Corrected in the code comment, the button and the
+      on-screen note (`12e9bc9`).
+
+
 ## v1.8.1 — bug hunt and documentation audit (2026-07-29)
 
 Owner: *"do not assume that the code comments reflect what the actual code is

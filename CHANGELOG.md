@@ -28,6 +28,51 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.8.2 — 2026-07-30 — Taking all your colours with you
+
+Reported by the owner, and diagnosed by them too:
+
+> when i click build a palette in match or browse these in the book … the list
+> of colors that's let's the user explore is only 1 color … it seems that the
+> match and browse tabs are not made for the season and floor filters
+
+They weren't. **The You tab worked out nineteen colours for you and then handed
+exactly one of them to the rest of the site** — and not even a good one: it
+picked whichever had the lowest number in the book, which needn't be a colour
+you could see on screen. Both buttons said "these".
+
+**Browse now takes the whole palette.** It arrives as a chip you can dismiss —
+*"Your colours · 19 colours"* — with the same four-step control from the You tab
+sitting beside it, so you can go from *anything with a match* down to *every
+colour is yours* and watch the list narrow. Nineteen colours give thirty-four
+combinations at "half or more", and two at the strictest setting.
+
+**Match still takes one colour, and that turns out to be right.** Match works by
+narrowing: it looks for combinations containing *every* colour you have added,
+so handing it nineteen would have found **nothing at all**. More colours, fewer
+results. What was wrong there was not the behaviour but the promise — so the
+button now names the colour it will start from, and a line underneath explains
+that Match narrows and you can add more once you are there.
+
+Also fixed: changing a Browse dropdown used to silently throw away the palette
+you had just carried in.
+
+**One thing worth admitting**, since this file is meant to be honest about how
+the work goes: the first version of this fix claimed the Match button now starts
+from your *best* colour. That is true for a season palette, which arrives ranked,
+and false for a measured one, which is not sorted at all. The claim was quietly
+wrong in three places — the code comment, the button and the note under it — and
+was corrected to what the code actually does before shipping. That is the same
+failure the previous release spent six passes hunting, made again within a day,
+which is a fair measure of how easy it is.
+
+**One deliberate limit:** a palette-filtered Browse lasts your session but is not
+shareable. Your measured colours are worked out from a photograph of your face,
+and putting nineteen of them in a link is a quieter version of the thing this
+site already refuses to do.
+
+---
+
 ## v1.8.1 — 2026-07-29 — Checking the labels
 
 A bug hunt and a documentation audit, on the owner's instruction to keep

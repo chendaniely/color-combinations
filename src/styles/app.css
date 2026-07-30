@@ -963,3 +963,20 @@ main { flex: 1; min-height: 0; position: relative; }
   margin-top: var(--s4);
 }
 .you-share .muted { font-size: 0.78rem; }
+
+/* A whole palette carried in from the You tab. Marked with the link colour so
+   it reads as "you brought this here", distinct from the shade chip's plain
+   outline — it filters far more aggressively and should look like it. */
+.filter-chip.palette-chip {
+  border-color: var(--link); color: var(--ink);
+}
+.browse-floor { display: flex; flex-wrap: wrap; gap: var(--s1); }
+.browse-floor button {
+  padding: var(--s1) var(--s2); border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill); background: transparent; color: var(--ink-muted);
+  font: inherit; font-size: 0.72rem; cursor: pointer;
+}
+.browse-floor button[aria-checked='true'] {
+  background: var(--ink); border-color: var(--ink); color: var(--paper-1); font-weight: 700;
+}
+.you-doorway-note { font-size: 0.78rem; margin-top: var(--s2); max-width: 46rem; }

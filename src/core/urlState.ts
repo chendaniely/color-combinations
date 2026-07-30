@@ -198,7 +198,17 @@ export function decodeState(hash: string): Partial<AppState> {
   const family = q.get('family') ?? ''
   const shade = q.get('shade') ?? ''
   const colorId = q.get('color') ?? ''
-  if (family || shade || colorId) out.browse = { family, shade, colorId }
+  // `palette` is deliberately absent, and `encodeState` never writes one.
+  //
+  // A Browse palette can be the visitor's MEASURED colours, worked out from a
+  // photograph of their face. Nineteen colour ids are a weaker version of the
+  // leak the owner ruled out for the reading itself, and the conservative
+  // reading of that decision is not to widen it here. A palette therefore lives
+  // for the session and is not shareable, exactly as the reading is not.
+  //
+  // Consequence, accepted: a link to a palette-filtered Browse restores the
+  // dropdown filters and drops the palette, rather than half-restoring it.
+  if (family || shade || colorId) out.browse = { family, shade, colorId, palette: null }
 
   const level = numberIn<MatchLevel>(q.get('level'), [0, 1, 2])
   const keys = decodeKeys(q.get('keys'))

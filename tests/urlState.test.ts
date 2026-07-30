@@ -75,7 +75,7 @@ describe('every part of the state round-trips', () => {
   })
 
   it('the browse filters', () => {
-    const browse = { family: 'reds', shade: 'olives', colorId: '42' }
+    const browse = { family: 'reds', shade: 'olives', colorId: '42', palette: null }
     expect(roundTrip({ ...initialState, browse }).browse).toEqual(browse)
   })
 
@@ -105,7 +105,7 @@ describe('every part of the state round-trips', () => {
       granularity: 2,
       sizes: [2, 3],
       selection: { kind: 'color', id: 7 },
-      browse: { family: 'reds', shade: '', colorId: '' },
+      browse: { family: 'reds', shade: '', colorId: '', palette: null },
       access: ['print-bw'],
       you: { reading: null, season: 'cool-summer', floor: 0 },
     }
