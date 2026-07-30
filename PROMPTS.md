@@ -1895,3 +1895,74 @@ links first.
   `document.execCommand` outside any try and so REJECTED rather than returning
   false when both clipboard routes were unavailable. Reachable from every copy
   button on the site, not just the new one.
+
+## 2026-07-29 — Session 21: comment and documentation audit
+
+**Owner prompt:**
+
+> I want you to do another thorough review of the comments and documentation. do
+> not assume that the code comments reflect what the actual code is doing. I want
+> you to keep looping through and redoing it until you find no more discrepancies
+> between the code, comments and the functions that it is commenting. and also
+> make sure that they're no more discrepancies between what is being done and
+> what is documented
+
+Six passes, each over a different class of claim, until two consecutive passes
+found nothing.
+
+### What was wrong
+
+- **"109 of its 157 colours read warm against 48 cool"** — shown to visitors in
+  the You tab, the About panel and the README. The rule that decides warm from
+  cool gives **110 and 47**. Nothing computed the 109; it was prose, wrong, in
+  three places, for several releases. Now DERIVED (`warmCool` in `src/data.ts`)
+  from the same function the scorer uses, with a test that fails if anyone
+  re-hardcodes it.
+- **"29 assertions about hostile URLs"** — I asserted that number rather than
+  counting it. There are 21.
+- **"22 modules read `combinations`"** — 26, and growing. Reworded so it cannot
+  rot.
+- **`vite.config.ts` claimed `copy.ts` "still reports 0%" coverage** — it is at
+  89.47%, because ShareLink needed a unit test and that test found a real bug.
+  The comment was the exact rot it warns about.
+- **"~600 checks"** in CLAUDE.md and the README — 846 at the time. Both now
+  dated and described as snapshots.
+- **"the three ink tokens ... against BOTH papers"** — there are THREE, and
+  `--paper-2` is the binding constraint at 4.61:1, not the `--paper-1` numbers
+  the rule quoted.
+- **The README documented `make check-links` but not `make check`** — a command
+  added the same day.
+- **Two SPECS contradicted the shipped code**: the deep-links spec listed views
+  among the things that replace (they push), and the PCCS spec gave fit
+  thresholds in ΔE units the implementation never used (they are OKLab, 0.05 /
+  0.10 / 0.25). Both corrected with dated blocks rather than silent edits, per
+  CLAUDE.md.
+
+### What was already right, and worth recording so nobody re-checks
+
+All 54 referenced file paths resolve; all 36 symbols named in `src` comments
+exist; CLAUDE.md's dependency lists match `package.json` in both directions;
+every `make` target advertised in help is defined; culori appears nowhere
+outside `src/color/`; analytics is build-only with no tag in `index.html`; the
+three lint rules CLAUDE.md names are all disabled in `.oxlintrc.json`; jsdom
+really is 29; every numeric UI claim checked out (three five-colour
+combinations, twelve nearest, four floor stops, four granularities, three Match
+levels, three lenses); every CHANGELOG version is tagged.
+
+### The pattern
+
+**Numbers I measured were right. Numbers I asserted were wrong.** Every stale
+figure in this audit was one that had been typed rather than computed — and the
+fix for the worst of them was not a better number but removing the number,
+deriving it instead.
+
+### What Claude got wrong during the audit itself
+
+- **Two "findings" were bad checks, not bad code.** An ad-hoc grep for
+  hand-rolled `role="dialog"` flagged `Overlay.tsx`'s own comment describing
+  what it replaced; another flagged a file that exists because the regex ate a
+  trailing full stop. Both became tests instead of retyped greps.
+- **Misread my own documentation.** CLAUDE.md's "~3.5 MB" for MediaPipe is
+  correct — it means over the wire, measured at 3.7 MB — but `public/mediapipe`
+  is 12 MB on disk and I took the claim for a discrepancy until I measured the
+  transfer. Now states both, so the next reader does not repeat it.
