@@ -39,12 +39,22 @@ export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
         aria-autocomplete="list" aria-activedescendant={activeId}
         onChange={(e) => { setQ(e.target.value); setActive(0) }} onKeyDown={onKeyDown}
         onBlur={() => { setTimeout(() => setQ(''), 150) }} />
-      <button type="button" className="search-sample" aria-label="Sample a color from a photo or hex"
+      {/* A CAMERA, and a visible label.
+          It was a pencil, which means "edit" — contradicting its own accessible
+          name, "Sample a color from a photo or hex". Owner: "i think people will
+          better grivitate to a camera knowing it's for a picture."
+          The label matters more than the glyph: a bare icon is undiscoverable
+          whichever one it is, and this button opens three things, of which the
+          camera is only one. With the words there, the camera reads as a hint at
+          the most eye-catching option rather than a promise the menu breaks. */}
+      <button type="button" className="search-sample" aria-label="Sample a color from a photo, camera or hex"
         onClick={() => setSampleOpen(true)}>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <path d="M3 21l3.5-.7 9-9-2.8-2.8-9 9L3 21z" />
-          <path d="M15.3 5.4l3.3 3.3 1.2-1.2a2.35 2.35 0 0 0-3.3-3.3l-1.2 1.2z" />
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+          strokeWidth="1.7" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 8.5h3.2l1.4-2.2h8.8l1.4 2.2H21v10.5H3z" />
+          <circle cx="12" cy="13.4" r="3.4" />
         </svg>
+        <span className="search-sample-tx">Sample</span>
       </button>
       {/* Rendered unconditionally so aria-controls always resolves to a real
           element; empty until there is something to show. */}

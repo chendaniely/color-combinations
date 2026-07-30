@@ -212,13 +212,38 @@ main { flex: 1; min-height: 0; position: relative; }
   padding: var(--s1) var(--s2); width: 180px;
 }
 .search-box input:focus { outline: none; border-bottom-color: var(--accent); }
+/* Icon AND label, side by side.
+   This was a fixed 32x32 grid cell sized for a bare glyph, so adding the word
+   pushed it onto a second line and clipped it. The label is the point — a bare
+   icon is undiscoverable whichever glyph it carries — so the box sizes to its
+   contents instead. */
 .search-sample {
-  display: inline-grid; place-items: center;
-  width: 32px; height: 32px; margin-left: var(--s1);
+  display: inline-flex; align-items: center; gap: var(--s2);
+  min-height: 32px; padding: 0 var(--s3); margin-left: var(--s2);
   background: var(--paper-2); color: var(--ink);
   border: 1px solid var(--hairline); border-radius: var(--radius); cursor: pointer;
+  white-space: nowrap;
 }
+.search-sample svg { flex: 0 0 auto; }
 .search-sample:hover { border-color: var(--accent); color: var(--accent); }
+.search-sample-tx {
+  font-size: 0.72rem; letter-spacing: var(--tracking-label); text-transform: uppercase;
+}
+
+/* The entry gallery, shared by the sampler overlay and Match > Colors. The
+   cards were only ever inside the overlay, which is why nobody found the
+   camera. */
+.color-entry { display: flex; flex-direction: column; gap: var(--s2); }
+/* Inline on a page (rather than in the narrow overlay) there is room for two
+   columns, and one tall column left two thirds of a desktop screen empty. */
+.match-entry .color-entry {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--s2);
+}
+/* Two columns, so the usual four cards form a 2x2 rather than 3 plus an
+   orphan. Falls to one column below ~32rem, which is phone width. */
+.match-entry { max-width: 32rem; }
+.match-entry .lede { margin-bottom: var(--s3); }
 .search-results {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
   background: var(--paper-1); border: 1px solid var(--hairline); border-radius: var(--radius);
