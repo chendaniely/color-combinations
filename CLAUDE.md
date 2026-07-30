@@ -264,7 +264,8 @@ four true.**
 4. **Weight is paid by the feature that incurs it.** Anything large must
    lazy-load on entering its tab, never in the main bundle.
 
-Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision. Dev: vite,
+Runtime: react, react-dom, d3, culori, @mediapipe/tasks-vision,
+@phosphor-icons/react. Dev: vite,
 typescript, vitest, @vitejs/plugin-react, tsx, @types/react,
 @types/react-dom, @types/d3, @types/node, jsdom, @testing-library/react,
 @testing-library/dom, @playwright/test, oxlint, @vitest/coverage-v8,
@@ -281,6 +282,16 @@ the linter (`make lint`, one package, config in `.oxlintrc.json`);
 never run?"; @axe-core/playwright = the WCAG audit in
 `tests/browser/a11y.spec.ts` — non-negotiable for a site that ships
 accessibility goggles;
+@phosphor-icons/react = the icon set, added 2026-07-30 on the owner's call —
+*"i'm okay with an icon library instead of emojis. gives us more flexibility."*
+It replaces emoji, which the OS renders: four cards drew four different
+illustration styles, changed shape per platform, and could take neither a stroke
+weight nor a token colour, so nothing tied them to the hairlines the rest of the
+site is drawn with. **Import every glyph by name** — the barrel is ~9000 icons
+and only named imports tree-shake. **Measured 2026-07-30: +12.15 kB raw,
++4.10 kB gzipped** for four icons plus the shared renderer, which is why it sits
+in the main bundle rather than lazy-loading: rule 4 below is about weight worth
+deferring, and 4 kB is not it. Re-measure if the count grows a lot;
 @mediapipe/tasks-vision = on-device face detection for the You tab,
 Apache-2.0 with zero transitive dependencies, lazy-loaded and self-hosted
 from `public/mediapipe/`. **~3.7 MB over the wire** (measured 2026-07-29:

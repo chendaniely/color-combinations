@@ -3,6 +3,7 @@ import { searchColors } from '../core/dataset'
 import type { Action } from '../core/state'
 import { dataset } from '../data'
 import { ColorSampler } from './sample/ColorSampler'
+import { Camera } from '@phosphor-icons/react'
 
 export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
   const [q, setQ] = useState('')
@@ -49,11 +50,11 @@ export function SearchBox({ dispatch }: { dispatch: (a: Action) => void }) {
           the most eye-catching option rather than a promise the menu breaks. */}
       <button type="button" className="search-sample" aria-label="Sample a color from a photo, camera or hex"
         onClick={() => setSampleOpen(true)}>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-          strokeWidth="1.7" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 8.5h3.2l1.4-2.2h8.8l1.4 2.2H21v10.5H3z" />
-          <circle cx="12" cy="13.4" r="3.4" />
-        </svg>
+        {/* The same Camera the entry gallery uses, from the same family. It was
+            a hand-drawn path here, which was the only option before the icon
+            library existed and is now just a second camera that does not quite
+            match the first — one family per project, or the seams show. */}
+        <Camera size={18} weight="light" aria-hidden data-icon="camera" />
         <span className="search-sample-tx">Sample</span>
       </button>
       {/* Rendered unconditionally so aria-controls always resolves to a real

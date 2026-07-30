@@ -101,11 +101,71 @@ in the suite.
 "Combinations" **are** peers — two top-level things the page says about a palette
 — and they now read as peers.
 
+## Second pass — the rest, on the owner's go-ahead
+
+*"i'm okay with an icon library instead of emojis. gives us more flexibility.
+otherwise implmeent the plan"* — so everything below was built too.
+
+### Icons instead of emoji
+
+`@phosphor-icons/react`, at weight `light` to match the hairlines the rest of the
+site is drawn with. Emoji are rendered by the OS: the four entry cards were four
+different illustration styles, changed shape per platform, and could take neither
+a stroke weight nor a token colour. The header's hand-drawn camera path went the
+same way — one family, or the seams show.
+
+**Measured: +12.15 kB raw, +4.10 kB gzipped** for the icons plus the shared
+renderer. Named imports only; the barrel is ~9000 icons and only named imports
+tree-shake. Documented in `CLAUDE.md`, which `tests/docsMatchReality.test.ts`
+caught as missing within one run.
+
+One test had to change with it, and the change is the interesting part.
+`colourEntry.spec.ts` asserted `svg circle` on the reasoning "a camera has a
+lens" — true only while the path was hand-drawn here. Phosphor draws the same
+camera without a `<circle>`, so a pure improvement failed the suite. It now
+asserts `[data-icon="camera"]`: the intent, not the artwork.
+
+### Match > Shades is a colour chooser again
+
+Each shade had a 56x22px ramp in a 690px row. It is now the swatch-grid pattern
+the You tab already uses — ramp across the card, name beneath — so all 23 shades
+fit above the fold and the colour is the largest thing in its own card. `.sugs`
+elsewhere is untouched: in the narrow "add a shade" column beside a built
+palette, the row form is right, because it carries a score and a plus button.
+
+### The wheel says what to do with it
+
+The hollow centre is empty until a hover fills it, so the instruction sits
+exactly where its answer will appear and is replaced by it. No new state:
+`dimming` is already toggled for every hover, so one CSS selector retires the
+prompt for good once the wheel has been used. "Point at", not "hover", because
+press-and-drag scrubs the same preview on a touchscreen.
+
+First version was `--ink-muted` with a 4px halo and was barely legible over a
+thousand crossing ribbons. The 30px hover label gets away with a 5px moat
+because it is 30px; small type over noise needs more. Now full `--ink` at 7px.
+
+### The You page stops holding its grids to a reading measure
+
+720px is right for prose and wrong for two grids of colour, which is how the page
+became 3054px tall inside a 1440px window with two thirds of the width empty. The
+column widens to 1040px above 1200px and the prose keeps its 46rem measure, so
+the grids get more per row and the lines stay readable. Nothing changes below
+1200px, where there is no spare width to give.
+
+### Two small ones
+
+- **Plate captions** no longer sit ragged: `.plate-number` was allowed to wrap
+  between "No." and the number, so captions in a row stopped sharing a baseline.
+- **The goggles no longer land on the You heading at phone width.** The heading
+  is nudged clear rather than the control moved, which is still the owner's open
+  question in `TODO.md`.
+
 ## Found, not implemented
 
 Each is a design decision rather than a defect, so each is the owner's call.
 
-1. **Match > Shades under-uses colour.** On a 1440px screen, each shade occupies
+1. **Match > Shades under-uses colour.** *(implemented in the second pass above)* On a 1440px screen, each shade occupies
    a 690px-wide row in which the colour itself is a **56×20px** chip. The rest is
    empty. On a site where the colour is the content, the content is the smallest
    thing in the row. This is the biggest single visual opportunity found.

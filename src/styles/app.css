@@ -88,6 +88,26 @@ main { flex: 1; min-height: 0; position: relative; }
   stroke-linejoin: round;
   pointer-events: none;
 }
+/* The idle prompt, in the hollow the hover name will fill.
+   Same halo trick, because it sits over the same ribbon crossings. It goes at
+   the first hover and does not come back: `dimming` is added to this group
+   whenever anything is under the pointer, so one selector covers every route in
+   and out, and someone who has already used the wheel is never told again. */
+/* Full --ink and a fat halo, NOT --ink-muted and a thin one, which is how this
+   was first written and could barely be read: 14px type sits over the densest
+   part of the diagram, where about a thousand ribbons cross, and a 4px moat
+   leaves colour showing between the letterforms. The 30px hover label gets away
+   with a 5px moat because it is 30px. Small type over noise needs more, not the
+   same. Checked by screenshot, which is the only thing that can check it. */
+.chord-wheel .wheel-idle-hint {
+  font-family: var(--font-ui); font-size: 14px; fill: var(--ink);
+  letter-spacing: 0.01em;
+  stroke: var(--paper-1); stroke-width: 7px; paint-order: stroke;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+.chord-wheel .dimming .wheel-idle-hint { opacity: 0; }
 /* max-width is load-bearing: .wheel-view centres its children, so a control
    bar wider than the viewport overflows BOTH sides and the page scrolls
    sideways. At 375px the four granularity buttons plus 2rem of side padding
@@ -150,7 +170,14 @@ main { flex: 1; min-height: 0; position: relative; }
 .plate-large .plate-bars { height: 220px; }
 .plate-bar { flex-basis: 0; }
 .plate figcaption { display: flex; gap: var(--s3); align-items: baseline; margin-top: var(--s2); }
-.plate-number { font-size: 0.65rem; letter-spacing: var(--tracking-label); color: var(--ink-faint); }
+/* nowrap + no shrink, or the flex algorithm breaks "No. 3" across two lines in
+   a narrow card and the captions in a row stop sharing a baseline. It is the
+   ragged look in the Browse grid: the label is two words and was allowed to
+   wrap between them. */
+.plate-number {
+  font-size: 0.65rem; letter-spacing: var(--tracking-label); color: var(--ink-faint);
+  white-space: nowrap; flex: 0 0 auto;
+}
 .plate-names { font-family: var(--font-display); font-size: 0.9rem; }
 .plate-list { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s3); }
 .plate-list .plate-bars { height: 64px; }
@@ -385,6 +412,23 @@ main { flex: 1; min-height: 0; position: relative; }
 .sug .sc { font-size: 0.68rem; color: var(--ink-muted); }
 .sug .plus { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--ink-muted); flex: 0 0 auto; }
 .sug:hover .plus { border-color: var(--accent); color: var(--accent); }
+/* THE SHADE PICKER IS A COLOUR CHOOSER, so the colour is the card.
+   It was a list of full-width rows in which the ramp was 56x22px and the other
+   ~630px were empty — on a 1440px screen the content was the smallest thing in
+   its own row. Now it is the swatch-grid pattern the You tab already uses:
+   ramp across the card, name beneath. Same component, same markup, different
+   shape; `.sugs` elsewhere (the "add a shade" column beside a built palette) is
+   untouched, because there the row form is right — it carries a score and a
+   plus button and lives in a narrow column. */
+.picker .sugs { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s3); }
+.picker .sug { display: block; padding: 0; overflow: hidden; }
+.picker .sug .cl { width: auto; height: 64px; border-radius: 0; }
+.picker .sug .meta { padding: var(--s2) var(--s3); }
+.picker .sug .nm { font-size: 0.82rem; }
+@media (max-width: 560px) {
+  .picker .sugs { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .picker .sug .cl { height: 52px; }
+}
 .picker { margin-top: var(--s6); }
 .picker-input { font-family: var(--font-ui); font-size: 0.9rem; color: var(--ink); background: none; border: none; border-bottom: 1px solid var(--hairline); padding: var(--s2); width: 260px; max-width: 100%; margin-bottom: var(--s4); }
 .picker-input:focus { outline: none; border-bottom-color: var(--accent); }
@@ -456,7 +500,22 @@ main { flex: 1; min-height: 0; position: relative; }
   background: var(--link); border-color: var(--link); color: var(--paper-hi); font-weight: 700;
 }
 /* The You tab. */
+/* 720px is a reading measure, and this page is mostly NOT reading — it is two
+   grids of colour with prose between them. Holding the grids to the prose width
+   made the page 3054px tall inside a 1440px window with two thirds of the width
+   empty. So the column widens on a large screen and the PROSE keeps its measure
+   (see the max-width: 46rem caps below and on the note blocks): more swatches
+   per row, a shorter page, and lines that are still comfortable to read.
+   Nothing changes below 1200px, where there is no spare width to give. */
 .you-view { max-width: 720px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s12); }
+@media (min-width: 1200px) { .you-view { max-width: 1040px; } }
+.you-intro p, .you-combos-lede { max-width: 46rem; }
+
+/* The goggles float over the top-right of every screen, and on a phone the You
+   tab's h1 is the widest thing up there — the chip landed on the words. Nudge
+   the heading clear rather than moving the control, which is the owner's open
+   question in TODO.md and a bigger decision than this. */
+@media (max-width: 760px) { .you-intro h1 { padding-right: 8.5rem; } }
 .you-intro h1 { font-family: var(--font-display); font-weight: 500; margin: 0 0 var(--s3); }
 .you-intro p { color: var(--ink-muted); margin: 0 0 var(--s3); }
 .you-privacy { font-size: 0.85rem; border-left: 2px solid var(--link); padding-left: var(--s3); }
@@ -1001,7 +1060,15 @@ main { flex: 1; min-height: 0; position: relative; }
   border: 1px solid var(--hairline); border-radius: var(--radius); cursor: pointer;
 }
 .sample-src:hover { border-color: var(--link); }
-.sample-src-ic { width: 28px; text-align: center; font-size: 1.2rem; }
+/* Phosphor sizes to 1em, so font-size still drives the glyph exactly as it drove
+   the emoji. What is new is that `color` works: an emoji is an OS-rendered image
+   and ignores it. Muted by default so the icon sits behind its label instead of
+   competing with it, and picks up the accent on hover with the card. */
+.sample-src-ic {
+  width: 28px; font-size: 1.35rem; color: var(--ink-muted);
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+.sample-src:hover .sample-src-ic { color: var(--accent); }
 .sample-src-tx { display: flex; flex-direction: column; }
 .sample-src-tx small { color: var(--ink-muted); font-size: 0.78rem; }
 
