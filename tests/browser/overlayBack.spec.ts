@@ -86,11 +86,12 @@ test.describe('Back closes an overlay', () => {
       await expect(page.locator('.you-view')).toBeVisible()
     })
 
-  test('choosing something inside the overlay still navigates, and Back returns',
+  test('Back from a capture screen returns to the tab it opened from',
     async ({ page }) => {
-      // The other exit: the overlay closes because the visitor picked a
-      // destination. The marker becomes that destination's entry, so Back has
-      // to land on the state from before the overlay opened.
+      // Named for what it does. It read "choosing something inside the overlay
+      // still navigates" and chose nothing — it presses Back with the picker
+      // still open. The choosing path is a different thing entirely and is
+      // pinned separately below.
       await page.goto('./')
       await page.getByRole('button', { name: 'Match' }).first().click()
       await page.getByRole('radiogroup', { name: /matching level/i }).waitFor()
@@ -103,5 +104,41 @@ test.describe('Back closes an overlay', () => {
       await expect(page.getByRole('dialog')).toHaveCount(0)
       // Still on Match, not thrown back to the wheel.
       await expect(page.getByRole('radiogroup', { name: /matching level/i })).toBeVisible()
+    })
+
+  // WHAT HAPPENS WHEN YOU CHOOSE A DESTINATION, pinned as it stands rather than
+  // as it should be. The owner has seen it and wants it changed later:
+  //
+  //   "we can document that nuance with the pick a color match match back
+  //    behaviour. and deal with that later. i think ideally it just goes back
+  //    to the previous page, instead of dropping back to the main page"
+  //
+  // Measured 2026-07-30 on the route below: Back lands on the WHEEL, because
+  // the sampler's own steps (cards, picker, nearest colours) are not in history
+  // — one entry covers the whole task, and choosing a destination turns that
+  // entry into the destination. So Back skips the task entirely and returns to
+  // whatever preceded it.
+  //
+  // The test exists so that fixing it shows up as a deliberate diff here rather
+  // than as a silent behaviour change. See TODO.md for what a fix involves.
+  test('choosing a destination currently skips the whole task on Back',
+    async ({ page }) => {
+      await page.goto('./')
+      await page.locator('.chord-wheel').waitFor()
+      const wheelUrl = page.url()
+
+      await page.locator('.search-sample').click()
+      await page.getByRole('button', { name: /pick a color/i }).click()
+      await page.getByRole('button', { name: /explore this color/i }).click()
+      await page.getByRole('dialog').first().locator('button').nth(1).click()
+      await page.getByRole('button', { name: /^Match /i }).first().click()
+
+      await expect(page.locator('.match-view')).toBeVisible()
+      expect(page.url()).toContain('#/match')
+
+      await page.goBack()
+      // TODAY: the wheel. WANTED: the sampler, showing its nearest colours.
+      await expect(page.locator('.chord-wheel')).toBeVisible()
+      expect(page.url()).toBe(wheelUrl)
     })
 })

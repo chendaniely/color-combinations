@@ -94,6 +94,29 @@ a check that needs a person. See `TODO-completed.md` for what went.
       from before the overlay opened. `tests/browser/overlayBack.spec.ts` covers
       both, plus both historic failure modes.
 
+## Known gap: Back skips the whole sampler instead of stepping back through it
+
+- [ ] **Choosing a destination inside the sampler makes Back jump past the whole
+      task.** Owner, 2026-07-30, having seen it: *"i think ideally it just goes
+      back to the previous page, instead of dropping back to the main page."*
+      **Measured** on 2026-07-30 (not reasoned): from the wheel, Sample -> Pick a
+      color -> Explore this color -> a nearest colour -> "Match Deep Blues" lands
+      on `#/match?keys=deep-blues`. Back returns to **the wheel**, not to the
+      sampler's list of nearest colours.
+      Why: the whole sampler run gets ONE history entry (the marker urlSync
+      pushes when the first overlay opens). Its internal screens — card list,
+      picker, nearest colours — are React state with no entry of their own, and
+      choosing a destination turns the marker into that destination. So Back
+      steps over the task rather than through it.
+      A fix means an entry per SCREEN rather than per task, which is the shape
+      that failed as attempt 1 in the other Back gap above. It should be
+      tractable now for the reason that one is fixed: `overlayHistory.ts` gives
+      a single owner, and the count is observed post-commit, so the
+      unmount-into-the-next handoff no longer races. The screens would need to
+      report their own identity, which they currently do not.
+      `tests/browser/overlayBack.spec.ts` PINS the present behaviour, so
+      changing it shows up as a deliberate diff rather than a silent one.
+
 ## Owner's queued ideas (2026-07-30)
 
 - [x] ~~**The pencil icon should be a camera**, with a visible label.~~ — shipped

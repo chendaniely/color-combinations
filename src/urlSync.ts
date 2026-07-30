@@ -139,9 +139,15 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
       // palette to Browse): the state effect below is about to write the new
       // URL, and because it was suspended while the overlay was up, the entry it
       // replaces is the marker. So the marker BECOMES the new state and must not
-      // be popped — Back from there lands on the state before the overlay opened,
-      // which is exactly right. Popping here as well is the race that broke the
-      // first attempt.
+      // be popped — popping here as well is the race that broke the first
+      // attempt.
+      //
+      // The consequence is a KNOWN GAP, not a claim that this is ideal: Back
+      // from the destination lands on whatever preceded the overlay, skipping
+      // the task rather than stepping back through it. Measured 2026-07-30 —
+      // from the wheel, sampling a colour into Match and pressing Back returns
+      // to the wheel, not to the sampler's nearest-colour list. The owner wants
+      // that changed; see TODO.md, and the test that pins it.
       if (encodeState(state) === written.current && history.state?.overlay) {
         selfPops.current += 1
         history.back()
