@@ -9,6 +9,7 @@ import { GroupDetail } from './components/GroupDetail'
 import { Header } from './components/Header'
 import { MatchPage } from './components/MatchPage'
 import { RibbonDetail } from './components/RibbonDetail'
+import { SiteMark } from './components/SiteMark'
 import { WheelControls } from './components/WheelControls'
 import { YouView } from './components/you/YouView'
 import { reducer } from './core/state'
@@ -46,9 +47,7 @@ export default function App() {
         )}
         {state.aboutOpen && <AboutPanel dispatch={dispatch} />}
       </main>
-      <footer className="footer">
-        <span className="hanko" title="iro — color">色</span>
-      </footer>
+      <SiteMark />
     </div>
   )
 }

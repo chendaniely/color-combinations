@@ -1,10 +1,19 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // Google Analytics 4 property for the published site. Public by nature — it
 // ships in the page source — so it's a constant here rather than a .env var.
 export const GA_MEASUREMENT_ID = 'G-CHW8X8EX18'
+
+// The released version, shown in the corner of the site and linked to its
+// CHANGELOG entry. Injected at build time from package.json so there is ONE
+// source of truth: a number typed into a component is exactly the kind of thing
+// that was found wrong in three places during the v1.8.1 audit.
+// tests/docsMatchReality.test.ts asserts package.json, the CHANGELOG heading
+// and the README status line all agree.
+const VERSION = JSON.parse(readFileSync('package.json', 'utf8')).version as string
 
 const GA_TAG = `    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
@@ -32,6 +41,7 @@ export default defineConfig({
     },
   ],
   base: '/color-combinations/',
+  define: { __APP_VERSION__: JSON.stringify(VERSION) },
   test: {
     environment: 'node',
     // tests/browser/ is Playwright's (see `make test-browser`); it drives a real

@@ -27,22 +27,28 @@ import { dataset } from '../../data'
 // a real improvement for seasons and merely honest for measured. Ranking the
 // measured list would mean inventing a score, which is a bigger decision than
 // this fix.
-export function YouDoorways({ palette, floor, label, dispatch }: {
+export function YouDoorways({ palette, floor, label, selectedId, dispatch }: {
   /** Iteration order is the order shown on screen. */
   palette: ReadonlySet<number>
   floor: FloorStop
   /** What to call this palette in Browse: "Your colours", "Clear Spring". */
   label: string
+  /**
+   * The colour the visitor picked in the grid above. Falls back to the first
+   * shown — which is what this ALWAYS used to do, and the owner's point was
+   * that assuming is poor when someone is looking at fifty swatches.
+   */
+  selectedId?: number | undefined
   dispatch: (a: Action) => void
 }) {
   const ids = [...palette]
   if (ids.length === 0) return null
 
-  // The first colour AS SHOWN, not the first in the book. For a season palette
-  // that is the closest match; for the measured one it is simply the first
-  // swatch the visitor is looking at. Either way it is a colour they can see,
-  // which the old `dataset.data.colors.find(...)` was not.
-  const first = dataset.colorById.get(ids[0])
+  // The visitor's pick, or the first shown if they have not picked. Never the
+  // first in the BOOK, which is what this did before v1.8.2 and could name a
+  // colour nowhere near their list.
+  const chosenId = selectedId !== undefined && palette.has(selectedId) ? selectedId : ids[0]
+  const first = dataset.colorById.get(chosenId)
   if (!first) return null
 
   return (
@@ -67,7 +73,8 @@ export function YouDoorways({ palette, floor, label, dispatch }: {
       <p className="muted you-doorway-note">
         Match builds a palette by narrowing — it looks for combinations
         containing <em>every</em> colour you add — so it starts from one of yours
-        rather than all {ids.length} at once. Add more there to narrow further.
+        rather than all {ids.length} at once. Pick any swatch above to start from
+        that one instead, then add more in Match to narrow further.
       </p>
     </section>
   )

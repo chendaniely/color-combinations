@@ -21,6 +21,8 @@ export function YouView({ state, dispatch }: {
   // What Browse should call this palette in its chip — "Your colours" or the
   // season's name. Reported by PaletteTabs, which is the only place that knows.
   const [paletteLabel, setPaletteLabel] = useState('Your colours')
+  // Which swatch the visitor picked, for "Start a palette from ...".
+  const [selectedColorId, setSelectedColorId] = useState<number | undefined>(undefined)
   const reading = state.you.reading
   // A shared link carries a season but never a reading — the owner's privacy
   // decision, enforced by tests/urlPrivacy.test.ts. So "somebody sent me this"
@@ -71,7 +73,17 @@ export function YouView({ state, dispatch }: {
 
       {(reading || sharedSeason) && (
         <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
-          onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }} />
+          onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }}
+          onSelectColor={setSelectedColorId} />
+      )}
+
+      {/* The same doorways twice, above and below the combinations. The colour
+          list runs to fifty swatches, so somebody near the top would otherwise
+          have to scroll past all of it and the whole combination grid before
+          learning there is anywhere to go. */}
+      {visiblePalette && (
+        <YouDoorways palette={visiblePalette} floor={state.you.floor}
+          label={paletteLabel} selectedId={selectedColorId} dispatch={dispatch} />
       )}
 
       {visiblePalette && (
@@ -81,7 +93,7 @@ export function YouView({ state, dispatch }: {
 
       {visiblePalette && (
         <YouDoorways palette={visiblePalette} floor={state.you.floor}
-          label={paletteLabel} dispatch={dispatch} />
+          label={paletteLabel} selectedId={selectedColorId} dispatch={dispatch} />
       )}
 
       <div className="you-actions">

@@ -18,6 +18,7 @@ const readme = readFileSync('README.md', 'utf8')
 const claude = readFileSync('CLAUDE.md', 'utf8')
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
 const tokens = readFileSync('src/styles/tokens.css', 'utf8')
+const changelog = readFileSync('CHANGELOG.md', 'utf8')
 
 /** Targets the Makefile advertises in `make help` (those with a `##` comment). */
 function documentedTargets(): string[] {
@@ -63,6 +64,41 @@ describe('the README documents what exists', () => {
     const ghosts = [...new Set(documented)]
       .filter((t) => !new RegExp(`^${t}:`, 'm').test(makefile))
     expect(ghosts, 'README documents commands with no Makefile target').toEqual([])
+  })
+})
+
+// The version is now SHOWN to every visitor in the corner of every screen, so a
+// wrong one is not an internal detail. It is injected from package.json at build
+// time rather than typed into the component — but package.json, the CHANGELOG
+// and the README can still drift from each other, and this is what stops them.
+describe('the released version agrees everywhere', () => {
+  const version = pkg.version as string
+
+  it('is the newest entry in the CHANGELOG', () => {
+    const newest = changelog.match(/^## v(\d+\.\d+\.\d+)/m)?.[1]
+    expect(newest, 'the CHANGELOG has no version heading').toBeTruthy()
+    expect(newest, 'package.json and the newest CHANGELOG entry disagree').toBe(version)
+  })
+
+  it('is the version the README status line claims', () => {
+    const stated = readme.match(/\*\*Status:\*\* v(\d+\.\d+\.\d+)/)?.[1]
+    expect(stated, 'the README status line names no version').toBeTruthy()
+    expect(stated, 'package.json and the README status line disagree').toBe(version)
+  })
+
+  it('is injected from package.json rather than typed into a component', () => {
+    const config = readFileSync('vite.config.ts', 'utf8')
+    expect(config).toContain('__APP_VERSION__')
+    const mark = readFileSync('src/components/SiteMark.tsx', 'utf8')
+    expect(mark).toContain('__APP_VERSION__')
+    // CODE lines only. The component's comment cites the release that prompted
+    // it, and that documentation has to stay legal — the same exclusion the
+    // other guards in this file make.
+    const code = mark.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l))
+    expect(
+      code.filter((l) => /\bv?\d+\.\d+\.\d+\b/.test(l)),
+      'the version is hardcoded in the component instead of injected',
+    ).toEqual([])
   })
 })
 
