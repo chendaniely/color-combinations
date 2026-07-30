@@ -5,7 +5,10 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.9.1 shipped (2026-07-30) — on the **You** tab, *Take a photo*
+> **Status:** v1.9.2 shipped (2026-07-30) — **every color on the You page is now
+> a starting point**: the "What the book has for …" rows are clickable like the
+> swatches, and whichever you pick is marked on the color itself. Before it,
+> v1.9.1 — on the **You** tab, *Take a photo*
 > moved to the top where it can't be lost under a page of colours, and the
 > Browse / Start-a-palette buttons became **one bar that travels with you as you
 > scroll** instead of three copies. Before it, v1.9.0 — every way into a color now
@@ -199,8 +202,12 @@ how strict the list is.
 
 Both lists are long, so the two ways out — **Browse all N in the book** and
 **Start a palette from …** — sit in a bar pinned to the top of the screen that
-travels with you while you scroll them. Click any swatch first and the second
-button starts from that color instead.
+travels with you while you scroll them.
+
+**Click any color on the page to start from that one instead** — a swatch, or
+the book's match in the "What the book has for …" panel. The one you pick is
+ringed. (In that panel only the right-hand color is clickable: the left is the
+season's *ideal*, which the book does not contain.)
 
 One thing worth knowing: Wada's palette leans warm — 110 of its 157 colors read
 warm against 47 cool — so cool-toned visitors get a shorter list here. That's
