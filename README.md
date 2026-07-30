@@ -5,7 +5,13 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.9.2 shipped (2026-07-30) — **every color on the You page is now
+> **Status:** v1.10.0 shipped (2026-07-30) — a **design review** release: Match,
+> Browse and You now share one page width in **golden section** with the window;
+> Match's Shades level is a colour chooser again rather than a list of near-empty
+> rows; emoji became **icons**; and **Back closes a full-screen overlay** instead
+> of leaving the site. The review that produced it also found a render loop that
+> had been burning a CPU core on the You tab, and three tests that guarded
+> nothing. Before it, v1.9.2 — **every color on the You page is
 > a starting point**: the "What the book has for …" rows are clickable like the
 > swatches, and whichever you pick is marked on the color itself. Before it,
 > v1.9.1 — on the **You** tab, *Take a photo*

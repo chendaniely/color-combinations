@@ -1,7 +1,9 @@
 # UI/UX skill audit — 2026-07-30
 
-**A spike, not a release.** Branch `spike/ui-ux-review`, in a worktree, so it can
-be reviewed or thrown away without touching `main`.
+**Shipped as v1.10.0** on 2026-07-30. It began as a spike on a branch, in a
+worktree, so it could be reviewed or thrown away without touching `main`; the
+owner reviewed it, reverted two of its changes, and released the rest. The spike
+framing is kept below because it is what the work was at the time.
 
 The owner installed three design skills (`frontend-design`, `ui-ux-pro-max`,
 `taste-skill`) and asked whether they would find improvements to this site. This
