@@ -47,9 +47,17 @@ export function YouDoorways({ palette, floor, label, selectedId, dispatch }: {
   /** What to call this palette in Browse: "Your colours", "Clear Spring". */
   label: string
   /**
-   * The colour the visitor picked in the grid above. Falls back to the first
+   * The colour the visitor picked ANYWHERE on the page. Falls back to the first
    * shown — which is what this ALWAYS used to do, and the owner's point was
    * that assuming is poor when someone is looking at fifty swatches.
+   *
+   * Deliberately NOT required to be in `palette`. It was, until v1.9.2 made the
+   * fit panel selectable, and a third of that panel's colours are outside the
+   * palette by construction — the panel exists to show how far the book's
+   * nearest match can fall from the ideal. The guard against a selection left
+   * over from another tab or season now lives in PaletteTabs, which is the one
+   * component that can see every list on the page; repeating a narrower version
+   * of it here only silently ignored two thirds of the new clicks.
    */
   selectedId?: number | undefined
   dispatch: (a: Action) => void
@@ -59,8 +67,11 @@ export function YouDoorways({ palette, floor, label, selectedId, dispatch }: {
 
   // The visitor's pick, or the first shown if they have not picked. Never the
   // first in the BOOK, which is what this did before v1.8.2 and could name a
-  // colour nowhere near their list.
-  const chosenId = selectedId !== undefined && palette.has(selectedId) ? selectedId : ids[0]
+  // colour nowhere near their list. An id the book does not have still falls
+  // back rather than rendering a nameless button.
+  const chosenId = selectedId !== undefined && dataset.colorById.has(selectedId)
+    ? selectedId
+    : ids[0]
   const first = dataset.colorById.get(chosenId)
   if (!first) return null
 
@@ -96,9 +107,9 @@ export function YouDoorwayNote({ count }: { count: number }) {
       Your colours work anywhere on the site, and the two buttons above take them
       there. <b>Browse</b> carries all {count}. <b>Match</b> builds by narrowing —
       it looks for combinations containing <em>every</em> colour you add — so it
-      starts from one of yours rather than all {count} at once. Pick any swatch
-      above to start from that one instead, then add more in Match to narrow
-      further.
+      starts from one of yours rather than all {count} at once. Click any colour
+      on this page — a swatch here, or the book's match for an ideal below — to
+      start from that one instead, then add more in Match to narrow further.
     </p>
   )
 }

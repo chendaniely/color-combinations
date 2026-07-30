@@ -28,6 +28,37 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.9.2 — 2026-07-30 — Every colour on the You page is a starting point
+
+**"What the book has for Deep Autumn" is now clickable.** Each row of that panel
+pairs a season's ideal colour with the nearest one Wada's book actually has, and
+the book's colour can now be picked — the **Start a palette from …** button
+follows it, exactly as it already followed the swatches above.
+
+Only the right-hand colour of each row. The left is the *ideal*: a computed
+target the book does not contain, with nothing to start a palette from. It stays
+deliberately inert, because that is the point of the panel — it is the thing the
+book hasn't got.
+
+> **The owner's prompt** (from [`PROMPTS.md`](PROMPTS.md)):
+>
+> *"in the you page, i also want the 'what the book has for ...' those list of
+> colors also clickable that changes the start a palette from. this way anything
+> on that page can be interactive as a starting point"*
+
+**And your pick is finally visible on the colour itself.** It has quietly driven
+that button since v1.8.3 while the chosen swatch looked no different from any
+other — bearable when the button was the only thing that moved, wrong now that
+two lists share one selection. The chosen colour now carries a ring, in either
+list.
+
+One honest oddity you may notice: picking a row sometimes highlights **two**
+rows. That is the crowding the panel exists to report — where the book has
+nothing else near two different ideals, the same colour serves both, and the
+caveat underneath says so.
+
+---
+
 ## v1.9.1 — 2026-07-30 — The photo goes first, and the buttons travel
 
 Two placement fixes on the **You** tab, both reported by the owner from using it.

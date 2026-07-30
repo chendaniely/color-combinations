@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { measuredPalette, scorePalette } from '../../color/personalPalette'
+import { idealPairs } from '../../color/seasonFit'
 import { colorsForSeason } from '../../core/seasonColors'
 import { classifySeason, parentOf, seasonById } from '../../core/seasons'
 import type { Action } from '../../core/state'
@@ -58,7 +59,7 @@ export function PaletteTabs(props: Props) {
 function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelectColor, data }: Props & {
   data: SeasonData
 }) {
-  const { seasonColors, seasonRules, toneBands } = data
+  const { seasonColors, seasonRules, toneBands, pccsGrid } = data
   const [which, setWhich] = useState<Which>(reading ? 'measured' : 'season')
 
   // Both are measurements OF the visitor, so both are empty without a reading.
@@ -98,16 +99,43 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
   // results. So this fires exactly when the shown list changes.
   const shownLabel = reading && which === 'measured' ? 'Your colours' : activeSeason.name
 
+  // The fit panel's rows are computed HERE rather than inside SeasonFit, because
+  // its colours are selectable too and this component owns the selection. One
+  // pick, two lists — see `selectable` below.
+  const pairs = useMemo(
+    () => idealPairs(seasonRules, activeSeason, pccsGrid, dataset.data.colors),
+    [seasonRules, activeSeason, pccsGrid])
+
   // One tab stop for the whole grid, arrows to move within it — the pattern
   // useRovingFocus exists for. Without it a fifty-swatch grid would be fifty
   // tab stops, which is the exact defect v1.6.0 fixed in the sampler.
   const grid = useRovingFocus()
   const [picked, setPicked] = useState<number | null>(null)
-  // The pick belongs to the list being shown, so switching tab or season starts
-  // it over rather than leaving a selection pointing into the old palette.
-  const selected = picked !== null && shown.some((c) => c.id === picked)
+
+  // EVERYTHING ON SCREEN IS A VALID STARTING POINT, which is what the owner
+  // asked for: "this way anything on that page can be interactive as a starting
+  // point". So the pick is validated against both lists, not just the palette —
+  // and it has to be, because 47 of the 144 fit rows across the twelve seasons
+  // name a colour the season's palette does not contain. Measured, not assumed.
+  //
+  // The check still matters: it is what discards a pick left over from another
+  // tab or another season, which would otherwise name a colour nowhere on the
+  // page. Validating against a set derived from THIS render is why there is no
+  // reset effect and no frame where a stale id is reported upward.
+  const selectable = useMemo(() => {
+    const ids = new Set(shown.map((c) => c.id))
+    if (which === 'season') for (const p of pairs) ids.add(p.colorId)
+    return ids
+  }, [shown, pairs, which])
+
+  const selected = picked !== null && selectable.has(picked)
     ? picked
     : shown[0]?.id ?? null
+
+  // Tabbable by index so the grid keeps exactly one tab stop even when the
+  // page's selection is a fit row rather than a swatch — matching on id alone
+  // would leave the grid with none, and no way in from the keyboard.
+  const swatchFocus = Math.max(0, shown.findIndex((c) => c.id === selected))
   useEffect(() => {
     if (selected !== null) onSelectColor?.(selected)
   }, [selected, onSelectColor])
@@ -163,9 +191,9 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
 
       <div className="you-swatches" role="listbox" aria-label="Your colours — pick one to start a palette from"
         ref={grid.ref} onKeyDown={grid.onKeyDown}>
-        {shown.map((c) => (
+        {shown.map((c, i) => (
           <button key={c.id} type="button" className="you-swatch" role="option"
-            aria-selected={c.id === selected} {...grid.itemProps(c.id === selected)}
+            aria-selected={c.id === selected} {...grid.itemProps(i === swatchFocus)}
             onClick={() => setPicked(c.id)}
             title={reasonFor(c.id) || c.name}>
             <i style={{ background: c.hex }} />
@@ -183,7 +211,10 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
           here — the buttons it explains are in the sticky bar overhead. */}
       {shown.length > 0 && <YouDoorwayNote count={shown.length} />}
 
-      {which === 'season' && <SeasonFit sub={activeSeason} data={data} />}
+      {which === 'season' && (
+        <SeasonFit sub={activeSeason} pairs={pairs}
+          selectedId={selected} onSelect={setPicked} />
+      )}
 
       {/* The motivating case for the whole feature: "someone finds their season
           and the only way to show a friend is to make them redo the photo".

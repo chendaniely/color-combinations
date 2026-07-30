@@ -120,7 +120,7 @@ test.describe('the season display passes the same audit', () => {
 
     // And the fit panel, which is a different subtree.
     await page.getByRole('tab').nth(1).click()
-    await page.locator('.fit-pairs li').first().waitFor()
+    await page.locator('.fit-pair').first().waitFor()
     await expectClean(page, 'Season fit panel')
   })
 })

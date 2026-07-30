@@ -1,5 +1,27 @@
 # TODO — completed
 
+## v1.9.2 — every colour on the You page is a starting point (2026-07-30)
+
+Owner: *"i also want the 'what the book has for ...' those list of colors also
+clickable that changes the start a palette from. this way anything on that page
+can be interactive as a starting point"*.
+
+- [x] **The fit panel's rows are selectable**, and picking one renames "Start a
+      palette from …" exactly as a swatch does. Only the right-hand colour: the
+      left is a PCCS ideal the book does not contain and has no id to seed with
+      (`877e8de`).
+- [x] **The selection may leave the palette, because it has to.** 47 of the 144
+      fit rows across the twelve seasons name a colour outside that season's
+      palette — measured first — so the `palette.has(selectedId)` guard in
+      `YouDoorways` would have swallowed a third of the clicks. The staleness
+      check moved to `PaletteTabs`, which can see every list (`877e8de`).
+- [x] **Roving tabindex matched by row index rather than colour id**, so neither
+      list can end up with zero tab stops when the pick lives in the other, and
+      a colour serving two ideals cannot put two rows in the tab order
+      (`877e8de`).
+- [x] **The pick is visible on the colour at last.** It had driven the doorway
+      button since v1.8.3 with nothing marked in the list itself (`877e8de`).
+
 ## v1.9.1 — the photo first, the doorways floating (2026-07-30)
 
 Owner: *"the photo button on the bottom gets lost. we need the photo up at the

@@ -64,7 +64,7 @@ test.describe('the season display', () => {
     await reachThePalette(page)
     await page.getByRole('tab', { name: /·/ }).last().click()
 
-    const pairs = page.locator('.fit-pairs li')
+    const pairs = page.locator('.fit-pair')
     await expect(pairs.first()).toBeVisible()
     expect(await pairs.count()).toBeGreaterThan(0)
 
@@ -96,4 +96,77 @@ test.describe('the season display', () => {
     await expect(provenance).toContainText(/Japan Color Research Institute/i)
     await expect(provenance).toContainText(/our own subdivision/i)
   })
+})
+
+// "i also want the 'what the book has for ...' those list of colors also
+// clickable that changes the start a palette from. this way anything on that
+// page can be interactive as a starting point" — owner, 2026-07-30.
+//
+// A browser test because the payoff is a round trip through three components:
+// the row reports its colour, PaletteTabs decides the selection is valid, and
+// the sticky doorway bar renames its button. jsdom can check any one of those;
+// only the real page checks that they agree.
+test.describe('the fit rows are starting points too', () => {
+  test('picking one renames the palette button', async ({ page }) => {
+    await reachThePalette(page)
+    await page.getByRole('tab', { name: /·/ }).last().click()
+    const button = page.getByRole('button', { name: /start a palette from/i })
+    const before = await button.innerText()
+
+    const row = page.locator('.fit-pair').nth(3)
+    const name = await row.locator('.fit-name').innerText()
+    await row.click()
+
+    await expect(button).not.toHaveText(before)
+    expect(await button.innerText()).toContain(name)
+    await expect(row).toHaveAttribute('aria-selected', 'true')
+  })
+
+  test('and actually seeds Match with that colour', async ({ page }) => {
+    await reachThePalette(page)
+    await page.getByRole('tab', { name: /·/ }).last().click()
+    const row = page.locator('.fit-pair').nth(3)
+    const name = await row.locator('.fit-name').innerText()
+    await row.click()
+    await page.getByRole('button', { name: /start a palette from/i }).click()
+
+    // The whole point of making them clickable: the colour has to arrive in
+    // the palette tray, named.
+    await page.getByRole('radiogroup', { name: /matching level/i }).waitFor()
+    await expect(page.locator('.tray .chip .nm')).toContainText(name)
+  })
+
+  test('a swatch and a row share one selection', async ({ page }) => {
+    await reachThePalette(page)
+    await page.getByRole('tab', { name: /·/ }).last().click()
+    const row = page.locator('.fit-pair').nth(2)
+    await row.click()
+    await expect(row).toHaveAttribute('aria-selected', 'true')
+
+    // Picking in the other list must release this one — there is one "start
+    // from" button, so two simultaneous selections would be a lie.
+    await page.locator('.you-swatch').nth(4).click()
+    await expect(page.locator('.you-swatch').nth(4))
+      .toHaveAttribute('aria-selected', 'true')
+    const rowName = await row.locator('.fit-name').innerText()
+    const swatchName = await page.locator('.you-swatch').nth(4).innerText()
+    // Unless they are the same colour, which the crowding this panel documents
+    // makes entirely possible.
+    if (!swatchName.includes(rowName)) {
+      await expect(row).toHaveAttribute('aria-selected', 'false')
+    }
+  })
+
+  test('the pick is visible on the colour itself, not only in the button',
+    async ({ page }) => {
+      await reachThePalette(page)
+      // Selection has driven the button's text since v1.8.3 with no mark on the
+      // chosen colour at all. That was survivable with one list; with two it is
+      // not, and only a browser can see whether an outline renders.
+      const swatch = page.locator('.you-swatch').nth(5)
+      await swatch.click()
+      const outline = await swatch.locator('i').evaluate(
+        (el) => getComputedStyle(el).outlineStyle)
+      expect(outline, 'the chosen swatch is not marked').not.toBe('none')
+    })
 })

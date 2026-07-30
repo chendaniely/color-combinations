@@ -2157,3 +2157,38 @@ All three landed together because they are the same corner and the same page.
 - **Broke a line of copy in passing and only found it by looking.** The
   shared-link note said "take your own photo below"; the photo button had just
   moved above it. No test asks whether a direction is still true.
+
+## 2026-07-30 — Session 26: every colour is a starting point (v1.9.2)
+
+**Owner:**
+
+> in the you page, i also want the "what the book has for ..." those list of
+> colors also clickable that changes the start a palette from. this way anything
+> on that page can be interactive as a starting point
+
+### Notes
+
+- **Only the right-hand colour of each row.** The left is a PCCS ideal — a
+  computed target that is not in Wada's book and has no id to seed a palette
+  with. Left inert on purpose: the panel exists to show what the book does NOT
+  have, and making the ideal clickable would blur exactly that.
+- **The measurement that made this more than a click handler:** 47 of the 144
+  fit rows across the twelve seasons name a colour the season's palette does not
+  contain. So the selection has to be allowed to leave the palette, and the
+  `palette.has(selectedId)` guard in `YouDoorways` would have silently swallowed
+  a third of the new clicks. The staleness check it was really for moved to
+  `PaletteTabs`, the only component that can see every list on the page.
+- **Roving tabindex is matched by row index, not colour id.** By id, whichever
+  list did not hold the pick would have had no tabbable item and been
+  unreachable by keyboard; and because one colour can serve two ideals, matching
+  by id would have put two rows in the tab order.
+- **The pick became visible.** It had driven the "Start a palette from ..."
+  button since v1.8.3 with no mark on the chosen swatch at all. One list made
+  that survivable; two do not.
+
+### What Claude got wrong
+
+- **Guessed a selector instead of reading the component.** The new browser test
+  looked for the seeded colour in `.match-seed, .palette-chip, .match-page`,
+  none of which exist; the palette tray renders `.tray .chip .nm`. Failed on the
+  first run, which is the cheap way to find out.
