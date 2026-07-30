@@ -117,6 +117,22 @@ a check that needs a person. See `TODO-completed.md` for what went.
       `tests/browser/overlayBack.spec.ts` PINS the present behaviour, so
       changing it shows up as a deliberate diff rather than a silent one.
 
+## Found by review, deliberately not fixed
+
+- [ ] **`.search-sample` is largely dead CSS.** Measured 2026-07-30: `SearchBox`
+      renders inside `<nav className="nav">`, so `.nav button` (0,1,1) outranks
+      `.search-sample` (0,1,0) and `.nav button:hover` (0,2,1) outranks
+      `.search-sample:hover` (0,1,1). Six declarations never take effect — the
+      button paints `--ink-muted` on no background with no border, i.e. as a
+      plain nav item, not the bordered pill the rule and its comment describe.
+      **Left alone on purpose**: what renders today is what the owner reviewed
+      and approved, and the accidental result has BETTER contrast than the rule
+      intends (12.90 against the 2.92 `--accent` would give — the very ratio
+      removed from `.sample-src-ic` in this same pass). Fixing the specificity
+      would change the header's appearance, which is a design decision rather
+      than a defect repair. Either raise the specificity and re-approve the look,
+      or delete the dead declarations; do not leave the rule claiming both.
+
 ## Owner's queued ideas (2026-07-30)
 
 - [x] ~~**The pencil icon should be a camera**, with a visible label.~~ — shipped

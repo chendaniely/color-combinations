@@ -170,3 +170,48 @@ test.describe('the fit rows are starting points too', () => {
       expect(outline, 'the chosen swatch is not marked').not.toBe('none')
     })
 })
+
+// Duplicate rows: 60 of the 144 rows across the twelve seasons repeat a colour
+// that serves more than one ideal. That is the panel's own finding, and it is
+// also the case both attempts at this selection got wrong — first by lighting
+// every duplicate at once, then by lighting the FIRST one whichever you clicked.
+//
+// Light Spring is used explicitly rather than whatever the synthetic portrait
+// happens to classify as: the shipped tests clicked rows 2 and 3 of an
+// arbitrary season, neither of which was a duplicate, which is why neither
+// attempt was caught.
+test.describe('the fit rows with duplicate colours', () => {
+  const litRows = (page: import('@playwright/test').Page) =>
+    page.locator('.fit-pair[aria-selected="true"]').evaluateAll(
+      (els) => els.map((e) => [...e.parentElement!.children].indexOf(e)))
+
+  test('selects the row you clicked, and only that row', async ({ page }) => {
+    await page.goto('./#/you?season=light-spring')
+    await page.locator('.fit-pair').first().waitFor({ timeout: 30_000 })
+
+    const names = await page.locator('.fit-name').allInnerTexts()
+    const dup = names.findIndex((n, i) => i > 0 && n === names[i - 1])
+    expect(dup, 'Light Spring has no duplicate row to test').toBeGreaterThan(0)
+
+    await page.locator('.fit-pair').nth(dup).click()
+    expect(await litRows(page), 'a different row lit up').toEqual([dup])
+  })
+
+  test('the highlight follows the arrow keys instead of jumping back',
+    async ({ page }) => {
+      await page.goto('./#/you?season=light-spring')
+      await page.locator('.fit-pair').first().waitFor({ timeout: 30_000 })
+      await page.locator('.fit-pair').first().click()
+
+      for (let row = 1; row <= 5; row++) {
+        await page.keyboard.press('ArrowDown')
+        const focused = await page.evaluate(() =>
+          [...document.activeElement!.parentElement!.children]
+            .indexOf(document.activeElement!))
+        expect(focused, 'focus did not move').toBe(row)
+        // useRovingFocus promises selection follows focus; in a single-select
+        // listbox the focused option must be the selected one.
+        expect(await litRows(page), 'highlight and focus disagree').toEqual([row])
+      }
+    })
+})

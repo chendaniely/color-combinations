@@ -167,4 +167,26 @@ test.describe('Back closes an overlay', () => {
       await expect(page.locator('.chord-wheel')).toBeVisible()
       expect(page.url()).toBe(wheelUrl)
     })
+
+  // A REAL NAVIGATION ARRIVING WITH AN OVERLAY OPEN must be honoured, not eaten.
+  //
+  // The dismiss branch used to return unconditionally, so a pasted deep link, a
+  // Forward press or any `location.hash =` that landed while the sampler was up
+  // closed the overlay and was then silently undone by the state effect writing
+  // the old URL back. A reviewer hit it by accident and hung a test for four
+  // minutes on it.
+  test('a hash change with an overlay open is honoured, not swallowed',
+    async ({ page }) => {
+      await page.goto('./')
+      await page.locator('.chord-wheel').waitFor()
+      await page.locator('.search-sample').click()
+      await expect(page.getByRole('dialog')).toBeVisible()
+
+      await page.evaluate(() => { location.hash = '#/browse' })
+
+      // The overlay goes, AND the navigation lands.
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      await expect(page.locator('.browse-view')).toBeVisible()
+      expect(page.url()).toContain('#/browse')
+    })
 })

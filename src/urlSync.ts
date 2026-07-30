@@ -129,10 +129,21 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
    */
   const overwriteMarker = useRef(false)
 
-  // A marker left over from a previous page life. `history.state` survives a
-  // reload, and a Forward can land back on one, so a page can start sitting on
-  // an entry flagged as an overlay with no overlay open. Clearing the flag
-  // stops the next close from trying to pop an entry that is not ours.
+  // A marker left over from a previous page life: `history.state` survives a
+  // reload, so a page can start sitting on an entry flagged as an overlay with
+  // no overlay open. Clearing the flag stops a later close from trying to pop
+  // an entry that is not ours.
+  //
+  // MOUNT ONLY, and deliberately so. A Forward press can also land on a stale
+  // marker, which this does not catch — but both readers of `history.state`
+  // gate on `marker.current`, which is only ever set by a push we made in this
+  // page life, so a stale flag is inert rather than harmful. An earlier version
+  // of this comment claimed to cover the Forward case, which it never did.
+  //
+  // What survives either way is the marker ENTRY. After a reload with an
+  // overlay open, the first Back lands on a duplicate of the current URL and
+  // appears to do nothing. Removing a history entry is not something the
+  // platform offers, so this is a residual of the design, not an oversight.
   useEffect(() => {
     if (history.state?.overlay && !anyOverlayOpen()) {
       history.replaceState(null, '',
@@ -234,11 +245,21 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
       // Back with an overlay up means DISMISS. The entry being popped is the
       // marker, so the state behind it is the state we are already in: close
       // the overlay and restore nothing.
+      //
+      // BUT ONLY WHEN THE ADDRESS DID NOT ACTUALLY CHANGE. This used to return
+      // unconditionally, which swallowed any real navigation that arrived while
+      // an overlay was open — a pasted deep link, a Forward press, a
+      // `location.hash =` — and then the state effect wrote the old URL back
+      // over it. The visitor's navigation vanished with no sign it had been
+      // ignored. Now a genuine hash change closes the overlay and then falls
+      // through to be honoured like any other.
       if (anyOverlayOpen()) {
         marker.current = false
         closeAllOverlays()
-        written.current = location.hash
-        return
+        if (location.hash === written.current) {
+          written.current = location.hash
+          return
+        }
       }
       if (location.hash === written.current) return
       const restored = { ...initialState, ...sanitise(decodeState(location.hash)) }

@@ -30,12 +30,28 @@ import { useRovingFocus } from '../useRovingFocus'
 //
 // Presentational: it is handed its pairs and reports a click. PaletteTabs owns
 // the selection because the swatch grid shares it — one pick, two lists.
-export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
+export function SeasonFit({ sub, pairs, selectedId, selectedRow, onSelect }: {
   sub: SubSeason
   pairs: IdealPair[]
   /** The page-wide pick, which may well be a swatch rather than a row here. */
   selectedId: number | null
-  onSelect: (id: number) => void
+  /**
+   * WHICH ROW the visitor clicked, when the pick came from this list.
+   *
+   * A colour id is not enough to identify a row, and that is the whole point of
+   * this panel: 60 of the 144 rows across the twelve seasons repeat a colour
+   * that serves more than one ideal. Deriving the row from the id with
+   * `findIndex` returns the FIRST row carrying it, so clicking the second
+   * "Light Pinkish Cinnamon" lit up the first — the highlight jumped backwards
+   * as you arrowed forwards, and the focused option reported
+   * aria-selected="false" in a single-select listbox. That was a worse lie than
+   * the one it replaced (all duplicates selected at once), so the row has to
+   * travel with the pick rather than be reconstructed from it.
+   *
+   * null when the page's pick is a swatch instead.
+   */
+  selectedRow: number | null
+  onSelect: (id: number, row: number) => void
 }) {
   const nameOf = (id: number) => dataset.colorById.get(id)?.name ?? ''
   const hexOf = (id: number) => dataset.colorById.get(id)?.hex ?? '#000'
@@ -54,8 +70,11 @@ export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
   // -1 when the page's pick is a swatch rather than a row here. Then NO row is
   // selected, which is the truth, and row 0 merely holds the tab stop so the
   // list stays reachable from the keyboard.
-  const selectedRow = pairs.findIndex((p) => p.colorId === selectedId)
-  const focusRow = Math.max(0, selectedRow)
+  // A swatch pick that happens to name a colour this list also holds still
+  // highlights it — the first row is the honest answer there, because the
+  // visitor did not choose between the duplicates.
+  const litRow = selectedRow ?? pairs.findIndex((p) => p.colorId === selectedId)
+  const focusRow = Math.max(0, litRow)
 
   // The headline number is how many DISTINCT colours serve these ideals, not
   // how many are a good match. Measured across all twelve seasons, only one
@@ -80,8 +99,8 @@ export function SeasonFit({ sub, pairs, selectedId, onSelect }: {
         {pairs.map((p, i) => (
           <button key={p.hue} type="button" role="option"
             className={`fit-pair fit-${p.band.replace(' ', '-')}`}
-            aria-selected={i === selectedRow} {...list.itemProps(i === focusRow)}
-            onClick={() => onSelect(p.colorId)}>
+            aria-selected={i === litRow} {...list.itemProps(i === focusRow)}
+            onClick={() => onSelect(p.colorId, i)}>
             <i className="fit-ideal" style={{ background: p.idealHex }}
               aria-hidden="true" />
             <span className="fit-arrow" aria-hidden="true">→</span>

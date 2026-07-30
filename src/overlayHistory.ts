@@ -20,9 +20,16 @@
 // the only thing that touches it.
 //
 // The count, not a boolean: FaceCapture -> ProbeReview unmounts one overlay and
-// mounts the next in a single React commit. urlSync subscribes through
-// useSyncExternalStore, so it observes the settled value after that commit and
-// never sees the momentary dip to zero that killed attempt 1.
+// mounts the next in a single React commit, and urlSync subscribes through
+// useSyncExternalStore, so what it acts on is the settled value after that
+// commit rather than the dip that killed attempt 1.
+//
+// Precisely: a subscriber CAN observe a false in between — measured [true,
+// false, true] while an Overlay re-registers on a changed onClose — because
+// `emit()` fires synchronously on each call. It is harmless because the
+// snapshot is back to the same value by the time React re-renders, so React
+// bails out and the effect keyed on it never runs. An earlier version of this
+// comment said the dip is never seen at all, which is stronger than the truth.
 type Closer = () => void
 
 // An ARRAY OF UNIQUE ENTRIES, not a Set of functions, and that is a bug fix
@@ -92,5 +99,16 @@ export function anyOverlayOpen(): boolean {
  * closer that runs against an unmounting component is a no-op.
  */
 export function closeAllOverlays(): void {
-  for (const { close } of [...entries]) close()
+  // Every closer runs even if one throws. Without the guard a single failure
+  // aborts the sweep and strands every entry after it — with an overlay still
+  // on screen and the history marker already consumed, which is the worst state
+  // this module can be in. Nothing throws today; that is not a reason to let
+  // one failure become two.
+  for (const { close } of [...entries]) {
+    try {
+      close()
+    } catch (err) {
+      console.error('overlay closer threw', err)
+    }
+  }
 }
