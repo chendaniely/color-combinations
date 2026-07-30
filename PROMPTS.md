@@ -2111,3 +2111,49 @@ All three landed together because they are the same corner and the same page.
   most of a desktop screen empty. Both were found by taking a screenshot after
   committing, which is the only thing that finds them: neither is a question a
   test asks.
+
+## 2026-07-30 — Session 25: the photo first, the doorways floating (v1.9.1)
+
+**Owner, reporting two placement problems on the You tab:**
+
+> on the you page, the take a photo needs to be on the top, right now it current
+> prepopulates with a season and the photo button on the bottom gets lost. we
+> need the photo up at the top so it's a clear entry point. i also think we need
+> another copy of the browse and start from pallete set of buttons around the
+> your and season color palletes. when the colors return a lot of values, those
+> buttons get lost from the long list
+
+**Owner, mid-implementation, replacing their own second request:**
+
+> actually, since i have those buttons repeated 3 times on the pages now. maybe
+> we have those brose/start be a floating set of buttons so it's out of the way
+> but travels with the user as they scroll on the desktop / phone
+
+### Notes
+
+- The second prompt is the better idea and arrived after the third copy was
+  already built and passing. Duplication had been the answer to "the buttons get
+  lost" since v1.8.3 — one copy, then two, then three — and each round treated
+  the symptom. One bar that travels replaces all of them.
+- **Sticky, not fixed.** It keeps its place in the flow, so it reserves its own
+  height instead of covering the palette, needs no pointer-events handling,
+  degrades to a plain block where sticky is unsupported, and stops following at
+  the end of its region rather than hanging over unrelated content.
+- **Pinned to the top, not the bottom**, because the corner seal is fixed
+  bottom-right. Verified rather than argued: setting `top: calc(100vh - 110px)`
+  fails the new phone check and passes on desktop, where the two are in
+  different columns.
+- The bar's background repeats the body's `linear-gradient(...) fixed`. `fixed`
+  positions a background against the viewport, so the bar paints exactly the
+  pixels it covers at any scroll offset and content vanishes under it cleanly.
+  A flat `--paper` token cannot match a gradient.
+
+### What Claude got wrong
+
+- **Wrote a collision test that compared only vertical extents**, which called
+  an overlap on desktop where the bar and the corner mark are in different
+  columns and never touch. Replaced with a real rectangle intersection, checked
+  at the position the bar actually spends the visit in.
+- **Broke a line of copy in passing and only found it by looking.** The
+  shared-link note said "take your own photo below"; the photo button had just
+  moved above it. No test asks whether a direction is still true.

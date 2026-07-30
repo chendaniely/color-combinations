@@ -118,6 +118,11 @@ a check that needs a person. See `TODO-completed.md` for what went.
 - [ ] The accessibility goggles are `position: absolute` and scroll away exactly
       as the corner seal did before v1.8.3. Not changed: it is a control rather
       than decoration, and pinning it costs phone screen space. Owner's call.
+      **Seen on a phone, 2026-07-30:** at 390px the ACCESSIBILITY chip lands on
+      top of the You tab's `<h1>`, overlapping the words. Predates this release
+      and is not caused by it — found while screenshotting the sticky doorway
+      bar. Worth fixing whichever way the pinning question goes, since the
+      collision is with the heading rather than with the scroll.
 
 ## Needs a person, not a test
 
