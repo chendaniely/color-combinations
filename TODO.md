@@ -102,6 +102,37 @@ a check that needs a person. See `TODO-completed.md` for what went.
       issue is the signal to stop and design, which is what CLAUDE.md's
       debugging guidance says.
 
+## Owner's queued ideas (2026-07-30)
+
+- [ ] **The pencil icon should be a camera**, with a visible label. The pencil
+      means "edit"; the button means "sample a colour". Owner: *"i think people
+      will better grivitate to a camera knowing it's for a picture."* A bare icon
+      is undiscoverable whatever the glyph, so the label does most of the work.
+- [ ] **Match > Colors is a DEAD END, not merely undiscoverable.** Levels 1 and 2
+      render a `ShadePicker`; level 0 renders a sentence pointing at affordances
+      elsewhere. Owner: *"it only really populates after i come from the you page
+      … on its own there's no way to get to a similar page."* Fill it with entry
+      cards — search, camera, photo, wheel — extracted from `ColorSampler` so the
+      overlay and the inline gallery share one component, feeding the existing
+      `ColorMatches` hub. Do NOT change the default level: Shades has a working
+      picker and 23 options against 157.
+- [ ] **Browse should have season filters that work independently**, so it
+      connects to the You tab without requiring it. Composes with the palette
+      filter shipped in v1.8.2 — a season simply supplies the palette. Note the
+      season data is code-split and currently loads only on the You tab.
+- [ ] **Put the reading in a link**, so a measured palette is shareable.
+      **This REVERSES the v1.8.0 privacy decision**, which the owner made
+      knowingly after asking "is this really a privacy issue?" — the answer given
+      was: mild, not serious, because the recipient can already see you and the
+      fragment never reaches a server. Requires rewriting the README sentence
+      that currently promises a link "does not contain your skin tone", the
+      CLAUDE.md rule, and `tests/urlPrivacy.test.ts`. **Do not ship the change
+      while the old promise still stands.** A note by the Share button saying the
+      link includes measurements would make it an informed choice.
+- [ ] The accessibility goggles are `position: absolute` and scroll away exactly
+      as the corner seal did before v1.8.3. Not changed: it is a control rather
+      than decoration, and pinning it costs phone screen space. Owner's call.
+
 ## Needs a person, not a test
 
 - [ ] **The You tab has still only ever seen ONE face.** The scoring rules were
