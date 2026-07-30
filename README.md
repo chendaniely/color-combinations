@@ -5,7 +5,9 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.8.1 shipped (2026-07-29) — a bug hunt and a documentation audit:
+> **Status:** v1.8.2 shipped (2026-07-30) — the You tab's doorways now carry your
+> whole palette into Browse, with the four-step floor control, instead of a
+> single colour. Before it, v1.8.1 — a bug hunt and a documentation audit:
 > Back now returns to the previous tab, and the warm/cool count the site quotes
 > is computed from the book rather than typed in (it had been wrong in three
 > places for several releases). Before it, v1.8.0 — **every screen has an address**:
