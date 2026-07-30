@@ -123,7 +123,7 @@ test.describe('the season display at phone width', () => {
     await reachThePalette(page)
     await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
     await page.getByRole('tab').nth(1).click()
-    await page.locator('.fit-pairs li').first().waitFor()
+    await page.locator('.fit-pair').first().waitFor()
 
     const overflow = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
@@ -138,7 +138,7 @@ test.describe('the season display at phone width', () => {
     await reachThePalette(page)
     await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
     await page.getByRole('tab').nth(1).click()
-    const row = page.locator('.fit-pairs li').first()
+    const row = page.locator('.fit-pair').first()
     await row.waitFor()
 
     // The comparison is the whole point of the panel: if the band label wraps

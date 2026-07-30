@@ -235,6 +235,67 @@ describe('a season shared by link, with no reading', () => {
   it('still shows the fit panel, which needs no reading', async () => {
     const { container } = await shared()
     expect(container.querySelector('.season-fit')).toBeTruthy()
-    expect(container.querySelectorAll('.fit-pairs li').length).toBeGreaterThan(0)
+    // Rows became buttons in v1.9.2 so they can be picked to start a palette.
+    expect(container.querySelectorAll('.fit-pair').length).toBeGreaterThan(0)
+  })
+})
+
+// "this way anything on that page can be interactive as a starting point"
+// (owner, 2026-07-30). Two lists, one pick — so the interesting cases are the
+// ones that cross between them.
+describe('picking a starting colour from either list', () => {
+  // The fit panel only renders on the season view, and a shared link lands
+  // there directly — the shortest route to having both lists on screen.
+  async function bothLists(season = 'deep-autumn') {
+    const utils = render(
+      <PaletteTabs reading={null} season={season} dispatch={vi.fn()} />)
+    await waitFor(() => expect(screen.queryByLabelText(/season/i)).toBeTruthy())
+    return utils
+  }
+
+  it('a fit row changes the selection, even outside the palette', async () => {
+    const { container } = await bothLists()
+    const rows = [...container.querySelectorAll<HTMLElement>('.fit-pair')]
+    const palette = new Set([...container.querySelectorAll('.you-swatch')]
+      .map((el) => el.getAttribute('title')))
+
+    // The case that made this more than a click handler: a third of the fit
+    // rows across the twelve seasons name a colour the palette does not hold,
+    // and the old guard in YouDoorways silently ignored exactly those.
+    const outside = rows.find(
+      (r) => !palette.has(r.querySelector('.fit-name')!.textContent))
+    expect(outside, 'no fit row outside the palette in this season').toBeTruthy()
+
+    fireEvent.click(outside!)
+    expect(outside!.getAttribute('aria-selected')).toBe('true')
+  })
+
+  it('picking in one list clears the pick in the other', async () => {
+    const { container } = await bothLists()
+    const swatch = container.querySelector<HTMLElement>('.you-swatch')!
+    const row = container.querySelector<HTMLElement>('.fit-pair')!
+
+    fireEvent.click(row)
+    expect(row.getAttribute('aria-selected')).toBe('true')
+    fireEvent.click(swatch)
+    expect(swatch.getAttribute('aria-selected')).toBe('true')
+    // One pick on the page, so the row must let go — unless it happens to name
+    // the same colour, which the crowding this panel documents makes possible.
+    if (row.querySelector('.fit-name')!.textContent !== swatch.getAttribute('title')) {
+      expect(row.getAttribute('aria-selected')).toBe('false')
+    }
+  })
+
+  it('leaves each list exactly one tab stop, and neither with none', async () => {
+    const { container } = await bothLists()
+    const stops = (sel: string) => [...container.querySelectorAll(sel)]
+      .filter((e) => e.getAttribute('tabindex') === '0').length
+
+    // Matching the roving tabindex on colour id alone would leave the OTHER
+    // list with no tabbable item at all — unreachable by keyboard — whenever
+    // the pick lived across the way.
+    fireEvent.click(container.querySelector<HTMLElement>('.fit-pair')!)
+    expect(stops('.you-swatch'), 'the swatch grid lost its tab stop').toBe(1)
+    expect(stops('.fit-pair'), 'the fit list has more than one tab stop').toBe(1)
   })
 })

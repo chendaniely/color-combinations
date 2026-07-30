@@ -576,6 +576,22 @@ main { flex: 1; min-height: 0; position: relative; }
   display: block;
 }
 .you-swatch span { font-size: 0.68rem; color: var(--ink-muted); line-height: 1.3; }
+
+/* WHICH ONE IS PICKED, shown at last.
+   Selection has driven the "Start a palette from ..." button since v1.8.3 and
+   was visible ONLY in that button's text — fine when it was the one thing that
+   changed, wrong now that two lists share the pick and the button lives in a
+   bar at the top of the screen. The ring is on the swatch and the row alike, so
+   moving the pick between the lists is legible.
+   Outline rather than a background: these sit against the colour itself, and a
+   background would be a second colour argued with the content. */
+.you-swatch[aria-selected='true'] i,
+.fit-pair[aria-selected='true'] .fit-actual {
+  outline: 2px solid var(--link); outline-offset: 2px;
+}
+.you-swatch[aria-selected='true'] span,
+.fit-pair[aria-selected='true'] .fit-name { color: var(--ink); font-weight: 700; }
+.fit-pair[aria-selected='true'] { background: var(--paper-2); }
 .you-note {
   margin-top: var(--s4); font-size: 0.82rem; color: var(--ink-muted);
   border-left: 2px solid var(--accent); padding-left: var(--s3); max-width: 46rem;
@@ -616,11 +632,17 @@ main { flex: 1; min-height: 0; position: relative; }
   font-family: var(--font-display); font-size: 1.05rem; font-weight: 500;
   margin: 0 0 var(--s3);
 }
-.fit-pairs { list-style: none; margin: 0 0 var(--s3); padding: 0; }
-.fit-pairs li {
-  display: flex; align-items: center; gap: var(--s2);
-  padding: var(--s1) 0; border-bottom: 1px solid var(--hairline);
+.fit-pairs { margin: 0 0 var(--s3); }
+/* Rows are buttons since v1.9.2 — picking one starts a palette from the book
+   colour on its right. Reset to look like the list they were, then given the
+   same selected treatment as a swatch, because the two lists share ONE pick. */
+.fit-pair {
+  display: flex; align-items: center; gap: var(--s2); width: 100%;
+  padding: var(--s1) var(--s2); border: 1px solid transparent;
+  border-bottom-color: var(--hairline); border-radius: var(--radius);
+  background: none; text-align: left; color: inherit;
 }
+.fit-pair:hover { background: var(--paper-2); }
 .fit-pairs i {
   width: 26px; height: 26px; flex: 0 0 auto;
   border-radius: var(--radius); border: 1px solid var(--hairline);
