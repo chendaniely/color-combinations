@@ -452,6 +452,55 @@ sparingly, blue #236192 links, warm neutrals). Tokens in
 (names/wordmark only), Atkinson Hyperlegible (UI), Hyperlegible Mono
 (codes).
 
+## Verifying: how to not fool yourself
+
+Four rules, each learned by being wrong in a way a green suite did not
+catch. They cost hours on 2026-07-30 and they will cost them again.
+
+**A guard is worth nothing until you have seen it fail.** Plant the bug,
+run the test, watch it go red, then restore. Three tests written that day
+guarded nothing and were only found by doing this — including the guard
+for a regression the owner had reported personally, which passed with the
+regression fully restored.
+
+**A plant must COMPILE before it proves anything.** Reverting one line
+often leaves an unused import or prop; `npm run build` then fails, `dist/`
+keeps the *fixed* bundle, and the browser test passes against it. That
+looked like "the guard does not fire" twice in one session. Always check
+the build succeeded before believing the result.
+
+**Playwright reuses a preview server on 4173 and SKIPS its build.**
+`reuseExistingServer: !CI`. If one is already up — from an earlier run, or
+another session — your source edit is not in what the browser is testing.
+Run `npm run build` yourself before any measurement you intend to trust.
+
+**Measure leaves, not containers.** `getBoundingClientRect()` on a wrapper
+reports the wrapper's box: a full-width flex row whose buttons sit at the
+far left "overlaps" everything to its right. This produced three false
+collision readings in one session. Only assert against elements with ink
+on them.
+
+And when writing any of this down: **cite selectors and symbols, never
+line numbers.** A paragraph of line numbers added to this file was stale
+in the same commit that wrote it, because that commit's own edits moved
+the file.
+
+## Reviewing with subagents
+
+The owner asks for multi-agent bug/documentation/review loops, repeated
+until clean, with the standing instruction: *"never assume the docs are
+correct, confirm it."* Two things make that work:
+
+- **One worktree per writing agent.** Four agents were pointed at a single
+  worktree on 2026-07-30 and two collided — one planted a bug to test a
+  guard, another found it, assumed it was stray, and reverted it. Both
+  were behaving correctly. `git worktree add --detach ../cc-rN <branch>`
+  and symlink `node_modules`; each agent also needs its own preview port.
+- **Run the loop at least twice.** Round two of that review found that
+  round one's *corrections* had introduced fresh errors — a fix that lit
+  the wrong row, a comment contradicting the rule below it, a test fixture
+  that reset nothing. Fresh prose is where fresh errors live.
+
 ## Commands
 
 `make help` lists everything. Verify `make test` and `make build` pass
