@@ -167,14 +167,27 @@ Never treat a plan as a description of the current code.
   the honest move is to add it here, not to cite this rule for something it
   does not say.
 
-  **Known debt, counted 2026-07-30 rather than asserted:** eight bare `rgba()`
-  values in `app.css` sit outside all three exemptions — translucent
-  white/black scrims at lines 503, 511, 598, 905, 911, and, worse, `--accent`
-  and `--link` retyped as raw channels at 503 and 621-622. One shadow at line
-  1065 hard-codes `rgba(47, 42, 38, …)`, which is the exact value `--ink-rgb`
-  was introduced to abolish and which four other shadows correctly use. So this
-  rule currently describes an intention, not the file. Do not read "exactly
-  three" as a measurement until that list is empty.
+  **Known debt, counted 2026-07-30 rather than asserted:** nine bare `rgba()`
+  values in `app.css` sit outside all three exemptions. Named by SELECTOR, not
+  by line number — the first version of this paragraph cited line numbers and
+  they were stale in the same commit that added them, because that commit's own
+  edits moved the file. Selectors survive an edit; line numbers do not.
+
+  Derived by walking the file and attributing each `rgba()` to the rule it sits
+  in, rather than read off by eye:
+
+  - `.cam-reticle` (two, one of which retypes `--accent` as raw channels)
+  - `.face-oval`, `.infotip-body`, `.probe-dot.is-white`, `.probe-dot b`
+  - `.reading-badge.ok` and `.reading-badge.rough`, which retype `--link` and
+    `--accent` as raw channels
+  - `.a11y-menu`, whose shadow hard-codes `rgba(47, 42, 38, …)` — the exact
+    value `--ink-rgb` exists to abolish, and which `.panel`, `.search-results`
+    and `.you-doorways` all correctly write as `rgb(var(--ink-rgb) / …)`
+
+  A tenth, in `.disc-face`, is inside exemption 2 and is fine.
+
+  So this rule currently describes an intention, not the file. Do not read
+  "exactly three" as a measurement until that list is empty.
 
   **`opacity` on text evades this rule entirely.** Fading text changes its
   rendered contrast while the token stays correct, so no audit of colour
@@ -339,8 +352,8 @@ a reason, or disable it inline where the reasoning belongs (see
 `ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
 
 **The three ink tokens must stay WCAG AA (>= 4.5:1) against all THREE papers.**
-`tests/browser/a11y.spec.ts` audits thirteen screens with axe and will fail
-if they don't. Before touching `--ink*` or `--paper*`, re-measure with
+`tests/browser/a11y.spec.ts` audits fourteen screens with axe and will fail
+if they don't. (Thirteen `test()` cases — one of them audits two screens.) Before touching `--ink*` or `--paper*`, re-measure with
 culori's `wcagContrast` — the same function the goggles use. Note that
 `--ink-faint` cannot simply be darkened "until it passes": that lands it
 on top of `--ink-muted`. The three were solved together for distinct

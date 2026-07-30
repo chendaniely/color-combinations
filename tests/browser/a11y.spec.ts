@@ -24,7 +24,7 @@ async function expectClean(page: Page, where: string) {
   // 7.08:1 — a false positive that looked exactly like a real defect and cost
   // an hour to disbelieve.
   //
-  // Done here rather than at each call site so all thirteen audits are immune,
+  // Done here rather than at each call site so all fourteen audits are immune,
   // including the original nine, which were one CSS change away from the same
   // flake.
   await page.evaluate(() =>

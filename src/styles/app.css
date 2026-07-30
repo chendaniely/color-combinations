@@ -201,11 +201,14 @@ main { flex: 1; min-height: 0; position: relative; }
    nothing: the size pills are ~110px, so the goggles sit comfortably beside them
    and the selects get a clean row underneath. Padding took the space out of
    EVERY row, which is what made the phone bar three rows tall.
-   Scoped to the widths where the goggles can actually reach this row: the page
-   is a centred column, so above ~1100px the free margin is wider than the
-   goggles and they never come near it. Measured 2026-07-30 — free margin per
-   side: 390px->16, 768px->32, 1024px->152, 1280px->244, against a ~150px
-   control. */
+   Scoped to the widths where the goggles can actually reach this row. Measured
+   2026-07-30 — free margin per side: 390px->16, 768px->32, 1024px->152,
+   1280px->244; the control itself is 130px wide at every width.
+   The 1100px breakpoint is what does the work, NOT the margin-versus-width
+   comparison an earlier version of this comment reasoned from: at 1024px the
+   margin (152) already exceeds the control (130), yet the goggles' box spans
+   x=862-992 against a content edge at 872, so they still overlap. Rounded up to
+   1100 for headroom rather than derived. */
 @media (max-width: 1100px) {
   .browse-filters .size-filter { flex: 1 1 100%; }
   /* Same remedy for Match's header. `justify-content: space-between` throws the
@@ -636,10 +639,14 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Where this palette came from — never behind a disclosure.
    A CITATION, MARKED AS ONE, rather than a fourth coloured left rule.
-   Six classes on this site draw a 2px coloured rule down the left of a block of
-   small muted prose: you-privacy, you-note, shared-season, you-provenance,
-   fit-caveat and the goggles note. Three of them stack consecutively on the You
-   tab, so the device stopped meaning "read this" and started meaning "text".
+   Six rules on this site draw a 2px coloured rule down the left of a block of
+   small muted prose: .you-privacy, .reading-caveat, .you-note (which
+   .shared-season recolours), .you-provenance, .fit-caveat and .probe-note.
+   Three of them stack consecutively on the You tab, so the device stopped
+   meaning "read this" and started meaning "text".
+   (An earlier version of this list named "the goggles note", which does not
+   exist — the wheel's empty note has no rule — and omitted .reading-caveat and
+   .probe-note, which do. Counted with grep on 2026-07-30.)
    This one is not a notice at all — it is a source, and a source is set apart
    by a rule ABOVE, not by an alert stripe down its side. Nothing was deleted:
    every word still renders.
@@ -1085,7 +1092,7 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Phosphor sizes to 1em, so font-size still drives the glyph exactly as it drove
    the emoji. What is new is that `color` works: an emoji is an OS-rendered image
    and ignores it. Muted by default so the icon sits behind its label instead of
-   competing with it, and picks up the accent on hover with the card. */
+   competing with it. See the hover rule below for which colour it takes. */
 .sample-src-ic {
   width: 28px; font-size: 1.35rem; color: var(--ink-muted);
   display: flex; align-items: center; justify-content: center; flex: 0 0 auto;

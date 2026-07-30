@@ -42,7 +42,9 @@ export function YouView({ state, dispatch }: {
   // effect re-runs -> setVisiblePalette with a new Set identity -> re-render ->
   // new callback. Measured with CDP over a 3s idle window on the built site:
   // the You tab burned 2.99s of script time (a full core, indefinitely) against
-  // 0.000s on every other tab, re-ranking all 338 combinations each pass. It is
+  // 0.000s on every other tab, re-ranking all 338 combinations each pass.
+  // (idleCpu.spec.ts guards it over 2s, which is the same fault at a different
+  // sample length — the numbers here are the diagnosis, not the threshold.) It is
   // silent in production — React only names it in dev — so no console test
   // could ever have caught it. Wrapping this brought the same measurement to
   // 0.000s with nothing else changed.

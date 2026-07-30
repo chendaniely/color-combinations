@@ -73,10 +73,16 @@ test.describe('the sample button says what it is', () => {
     // that intent beats artwork. A reviewer showed that is too weak: the
     // attribute is written by hand here, so importing `Pencil as Camera`
     // renders a pencil and the test named "not a bare pencil" passes. So also
-    // compare the rendered path against the gallery's camera card, which comes
-    // from the same import — swap one and they diverge.
-    // (The glyph's identity against the LIBRARY is checked in the fast suite,
-    // in tests/colorEntry.test.tsx, where it costs no browser.)
+    // compare the rendered path against the gallery's camera card.
+    //
+    // They are SEPARATE imports — SearchBox.tsx and ColorEntry.tsx each import
+    // Camera — and that is exactly why the comparison catches anything: change
+    // one and the two diverge. (An earlier version of this comment said "the
+    // same import", which would have made the check worthless.)
+    //
+    // The fast suite covers the other half: tests/colorEntry.test.tsx compares
+    // the GALLERY's glyph against the library's own Camera, so a swap in both
+    // files at once is caught there. Neither suite catches both places alone.
     await expect(button.locator('[data-icon="camera"]')).toHaveCount(1)
     const headerPath = await button.locator('svg path').first().getAttribute('d')
 

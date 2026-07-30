@@ -2192,3 +2192,109 @@ All three landed together because they are the same corner and the same page.
   looked for the seeded colour in `.match-seed, .palette-chip, .match-page`,
   none of which exist; the palette tray renders `.tray .chip .nm`. Failed on the
   first run, which is the cheap way to find out.
+
+## 2026-07-30 — Session 27: three UI/UX skills, tested on this site (spike)
+
+Not a release. Branch `spike/ui-ux-review`, in a worktree, so the owner could
+review or discard it whole.
+
+**Owner, opening it:**
+
+> i want to test something new. i just installed a lot of ui/ux skills the
+> froenend design, ui/ux pro max, tastes skills. can we use those to see if there
+> are any improvements we can make to the site? let's do this in a worktree as a
+> test so i can review, so the commits don't all end up in main and easy to
+> revert
+
+**On the emoji-versus-icons question, which was raised as an open decision:**
+
+> i'm okay with an icon library instead of emojis. gives us more flexibility.
+> otherwise implmeent the plan run the dev server and i'll see the results
+
+**On the wheel, rejecting a change on sight:**
+
+> the wheel - i don't like the text that tells me what to do. tis distracting. i
+> liked it better with a clean overlay. people can self discover the wheel chord
+> diagram. i mostly don't liek the text on the wheel. it makes screenshots
+> horrible. otherwise looks good. pretty minor tweaks. i want to improve on the
+> match > colors page more but that's later
+
+**On page width:**
+
+> one thing i do want to address is the page width across the match/browse/you
+> are all different. i liked it when it is a bit more constrained in the you
+> page. so let's make sure those parts of the UI are consistent and also works
+> for mobile
+
+and, when offered three fixed candidates:
+
+> can we pick a golden ratio value for all the pages?
+
+**Reporting a bug:**
+
+> clicking "back" on sample should close that drop down, right now back actually
+> goes back on the URL. so i will kick myself out of the site
+
+**Two corrections to things the spike had just changed:**
+
+> whaat i've noticed now is there is now a hideous scrollbar on the edge where
+> the new boundry is. that scroll bar shoudl just say on the edge of the browser
+> like before
+
+> i also liked it when the accessibilty goggles were on the right side, so not
+> bound by the actual area in wheel/match/browse/you, now that it's moved in
+> towards the main content, it's a bit distracting
+
+**On the deferred Back behaviour:**
+
+> we can document that nuance with the pick a color match match back behaviour.
+> and deal with that later. i think ideally it just goes back to the previous
+> page, instead of dropping back to the main page
+
+**On review:**
+
+> otherwise let's do a multi subagent bug, documentation, review. repeat that
+> process multiple times until all issues are resolved. again, never assume the
+> docs are correct, confirm it.
+
+### Notes
+
+- **The skills mostly did not apply, and saying so was the useful part.** They
+  are written for greenfield marketing pages; `taste-skill` lists dense product
+  UI as out of scope. Applied literally they would have dropped EB Garamond,
+  abandoned the warm palette, deleted every em-dash, removed the version badge
+  the owner asked for, and installed Tailwind and Motion. All three have an
+  override for a brief that pins its own direction, and this repo's does.
+  `docs/2026-07-30-ui-ux-skill-audit.md` records each rejection with its reason.
+- **The owner reverted two of the spike's own changes**, and both reverts were
+  right: the wheel prompt (the wheel is the image people share, so its resting
+  state has to be a picture) and the column-aligned goggles.
+- **The golden ratio is a proportion, not a number.** `--page-w: clamp(45rem,
+  61.8vw, 80rem)`: the column is 1/phi of the viewport, so column : margins =
+  1.618 : 1 at any size. Measured 0.61801 at 1440 and 0.61800 at 1920.
+
+### What Claude got wrong
+
+Six defects and about twenty documentation errors, all found by review rather
+than by the suite — lint, 875 unit tests, 127 browser tests and the build were
+green with every one of them present.
+
+- **The Back-closes-an-overlay feature shipped broken on its primary route.** A
+  registry keyed by function reference collapsed two registrations of one
+  function, so stepping into a capture screen deleted the task-level dismiss.
+  The test missed it by using the one route that avoids it.
+- **An infinite render loop on the You tab** burned a full CPU core for as long
+  as the tab was open. Pre-existing, silent in production, found by measuring
+  idle CPU through CDP rather than by reading code.
+- **Two contrast defects introduced by the spike**, one of them a hover state
+  that measured 1.00:1 — literally invisible — in the part of the viewport where
+  the page gradient reaches the colour the hover used.
+- **Three tests that guarded nothing**, each proven by planting the bug: the
+  owner's own scrollbar regression passed the whole suite; "carries a camera,
+  not a bare pencil" passed with a pencil.
+- **A correction pass that introduced fresh errors**, including a paragraph of
+  line numbers that were stale in the same commit that wrote them. Selectors
+  survive an edit; line numbers do not.
+- **Four agents were pointed at ONE worktree** and two collided — one planted a
+  bug to test a guard, another found it and reverted it as stray. One worktree
+  per writing agent.

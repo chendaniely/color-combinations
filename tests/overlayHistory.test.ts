@@ -2,15 +2,30 @@
 // globals, and it went untested through the whole of its first day — the
 // defect below was found by a reviewer, not by a test, and would have been a
 // three-line unit test away at any point.
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   anyOverlayOpen, closeAllOverlays, registerOverlay, subscribeOverlays,
 } from '../src/overlayHistory'
 
-beforeEach(() => {
-  // The module is a singleton; leave it empty for the next test.
-  closeAllOverlays()
-  while (anyOverlayOpen()) break
+// The module is a singleton, so each test has to put back what it took.
+//
+// `closeAllOverlays()` does NOT do that: it calls every closer and deliberately
+// leaves the entries alone, because unregistering is the unmounting component's
+// job. A first version of this file called it in `beforeEach` and believed the
+// registry was empty afterwards — it was not, and one test leaked an entry into
+// every test after it. Nothing went red, which is how a broken fixture survives.
+// Tracking the unregister functions is the only honest reset.
+const registered: (() => void)[] = []
+
+function open(close = vi.fn()) {
+  const off = registerOverlay(close)
+  registered.push(off)
+  return { close, off }
+}
+
+afterEach(() => {
+  for (const off of registered.splice(0)) off()
+  if (anyOverlayOpen()) throw new Error('a test leaked a registry entry')
 })
 
 describe('the overlay registry', () => {
@@ -19,7 +34,7 @@ describe('the overlay registry', () => {
   })
 
   it('reports open, and closed again after unregistering', () => {
-    const off = registerOverlay(vi.fn())
+    const { off } = open()
     expect(anyOverlayOpen()).toBe(true)
     off()
     expect(anyOverlayOpen()).toBe(false)
@@ -34,8 +49,8 @@ describe('the overlay registry', () => {
   // the overlay open and the next press left the site.
   it('keeps two registrations of ONE function separate', () => {
     const close = vi.fn()
-    const offA = registerOverlay(close)
-    registerOverlay(close)
+    const { off: offA } = open(close)
+    open(close)
 
     offA()
     expect(anyOverlayOpen(), 'one unregister removed both').toBe(true)
@@ -45,10 +60,8 @@ describe('the overlay registry', () => {
   })
 
   it('calls every registered closer, not just the last', () => {
-    const a = vi.fn()
-    const b = vi.fn()
-    registerOverlay(a)
-    registerOverlay(b)
+    const { close: a } = open()
+    const { close: b } = open()
     closeAllOverlays()
     expect(a).toHaveBeenCalledTimes(1)
     expect(b).toHaveBeenCalledTimes(1)
@@ -58,9 +71,9 @@ describe('the overlay registry', () => {
     // closeAllOverlays walks a snapshot precisely so this cannot throw or skip.
     const offB = vi.fn()
     const a = vi.fn(() => offB())
-    registerOverlay(a)
+    open(a)
     const b = vi.fn()
-    const off = registerOverlay(b)
+    const { off } = open(b)
     offB.mockImplementation(off)
 
     expect(() => closeAllOverlays()).not.toThrow()
@@ -71,12 +84,12 @@ describe('the overlay registry', () => {
   it('tells subscribers when the count changes', () => {
     const seen = vi.fn()
     const unsub = subscribeOverlays(seen)
-    const off = registerOverlay(vi.fn())
+    const { off } = open()
     expect(seen).toHaveBeenCalledTimes(1)
     off()
     expect(seen).toHaveBeenCalledTimes(2)
     unsub()
-    registerOverlay(vi.fn())()
+    open().off()
     expect(seen, 'still notified after unsubscribing').toHaveBeenCalledTimes(2)
   })
 })

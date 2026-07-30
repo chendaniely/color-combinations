@@ -307,10 +307,11 @@ A few deliberate choices worth knowing:
 - **Someone opening your season link sees a clear note** saying it came from a
   link and that nothing on the page is a measurement of *them*, with an
   invitation to take their own photo.
-- **The Back button closes a panel, and closes a full-screen overlay — the color
-sampler, the camera, the picker — rather than leaving the site** rather than leaving the site, which is what
-  most people expect and what the Android back gesture means. Changing a filter
-  does not add a history entry, so browsing around doesn't bury you in them.
+- **The Back button closes a panel** rather than leaving the site, which is what
+  most people expect and what the Android back gesture means. It also **closes a
+  full-screen overlay** — the color sampler, the camera, the picker — from
+  whatever depth you have reached. Changing a filter does not add a history
+  entry, so browsing around doesn't bury you in them.
 - **The front page has no `#` in its address**, as it always has.
 - **An old link still works, or says why not.** A link to a colour that isn't in
   the book explains itself; a saved palette that has lost a colour opens with

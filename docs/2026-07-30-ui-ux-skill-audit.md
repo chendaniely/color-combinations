@@ -47,7 +47,7 @@ row stays as the record of it having been a decision rather than a default.
 
 ### 1. Browse on a phone was more than half chrome
 
-**The finding.** At 390×844 the first colour plate landed at **y=471** — past the
+**The finding.** At 390×844 the first colour plate landed at **y=479** — past the
 halfway line. The cause was precise: `.browse-filters` carried an unconditional
 `padding-right: 10rem` to clear the floating accessibility goggles. At 390px wide
 that reserve is **41% of the screen**, so each `<select>` wrapped onto a row of
@@ -57,18 +57,20 @@ its own and the filter bar stood **157.75px** tall.
 break the line after the size pills instead: the pills are narrow enough to sit
 beside the goggles, and the selects get a clean full-width row underneath.
 
-**Measured:** filter bar 157.75px → **97px**; first plate y=471 → **y=410**, now
-in the top half of the screen. Three plates visible on load instead of one and a
-half.
+**Measured** (re-measured 2026-07-30 after a reviewer found the first pair
+unreproducible — they had been taken against two different baselines): against
+the merge-base, filter bar **157.75px → 96.75px** and first plate
+**y=479 → y=418**. Three plates visible on load instead of one and a half.
 
 **A wrong turn worth recording.** The first attempt simply dropped the reserve at
 phone width. The bar halved exactly as intended — and the goggles came down on
 top of the family select. It passed every test I had written, because those
-tests measured *height* and *padding*. A screenshot found it in seconds. The
-overlap check that now exists runs at **both** widths.
+tests measured *height* and *padding*. A screenshot found it in seconds.
 
-`tests/browser/browseDensity.spec.ts` pins all of it, and each assertion was
-verified to fail against the original CSS.
+`tests/browser/browseDensity.spec.ts` pins the plate position and the bar
+height; the goggles-overlap check lives in `tests/browser/pageWidth.spec.ts`,
+which runs it across five widths and both rows. Each assertion was verified to
+fail against the original CSS.
 
 ### 2. The You tab had six ways of saying "note", and they all looked the same
 
@@ -81,8 +83,11 @@ emphasised, the emphasis stops meaning anything.
 **The fix.** One block is not a notice at all. `.you-provenance` is a **source
 citation**, and sources are set apart by a rule *above* and quiet type, not by an
 alert stripe down the side. It now reads as a citation, which leaves the left
-rule to the two blocks that really are notices — the privacy promise and the
-shared-link explainer — and gives the device its meaning back.
+rule to the blocks that really are notices. **Corrected 2026-07-30:** an earlier
+version of this claimed that left only two things wearing it. It is five —
+`.you-privacy`, `.reading-caveat`, `.you-note` (recoloured by `.shared-season`),
+`.fit-caveat` and `.probe-note` — so this thins the device by one rather than
+reserving it. Thinning the rest is worth doing and is not done here.
 
 Nothing was deleted. Every word still renders; `CLAUDE.md` is explicit that the
 provenance is never hidden behind a disclosure.
@@ -218,7 +223,7 @@ that no control overlaps the goggles at five widths.
 Each is a design decision rather than a defect, so each is the owner's call.
 
 1. **Match > Shades under-uses colour.** *(implemented in the second pass above)* On a 1440px screen, each shade occupies
-   a 690px-wide row in which the colour itself is a **56×20px** chip. The rest is
+   a 690px-wide row in which the colour itself is a **56×22px** chip. The rest is
    empty. On a site where the colour is the content, the content is the smallest
    thing in the row. This is the biggest single visual opportunity found.
 2. **The wheel has no orientation.** A first-time visitor meets an abstract chord
@@ -235,6 +240,5 @@ Each is a design decision rather than a defect, so each is the owner's call.
 
 ## Verification
 
-`npx oxlint` clean, **875** unit tests, **110** browser tests, all passing, plus
-the four new ones. Every new assertion was checked against the original CSS to
+`npx oxlint` clean, **882** unit tests and **131** browser tests, all passing. Every new assertion was checked against the original CSS to
 confirm it fails there — the guards guard something.
