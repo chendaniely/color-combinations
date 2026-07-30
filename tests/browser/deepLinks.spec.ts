@@ -184,3 +184,39 @@ test.describe('the Share button', () => {
       expect(copied, 'a hex colour appears in a shared link').not.toMatch(/[0-9a-f]{6}/i)
     })
 })
+
+// Found by probing during the bug-hunt loop after v1.8.0 shipped.
+test.describe('switching tab is a navigation, not a refinement', () => {
+  test('Back returns to the previous tab rather than leaving the site', async ({ page }) => {
+    await page.goto('./')
+    await page.locator('.chord-wheel').waitFor()
+    await page.getByRole('button', { name: 'Browse' }).first().click()
+    await page.locator('.browse-grid').first().waitFor()
+
+    await page.goBack()
+    // The owner's decision covered panels and filters; views were unspecified
+    // and were first built as refinements, so Back from a tab left the site
+    // entirely — and after a capture it also lost the reading.
+    await expect(page.locator('.chord-wheel')).toBeVisible()
+  })
+
+  test('a history move never silently discards the reading', async ({ page }) => {
+    const { reachThePalette } = await import('./seasonHelpers')
+    await reachThePalette(page)
+    await page.getByLabel(/your season/i).waitFor({ timeout: 20_000 })
+    await expect(page.locator('.reading-strip')).toBeVisible()
+
+    // Back leaves the You tab, so the strip is correctly gone — it only renders
+    // there. An earlier version of this test asserted it stayed visible, which
+    // was the assertion being wrong rather than the code.
+    await page.goBack()
+    await expect(page.locator('.chord-wheel')).toBeVisible()
+    await expect(page.locator('.reading-strip')).toHaveCount(0)
+
+    // THIS is the property worth pinning. A URL cannot carry a reading, so
+    // urlSync preserves it across a restore by hand. Without that, coming
+    // forward would land on the photo prompt with the analysis silently gone.
+    await page.goForward()
+    await expect(page.locator('.reading-strip')).toBeVisible({ timeout: 20_000 })
+  })
+})

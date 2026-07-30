@@ -71,11 +71,16 @@ export function initialStateFromUrl(): AppState {
 /**
  * Keeps the address bar in step with the state, and honours Back and Forward.
  *
- * PANELS PUSH, EVERYTHING ELSE REPLACES. Opening a colour, combination, group
- * or ribbon adds a history entry, so Back closes it — what people expect, and
- * on Android Back IS the gesture for "dismiss this". Changing a view, a filter,
- * a granularity or the goggles replaces, so browsing does not bury the site in
- * history entries. (Owner's decision, 2026-07-29.)
+ * NAVIGATIONS PUSH, REFINEMENTS REPLACE. Opening a panel or switching tab adds
+ * a history entry, so Back closes the panel or returns to the previous tab —
+ * what people expect, and on Android Back IS the gesture for "dismiss this".
+ * Filters, granularity, sizes, goggles, the floor and the season all replace, so
+ * browsing does not bury the site in history entries.
+ *
+ * The owner's decision covered panels and filters. Views were not mentioned and
+ * were first built as refinements, which meant opening the You tab, taking a
+ * photo and pressing Back left the SITE and lost the reading. Corrected after
+ * probing it in a real browser.
  */
 export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void {
   // What we last wrote, so a hash WE caused is never mistaken for the visitor
@@ -83,8 +88,9 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
   // hashchange, but a hand-edited address bar fires hashchange, and that is a
   // real thing to support.
   const written = useRef<string | null>(null)
-  // The previous selection, to decide push versus replace.
+  // The previous selection and view, to decide push versus replace.
   const lastSelection = useRef(state.selection)
+  const lastView = useRef(state.view)
   // The reading never enters a URL, so it must be carried across a history
   // move by hand. Without this, pressing Back after a capture would silently
   // discard the visitor's own analysis and send them to the photo prompt.
@@ -98,15 +104,30 @@ export function useUrlSync(state: AppState, dispatch: (a: Action) => void): void
     if (url === current) {
       written.current = hash
       lastSelection.current = state.selection
+      lastView.current = state.view
       return
     }
 
+    // Push for a NAVIGATION, replace for a refinement.
+    //
+    // Opening a panel is a navigation, which is the owner's decision. So is
+    // switching tab, which the decision did not mention and which the first
+    // implementation treated as a refinement — with the result that going to the
+    // You tab, taking a photo and pressing Back left the SITE rather than
+    // returning to the wheel, losing the reading. Four tabs cannot pollute a
+    // history the way granularity clicks would, and returning to the previous
+    // tab is what Back means everywhere else on the web.
+    //
+    // Filters, granularity, sizes, goggles, the floor and the season all still
+    // replace: those are refinements of a view you are already looking at.
     const opened = state.selection !== null && state.selection !== lastSelection.current
-    if (opened) history.pushState(null, '', url)
+    const changedView = state.view !== lastView.current
+    if (opened || changedView) history.pushState(null, '', url)
     else history.replaceState(null, '', url)
 
     written.current = hash
     lastSelection.current = state.selection
+    lastView.current = state.view
   }, [state])
 
   useEffect(() => {
