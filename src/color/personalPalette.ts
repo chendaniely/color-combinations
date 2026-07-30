@@ -31,6 +31,25 @@ export interface Scored {
   fails: string[]
 }
 
+/**
+ * How warm a colour reads, from +1 (fully warm) to -1 (fully cool).
+ *
+ * Extracted so the scorer and the warm/cool COUNT the site quotes at visitors
+ * share one implementation. They did not: the UI, the About panel and the README
+ * all said "109 of its 157 colours read warm against 48 cool", and this rule
+ * gives 110 and 47. Nothing computed the 109 — it was a number in prose, drifting
+ * quietly. See `warmCool` in src/data.ts.
+ */
+export function temperatureOf(color: ColorRecord): number {
+  const { h } = labOf(color.rgb)
+  return Math.cos(((h - WARM_AXIS) * Math.PI) / 180)
+}
+
+/** Whether a colour sits on the warm half of the axis the scorer uses. */
+export function isWarm(color: ColorRecord): boolean {
+  return temperatureOf(color) > 0
+}
+
 function describeChroma(C: number): string {
   if (C > 45) return 'vivid'
   if (C < 20) return 'quiet'
@@ -48,7 +67,7 @@ export function scorePalette(reading: SkinReading, colors: ColorRecord[]): Score
     const fails: string[] = []
 
     // 1. Undertone agreement. +1 fully warm, -1 fully cool.
-    const temperature = Math.cos(((h - WARM_AXIS) * Math.PI) / 180)
+    const temperature = temperatureOf(color)
     if (neutral) {
       reasons.push('your undertone is balanced, so any temperature works')
     } else if (wantsWarm && temperature >= -TEMPERATURE_SLACK) {

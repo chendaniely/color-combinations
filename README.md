@@ -5,7 +5,10 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.8.0 shipped (2026-07-29) — **every screen has an address now**:
+> **Status:** v1.8.1 shipped (2026-07-29) — a bug hunt and a documentation audit:
+> Back now returns to the previous tab, and the warm/cool count the site quotes
+> is computed from the book rather than typed in (it had been wrong in three
+> places for several releases). Before it, v1.8.0 — **every screen has an address**:
 > deep links, a Copy link button, and Back that closes a panel. Your season is
 > shareable; your measurements deliberately are not (see
 > [Sharing what you find](#sharing-what-you-find)). Before it, v1.7.3: every exported PNG
@@ -49,6 +52,7 @@ Run these from the project folder. `make help` lists them all.
 | `make coverage` | Shows which code the fast tests never run |
 | `make install-browser` | One-time: downloads the browser the layout tests drive (see [Testing](#testing)) |
 | `make test-browser` | Runs the slower tests that check how the site actually *looks* |
+| `make check` | Runs lint + tests + build together, keeps the full log in `check.log`, and fails loudly — the one to use before shipping |
 | `make build` | Type-checks everything and builds the deployable site into `dist/` |
 | `make preview` | Serves the built `dist/` exactly as GitHub Pages will |
 | `make update-data` | Re-downloads the source colors and regenerates the processed data |
@@ -58,7 +62,8 @@ Run these from the project folder. `make help` lists them all.
 
 There are **two** test suites, and the split matters.
 
-`make test` is the fast one — around 600 checks in a few seconds. It runs
+`make test` is the fast one — around 850 checks in a few seconds (that count is
+a snapshot, not a promise; it was 600 two releases ago). It runs
 without a browser, using a simulated one called jsdom. That makes it quick
 enough to run constantly, but jsdom has a hard limit: **it never actually
 draws anything.** It does no layout and applies no CSS. So it can confirm the
@@ -173,9 +178,11 @@ Below that are the book's combinations, ordered by how much of each one is
 yours, with any color that *isn't* yours outlined. A four-step control decides
 how strict the list is.
 
-One thing worth knowing: Wada's palette leans warm — 109 of its 157 colors read
-warm against 48 cool — so cool-toned visitors get a shorter list here. That's
-the book, not you, and the page says so.
+One thing worth knowing: Wada's palette leans warm — 110 of its 157 colors read
+warm against 47 cool — so cool-toned visitors get a shorter list here. That's
+the book, not you, and the page says so. (Those two numbers are computed from the
+book at load time rather than typed in, because for several releases they were
+typed in as 109 and 48 and nothing checked them.)
 
 #### Where the seasons come from
 

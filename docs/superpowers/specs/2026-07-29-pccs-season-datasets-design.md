@@ -1,7 +1,27 @@
 # PCCS season datasets — design
 
 **Date:** 2026-07-29
-**Status:** approved by the owner, not yet implemented
+**Status:** implemented in v1.7.0
+
+## Correction, 2026-07-29 (after shipping)
+
+**The fit-band thresholds below are in the wrong units.** The scoring section
+says "Fit bands: `very close` ΔE < 5, `close` < 10, `roughly` < 20, `not
+close` >= 20".
+
+The implementation reuses the project's existing colour-difference seam,
+`src/color/colorDistance.ts`, which measures Euclidean distance in OKLab — so
+the real thresholds are **0.05 / 0.10 / 0.25**, not 5 / 10 / 20. That was the
+right call and the spec should have said so: inventing a second notion of
+"close" alongside the one the colour sampler already used would have been a
+defect the moment the two drifted. `closenessLabel` keeps its three bands for
+the sampler; `fitBand` adds a fourth for seasons, from the same constants.
+
+**Also corrected after shipping:** the fit panel originally deduplicated its
+rows by book colour, which hid the gap it existed to show. It now renders one
+row per ideal and reports how many DISTINCT colours serve them, because across
+all twelve seasons only one ideal of 142 lacks a close match — the real limit is
+crowding, not absence. See `src/color/seasonFit.ts`.
 
 ## The problem
 

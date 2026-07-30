@@ -4,18 +4,20 @@ import { colorsForSeason } from '../../core/seasonColors'
 import { classifySeason, parentOf, seasonById } from '../../core/seasons'
 import type { Action } from '../../core/state'
 import type { ColorRecord, SkinReading } from '../../core/types'
-import { dataset, type SeasonData } from '../../data'
+import { dataset, warmCool, type SeasonData } from '../../data'
 import { ShareLink } from '../ShareLink'
+import { PaletteProvenance } from './PaletteProvenance'
+import { SeasonChooser } from './SeasonChooser'
 import { SeasonFit } from './SeasonFit'
 import { useSeasonData } from './useSeasonData'
 
 type Which = 'measured' | 'season'
 
-// Wada's palette is lopsided — 109 of its 157 colours read warm against 48
-// cool — so a cool-toned visitor gets a structurally shorter list. Saying so is
-// the difference between an honest constraint and an apparent bug.
-const WARM_COUNT = 109
-const COOL_COUNT = 48
+// Wada's palette is lopsided, so a cool-toned visitor gets a structurally
+// shorter list. Saying so is the difference between an honest constraint and an
+// apparent bug — which is why the numbers are COMPUTED (see `warmCool` in
+// src/data.ts) rather than written here. They were written here, as 109 and 48,
+// and the rule that decides warm from cool gives 110 and 47.
 const SHORT_LIST = 30
 
 interface Props {
@@ -115,34 +117,8 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
 
   return (
     <section className="you-palettes" aria-label="Your colours">
-      <div className="you-season-row">
-        <label htmlFor="you-season">Your season</label>
-        <select id="you-season" value={activeSeasonId}
-          onChange={(e) => dispatch({ type: 'setSeason', season: e.target.value })}>
-          {seasonRules.subSeasons.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}{s.id === guess ? ' — our guess' : ''}
-            </option>
-          ))}
-        </select>
-        <span className="you-season-hint">
-          Been analysed professionally? Pick your own and the second list follows it.
-        </span>
-      </div>
-
-      {/* Two levels, because they are not equally grounded. The parent comes
-          from a published rule; the sub-season is ours. Presenting them the
-          same way would be the overclaiming this release exists to fix. */}
-      <div className="season-levels">
-        <span className="season-parent">
-          {parent.name}
-          <em className="season-badge sourced">from a published system</em>
-        </span>
-        <span className="season-sub">
-          {activeSeason.name}
-          <em className="season-badge ours">our subdivision</em>
-        </span>
-      </div>
+      <SeasonChooser rules={seasonRules} activeId={activeSeasonId}
+        active={activeSeason} parent={parent} guess={guess} dispatch={dispatch} />
 
       {/* No tab strip without a reading: there is no second palette to switch
           to, and a one-tab tablist is a lie about what is available. */}
@@ -159,42 +135,8 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
         </div>
       )}
 
-      {/* What a shared link says for itself. It must not imply that anything
-          about the READER was measured — nothing was. */}
-      {!reading && (
-        <p className="you-note shared-season">
-          <b>Opened from a shared link.</b> These are {activeSeason.name}'s colours
-          from Wada's book — nothing here is a measurement of you. Take your own
-          photo below and the site will work out your season and compare it.
-        </p>
-      )}
-
-      {/* Always visible, never behind a disclosure. The visitor chose to see
-          both palettes; they must always be able to see where each came from. */}
-      <p className={`you-provenance ${which}`}>
-        {which === 'measured'
-          ? <>Measured from <b>your face</b> — your undertone, how deep your
-            colouring is, and your skin-to-hair contrast, by four stated rules.
-            Hover any colour to see why it is here.</>
-          : <>Computed from <b>PCCS</b>, the colour system published in 1964 by the
-            Japan Color Research Institute — the institute Sanzo Wada founded in
-            1927, six years before this book. <b>{parent.name}</b> is a published
-            rule; <b>{activeSeason.name}</b> is our own subdivision of it.</>}
-      </p>
-
-      {/* A neutral undertone matches no season: the four parents are warm or
-          cool, nothing in between. So depth and contrast alone decide, and the
-          answer is genuinely less certain than for a warm or cool reading.
-          Saying so beats presenting the same confident label — and it points at
-          the override, which is the useful thing to do about it. */}
-      {which === 'season' && reading?.undertone === 'neutral' && (
-        <p className="you-note">
-          Your undertone reads <b>neutral</b> — between warm and cool. The seasons
-          are all one or the other, so this one was chosen by your depth and
-          contrast alone, and a season from the other side may suit you just as
-          well. Worth trying both in the dropdown above.
-        </p>
-      )}
+      <PaletteProvenance which={which} reading={reading}
+        active={activeSeason} parent={parent} />
 
       <div className="you-swatches">
         {shown.map((c) => (
@@ -228,9 +170,9 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, data }: 
       {which === 'measured' && measured.length < SHORT_LIST && (
         <p className="you-note">
           A shorter list than some people get, and that is the book rather than
-          you: Wada's palette <b>leans warm</b> — {WARM_COUNT} of its 157 colours
-          read warm against {COOL_COUNT} cool — so cooler colouring has fewer to
-          draw on here.
+          you: Wada's palette <b>leans warm</b> — {warmCool.warm} of its{' '}
+          {dataset.data.colors.length} colours read warm against {warmCool.cool}{' '}
+          cool — so cooler colouring has fewer to draw on here.
         </p>
       )}
     </section>

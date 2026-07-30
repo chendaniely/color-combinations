@@ -1,5 +1,6 @@
 import { Panel } from './Panel'
 import type { Action } from '../core/state'
+import { dataset, warmCool } from '../data'
 
 export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
   return (
@@ -91,9 +92,10 @@ export function AboutPanel({ dispatch }: { dispatch: (a: Action) => void }) {
         Honesty notes: bar proportions are decorative (the source data has no
         plate ratios); ten one-color entries in the source are hidden as data
         errors; three five-color combinations appear under "4+". Wada's palette
-        leans warm — 109 of its 157 colors read warm against 48 cool — so
-        cool-toned visitors get a shorter personal palette here than warm-toned
-        ones. That's the book, not you.
+        leans warm — {warmCool.warm} of its {dataset.data.colors.length} colors
+        read warm against {warmCool.cool} cool — so cool-toned visitors get a
+        shorter personal palette here than warm-toned ones. That's the book, not
+        you.
       </p>
       <p className="muted">
         Data: <a href="https://sanzo-wada.dmbk.io" target="_blank" rel="noreferrer">sanzo-wada.dmbk.io</a>.

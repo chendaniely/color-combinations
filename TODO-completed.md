@@ -1,5 +1,49 @@
 # TODO — completed
 
+## v1.8.1 — bug hunt and documentation audit (2026-07-29)
+
+Owner: *"do not assume that the code comments reflect what the actual code is
+doing … keep looping through and redoing it until you find no more
+discrepancies"*
+
+- [x] **Back returns to the previous tab instead of leaving the site.** The
+      history decision covered panels and filters; views were unspecified and
+      were built as refinements, so leaving the You tab by Back exited the site
+      and lost the reading (`ceec1b0`).
+- [x] **PaletteTabs split**, having grown to 238 lines and eight concerns.
+      `SeasonChooser` (which season, how grounded) and `PaletteProvenance`
+      (where the palette came from) extracted along real seams. 915 tests passed
+      without one being touched, which is the only verification a refactor should
+      need (`385d84b`).
+- [x] **The warm/cool count the site quotes was wrong in three places.** "109 of
+      157 warm against 48 cool" in the You tab, About panel and README; the rule
+      gives 110 and 47. Fixed by DERIVING it — `temperatureOf`/`isWarm`
+      extracted so the scorer and the disclosure share one implementation, and
+      `tests/quotedFacts.test.ts` fails if anyone re-hardcodes it (`e9738c0`).
+- [x] **Four more stale claims corrected:** "29 assertions" (21), "22 modules"
+      (26), `copy.ts` coverage "0%" (89.47%), "~600 checks" (846) (`e9738c0`).
+- [x] **The ink-contrast rule said "both papers" when there are three** — and
+      quoted `--paper-1` ratios when `--paper-2` is the binding constraint at
+      4.61:1. A change that looks safe on paper-1 can fail there (`be1769b`).
+- [x] **The README documented `make check-links` but not `make check`.** Now
+      guarded: `tests/docsMatchReality.test.ts` asserts every advertised target
+      exists, is `.PHONY` and is in the README, and that the README invents none
+      (`be1769b`).
+- [x] **CLAUDE.md's strongest structural rule got a test.**
+      `tests/overlayRule.test.ts` — nothing hand-rolls `role="dialog"`, nothing
+      but `Overlay` calls `showModal`, and `Overlay` is still a real native
+      dialog. Written after an ad-hoc grep produced a false positive
+      (`be1769b`).
+- [x] **Two specs no longer matched the code**, corrected with dated blocks
+      rather than silent edits: the deep-links spec listed views among the things
+      that replace, and the PCCS spec gave fit thresholds in ΔE units the
+      implementation never used (`13e40c5`).
+- [x] **The audit reached a fixed point** — passes 5 and 6, over fresh classes of
+      claim, found nothing in the code or docs. Two of the audit's own
+      "findings" were bad checks rather than bad code, which is recorded because
+      it is worth knowing about audits (`c2a46db`).
+
+
 ## v1.8.0 — shareable deep links (2026-07-29)
 
 Owner: *"yes let's go and implment deep links so results are shareable"* — the

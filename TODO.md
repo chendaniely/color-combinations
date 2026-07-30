@@ -50,7 +50,8 @@ a check that needs a person. See `TODO-completed.md` for what went.
       would be the first lens; a sampled photo, a saved palette and an
       accessibility filter are the obvious next ones.
       NOT the same thing as swapping the corpus, which was considered and
-      rejected: 22 modules read `combinations`, and no other published colour
+      rejected: most of `src/` reads `combinations` — 26 modules as of
+      2026-07-29, and the count only grows — and no other published colour
       book has any. See the reframe in
       `docs/superpowers/specs/2026-07-29-pccs-season-datasets-design.md`.
 
@@ -76,6 +77,30 @@ a check that needs a person. See `TODO-completed.md` for what went.
       inside the overlay, plus a name-search card. Open questions: does picking
       a source open the existing overlay or work inline, and does the same
       block belong on Browse's empty state too.
+
+## Known gap: Back does not close a full-screen overlay
+
+- [ ] **On a phone, Back with the camera or picker open leaves the site.** There
+      is no Escape key on a phone, these overlays fill the screen, and Back is
+      what "cancel" means — so the most natural gesture does the worst thing.
+      Found by probing on 2026-07-29. **Two implementations were tried and both
+      reverted**, so a third attempt should start from what they taught:
+      • *Push an entry per overlay, pop it on close.* Broke the capture flow.
+        FaceCapture unmounts straight into ProbeReview, `history.back()` is
+        asynchronous, and the queued pop landed AFTER the next overlay had
+        pushed — closing the review screen the instant it opened.
+      • *Pool one entry per RUN of overlays, module-level count, deferred pop.*
+        Fixed the handoff, then lost to `urlSync`: its `replaceState` overwrites
+        whatever entry is current, which is the overlay's, wiping the
+        `{ overlay: true }` marker the cleanup keys off. Result was a dead entry
+        and a Back press that visibly did nothing.
+      The diagnosis is that `Overlay` and `urlSync` are fighting over the same
+      history entry, so the fix is a SHARED OWNER for it — most likely urlSync
+      learning that an overlay is open, rather than either side pushing
+      independently. `Overlay.tsx` carries the same note at the code.
+      Not attempted a third time mid-loop: three distinct failure modes on one
+      issue is the signal to stop and design, which is what CLAUDE.md's
+      debugging guidance says.
 
 ## Needs a person, not a test
 

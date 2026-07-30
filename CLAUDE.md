@@ -125,7 +125,7 @@ Never treat a plan as a description of the current code.
   paid for deep links, which are two modules split along the purity line:
   - `src/core/urlState.ts` is PURE — `encodeState`/`decodeState`, string work
     only, no `location`/`window`/`history`/dataset. All of the interesting
-    logic is here, which is why 29 assertions about hostile URLs run in
+    logic is here, which is why 21 hostile URLs run in
     milliseconds without a browser.
   - `src/urlSync.ts` owns the browser: the address bar, the history stack, and
     checking a decoded id against the book.
@@ -263,12 +263,17 @@ never run?"; @axe-core/playwright = the WCAG audit in
 `tests/browser/a11y.spec.ts` — non-negotiable for a site that ships
 accessibility goggles;
 @mediapipe/tasks-vision = on-device face detection for the You tab,
-Apache-2.0 with zero transitive dependencies, ~3.5 MB lazy-loaded and
-self-hosted from `public/mediapipe/`.
+Apache-2.0 with zero transitive dependencies, lazy-loaded and self-hosted
+from `public/mediapipe/`. **~3.7 MB over the wire** (measured 2026-07-29:
+3.43 MB wasm + 0.08 MB js + 0.20 MB model, compressed), against **11.5 MB
+uncompressed on disk** — the wasm alone is 11 MB and compresses about 3.4x.
+Both numbers are given because the on-disk figure looks alarming next to
+the dependency rule and the transferred one is what a visitor actually
+pays.
 
 ## Testing: two suites, and why
 
-`make test` (vitest + jsdom, ~600 checks, seconds) proves the site
+`make test` (vitest + jsdom, ~850 checks as of 2026-07-29, seconds) proves the site
 *computes* the right answer. jsdom does no layout and applies no cascade,
 so it structurally CANNOT see fonts, colours, sizes or positions.
 
@@ -294,13 +299,24 @@ a rule starts firing on correct code, silence it in `.oxlintrc.json` WITH
 a reason, or disable it inline where the reasoning belongs (see
 `ColorDisc.tsx`). A noisy linter teaches you to ignore linters.
 
-**The three ink tokens must stay WCAG AA (>= 4.5:1) against both papers.**
+**The three ink tokens must stay WCAG AA (>= 4.5:1) against all THREE papers.**
 `tests/browser/a11y.spec.ts` audits nine screens with axe and will fail if
 they don't. Before touching `--ink*` or `--paper*`, re-measure with
 culori's `wcagContrast` — the same function the goggles use. Note that
 `--ink-faint` cannot simply be darkened "until it passes": that lands it
 on top of `--ink-muted`. The three were solved together for distinct
 ratios (13.15 / 7.79 / 5.07 on `--paper-1`).
+
+`--paper-hi` is easy to overlook — it is mostly a foreground on dark, but
+`app.css` also uses it as a background — so this said "both papers" until a
+documentation audit on 2026-07-29 counted three. **Measure against
+`--paper-2`, which is the binding constraint:** ink-faint scores 5.07 on
+paper-1, 5.47 on paper-hi and **4.61 on paper-2**, eleven hundredths above
+the line. A change that looks safe on paper-1 can fail there.
+
+Two ways to break this rule without touching a token, both of which have
+shipped: `opacity` on text (see the token section above), and a canvas
+copying hex values instead of reading them.
 
 `make coverage` is a question, not a target. Do not chase a number:
 `src/core` and `src/color` are near 100% because the logic lives there,

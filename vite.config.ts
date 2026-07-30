@@ -62,10 +62,20 @@ export default defineConfig({
     // the clipboard and PNG-download browser tests came to be written.
     //
     // IMPORTANT, and a trap for the next reader: these numbers only cover the
-    // vitest run. The Playwright suite exercises plenty that shows here as 0% —
-    // copy.ts and exportPng.ts are both thoroughly tested now, in
-    // tests/browser/takeaways.spec.ts, and still report 0% and 13.88%. Treat a
-    // low number as "go and check", never as "this is untested".
+    // vitest run. The Playwright suite exercises plenty that shows here as low
+    // or zero, so treat a low number as "go and check", never as "this is
+    // untested".
+    //
+    // exportPng.ts is the standing example: 13.33% here (2026-07-29) while
+    // tests/browser/takeaways.spec.ts checks the downloaded PNG's magic bytes,
+    // its filename and its stripes against the plate on screen, and
+    // tests/browser/exportText.spec.ts measures every caption for overflow.
+    //
+    // copy.ts USED to be the other example, at 0%. It is now 89.47%, because
+    // ShareLink needed a unit test and that test found a real bug in it — a
+    // rejection where the contract promised false. Corrected here during a
+    // documentation audit: the comment still claimed 0% in the present tense,
+    // which is the exact rot this file warns about.
     coverage: {
       include: ['src/**'],
       all: false,

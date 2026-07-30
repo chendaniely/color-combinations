@@ -28,6 +28,58 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.8.1 — 2026-07-29 — Checking the labels
+
+A bug hunt and a documentation audit, on the owner's instruction to keep
+looping until nothing turned up:
+
+> do not assume that the code comments reflect what the actual code is doing
+
+**The Back button worked, then didn't, then did.** Deep links taught the site to
+respond to Back, and the rule agreed with the owner covered opening a panel and
+changing a filter. It never mentioned switching tabs — so going to the You tab,
+taking a photo and pressing Back left the site entirely and threw the reading
+away. Back now returns to the tab you came from.
+
+One related thing is **still not fixed, and is written down instead**: on a
+phone, Back with the camera open leaves the site. There is no Escape key on a
+phone and these screens fill the display, so Back is what "cancel" means. Two
+attempts at it were reverted — one broke the photo flow outright, the other
+looked fine and quietly did nothing. The cause turned out to be two parts of the
+site each trying to own the same piece of browser history, which needs a design
+rather than a third attempt. Both dead ends are recorded so the next go starts
+informed.
+
+**The site was telling everybody a wrong number.** For several releases the You
+tab, the About panel and the README all said Wada's palette runs *"109 of its 157
+colours warm against 48 cool"*. The rule the site actually uses to decide warm
+from cool gives **110 and 47**. Nothing computed the 109 — somebody typed it, and
+it was wrong in three places.
+
+The fix was not a better number. **The number is gone**: the count is now worked
+out from the book itself, by the same rule the palette uses, so the disclosure
+and the feature cannot disagree again. A test fails if anyone types it back in.
+
+That set the tone for the rest of the audit, which found a **stale coverage
+figure, a stale test count in two files, a rule that said "both papers" when
+there are three** — and, more importantly, that the paper it quoted numbers for
+is not the one where the margin is tightest — **a command the README never
+learned about**, and **two design documents that no longer matched the code they
+described**. Those two were corrected the way this project requires: a dated note
+at the top saying what changed and why, rather than a quiet edit that pretends
+the original was always right.
+
+The pattern is worth stating, because it will hold next time too: **every wrong
+number in this release had been typed rather than measured.** Everything that was
+measured — chroma, contrast ratios, palette sizes, caption widths — checked out
+exactly.
+
+**Also:** one screen that had grown to eight jobs was split into three, with no
+change in behaviour — proved by 900-odd tests passing without one of them being
+touched.
+
+---
+
 ## v1.8.0 — 2026-07-29 — Every screen has an address now
 
 The first feature since the owner set the rule that debt gets paid before

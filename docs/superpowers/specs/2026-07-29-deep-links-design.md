@@ -1,7 +1,28 @@
 # Shareable deep links — design
 
 **Date:** 2026-07-29
-**Status:** approved by the owner, not yet implemented
+**Status:** implemented in v1.8.0
+
+## Correction, 2026-07-29 (after shipping)
+
+Specs here are living documents, but the way to correct one is a dated block
+like this rather than a silent edit — the document records what was decided on a
+day, and editing it away destroys that while pretending nothing happened.
+
+**"Everything else … replaces" was wrong about VIEWS.** The section below lists
+`view` among the things that replace rather than push. Built that way, it meant
+opening the You tab, taking a photo and pressing Back left the SITE rather than
+returning to the wheel — and lost the reading on the way out. Found by probing a
+real browser after release.
+
+Views now PUSH. Four tabs cannot bury a history the way granularity clicks
+would, and returning to the previous tab is what Back means everywhere else on
+the web. The owner's decision covered panels and filters; views were never
+mentioned, so this is filling a gap rather than reversing a choice.
+
+**Back still does not close a full-screen overlay**, which the spec did not
+consider at all. Two implementations were tried and reverted; see the entry in
+`TODO.md` and the note in `src/components/Overlay.tsx` for what each taught.
 
 ## The problem
 
