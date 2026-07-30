@@ -8,6 +8,7 @@ import { dataset, warmCool, type SeasonData } from '../../data'
 import { useRovingFocus } from '../useRovingFocus'
 import { ShareLink } from '../ShareLink'
 import { PaletteProvenance } from './PaletteProvenance'
+import { YouDoorwayNote } from './YouDoorways'
 import { SeasonChooser } from './SeasonChooser'
 import { SeasonFit } from './SeasonFit'
 import { useSeasonData } from './useSeasonData'
@@ -177,6 +178,10 @@ function PaletteTabsReady({ reading, season, dispatch, onPaletteChange, onSelect
           </button>
         ))}
       </div>
+
+      {/* Directly under the grid, because "pick any swatch above" is only true
+          here — the buttons it explains are in the sticky bar overhead. */}
+      {shown.length > 0 && <YouDoorwayNote count={shown.length} />}
 
       {which === 'season' && <SeasonFit sub={activeSeason} data={data} />}
 

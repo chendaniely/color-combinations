@@ -69,33 +69,18 @@ export function YouView({ state, dispatch }: {
         </p>
       </header>
 
-      {reading && <ReadingStrip reading={reading} />}
-
-      {(reading || sharedSeason) && (
-        <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
-          onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }}
-          onSelectColor={setSelectedColorId} />
-      )}
-
-      {/* The same doorways twice, above and below the combinations. The colour
-          list runs to fifty swatches, so somebody near the top would otherwise
-          have to scroll past all of it and the whole combination grid before
-          learning there is anywhere to go. */}
-      {visiblePalette && (
-        <YouDoorways palette={visiblePalette} floor={state.you.floor}
-          label={paletteLabel} selectedId={selectedColorId} dispatch={dispatch} />
-      )}
-
-      {visiblePalette && (
-        <MatchedCombinations palette={visiblePalette} floor={state.you.floor}
-          dispatch={dispatch} />
-      )}
-
-      {visiblePalette && (
-        <YouDoorways palette={visiblePalette} floor={state.you.floor}
-          label={paletteLabel} selectedId={selectedColorId} dispatch={dispatch} />
-      )}
-
+      {/* THE ENTRY POINT, and therefore at the top.
+          It used to sit last, under the palettes and the combination grid. That
+          reads fine on an empty tab — where there is nothing else — and badly in
+          every other state: a season arriving from a shared link, or a reading
+          from earlier in the session, fills the page with fifty swatches and a
+          grid of plates, and the one thing a first-time visitor needs is several
+          screens below all of it. Owner, 2026-07-30: "the photo button on the
+          bottom gets lost. we need the photo up at the top so it's a clear entry
+          point."
+          Deliberately NOT duplicated at the bottom the way the doorways are:
+          the bottom of this page already ends in two buttons, and a third pair
+          competing with them makes the ending less clear, not more. */}
       <div className="you-actions">
         <button className="cam-btn primary" onClick={() => setCapturing(true)}>
           {reading ? 'Take another photo' : 'Take a photo'}
@@ -107,6 +92,30 @@ export function YouView({ state, dispatch }: {
         )}
       </div>
 
+      {reading && <ReadingStrip reading={reading} />}
+
+      {/* Everything downstream of the reading, wrapped so the doorway bar has a
+          region to be sticky WITHIN. It pins to the top of the viewport for as
+          long as there is palette or combination left to scroll, then releases
+          with the rest of this block — a bar that outstayed its subject would
+          just be a second header. */}
+      {(reading || sharedSeason) && (
+        <div className="you-result">
+          {visiblePalette && (
+            <YouDoorways palette={visiblePalette} floor={state.you.floor}
+              label={paletteLabel} selectedId={selectedColorId} dispatch={dispatch} />
+          )}
+
+          <PaletteTabs reading={reading} season={state.you.season} dispatch={dispatch}
+            onPaletteChange={(ids, label) => { setVisiblePalette(ids); setPaletteLabel(label) }}
+            onSelectColor={setSelectedColorId} />
+
+          {visiblePalette && (
+            <MatchedCombinations palette={visiblePalette} floor={state.you.floor}
+              dispatch={dispatch} />
+          )}
+        </div>
+      )}
     </div>
   )
 }

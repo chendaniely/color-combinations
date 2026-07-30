@@ -27,9 +27,13 @@ export function PaletteProvenance({ which, reading, active, parent }: {
     <>
       {!reading && (
         <p className="you-note shared-season">
+          {/* "photo below" until 2026-07-30, when the photo button moved to the
+              top of the tab to stop being lost under a full page of colours.
+              A stale direction is worse than none: it sends the one visitor who
+              has never used this tab looking the wrong way. */}
           <b>Opened from a shared link.</b> These are {active.name}&apos;s colours
           from Wada&apos;s book — nothing here is a measurement of you. Take your own
-          photo below and the site will work out your season and compare it.
+          photo above and the site will work out your season and compare it.
         </p>
       )}
 
