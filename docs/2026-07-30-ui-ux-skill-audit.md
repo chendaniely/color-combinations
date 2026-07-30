@@ -32,15 +32,16 @@ the content IS colour and the job is to stop the chrome competing with it.*
 | "Premium-consumer palette ban: warm cream backgrounds, ochre accents" (§4.2) | The palette is derived from a 1933 Japanese colour book and is the subject, not a default reach. Same override clause. |
 | "Zero em-dashes anywhere" (§9.G) | A house-style preference, not a defect. This site's voice uses them throughout, in copy the owner has approved release by release. |
 | "No version footers on marketing pages" (§9.F) | The corner version badge was an explicit owner request in v1.8.3. |
-| "Use Tailwind v4 / Motion / Phosphor icons" (§3) | Direct conflict with the dependency rules. Four properties in `CLAUDE.md` govern what may be added; none of these clears them, and none is needed. |
+| "Use Tailwind v4 / Motion" (§3) | Direct conflict with the dependency rules. Four properties in `CLAUDE.md` govern what may be added; neither clears them and neither is needed. (The icon library, from the same section, was **accepted** — see the second pass.) |
 | "Every page needs real images" (§4.8) | The images here are 348 colour plates, generated from the data. |
 | "Min touch target 44×44" (`ui-ux-pro-max` priority 2) | The site targets WCAG 2.2's 24×24, already enforced in `tests/browser/mobile.spec.ts`. Raising it is a real option but it is a design decision with layout cost, not a defect. |
 
-Left as a **genuine open question**, not implemented: the entry-gallery cards use
-emoji as icons (🔍 📷 🖼 🎨), which `ui-ux-pro-max` lists as an anti-pattern
-("SVG icons, no emoji"). The alternatives conflict with each other — `taste-skill`
-forbids hand-rolled SVG, and an icon library is a new dependency. Worth a decision
-rather than a silent change.
+Raised as a **genuine open question** rather than changed silently: the
+entry-gallery cards used emoji as icons (🔍 📷 🖼 🎨), which `ui-ux-pro-max` lists
+as an anti-pattern. The alternatives conflicted — `taste-skill` forbids
+hand-rolled SVG, and an icon library is a new dependency subject to `CLAUDE.md`'s
+four properties. **The owner took the library**, so it is implemented below; this
+row stays as the record of it having been a decision rather than a default.
 
 ## What was implemented
 
