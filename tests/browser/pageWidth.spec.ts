@@ -22,9 +22,12 @@ async function columnAt(page: import('@playwright/test').Page, tab: string, sel:
   return page.locator(sel).evaluate((el) => {
     const b = el.getBoundingClientRect()
     const cs = getComputedStyle(el)
+    // The CONTENT's left edge, not the box's. The three views are full-bleed
+    // boxes inset by padding — that is what keeps the scrollbar at the browser
+    // edge — so their boxes all start at 0 and comparing those proves nothing.
     return {
       content: b.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
-      left: b.left,
+      left: b.left + parseFloat(cs.paddingLeft),
     }
   })
 }
@@ -66,25 +69,40 @@ test.describe('one page width everywhere', () => {
       await page.setViewportSize({ width: 390, height: 844 })
       const { content, left } = await columnAt(page, 'Browse', '.browse-view')
       expect(content).toBeGreaterThan(330)
-      expect(left).toBe(0)
+      // One gutter in from the edge, not centred in a 241px column.
+      expect(left).toBeLessThanOrEqual(16)
     })
 
-  test('the accessibility control sits on the column edge, not the window edge',
-    async ({ page }) => {
-      // It used to be pinned to the viewport, which left it stranded 335px out
-      // in the margin on a wide screen — and made the reserve the filter rows
-      // keep for it wrong at every width except by accident.
-      await page.setViewportSize({ width: 1920, height: 900 })
-      await page.goto('./')
-      await page.getByRole('button', { name: 'Browse' }).first().click()
-      await page.locator('.browse-filters').waitFor()
-      const d = await page.evaluate(() => {
-        const v = document.querySelector('.browse-view')!
-        const b = v.getBoundingClientRect()
-        const pr = parseFloat(getComputedStyle(v).paddingRight)
-        const g = document.querySelector('.a11y-goggles')!.getBoundingClientRect()
-        return Math.abs((b.right - pr) - g.right)
-      })
-      expect(d, 'the goggles are not aligned to the content edge').toBeLessThan(2)
+  // The goggles stay on the WINDOW edge — the owner's call, reverted from a
+  // brief experiment with aligning them to the column: "i also liked it when
+  // the accessibilty goggles were on the right side ... now that it's moved in
+  // towards the main content, it's a bit distracting."
+  //
+  // Which means the page rows have to keep clear of them themselves, and that
+  // is bought with a LINE BREAK below 1100px rather than reserved padding: a
+  // flat reserve is dead space on a wide screen and a third of the row on a
+  // phone. LEAF controls only — the size-pill wrapper is full-width while its
+  // buttons are not, and measuring wrappers reported collisions that were not
+  // there, twice.
+  for (const width of [390, 768, 1024, 1280, 1920]) {
+    test(`no control runs under the goggles at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      for (const [tab, row] of [['Browse', '.browse-filters'], ['Match', '.match-head']] as const) {
+        await page.goto('./')
+        await page.getByRole('button', { name: tab }).first().click()
+        await page.locator(row).waitFor()
+        const bad = await page.evaluate((sel) => {
+          const g = document.querySelector('.a11y-goggles')!.getBoundingClientRect()
+          return [...document.querySelectorAll(`${sel} button, ${sel} select, ${sel} h1`)]
+            .filter((el) => {
+              const a = el.getBoundingClientRect()
+              return a.width > 4 && a.left < g.right && g.left < a.right
+                && a.top < g.bottom && g.top < a.bottom
+            })
+            .map((el) => (el.textContent || '').trim().slice(0, 24))
+        }, row)
+        expect(bad, `${tab}: controls under the goggles`).toEqual([])
+      }
     })
+  }
 })

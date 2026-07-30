@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Action, AppState } from '../../core/state'
 import { FaceCapture, type CaptureResult } from '../sample/FaceCapture'
 import { ProbeReview } from '../sample/ProbeReview'
@@ -6,6 +6,7 @@ import { MatchedCombinations } from './MatchedCombinations'
 import { PaletteTabs } from './PaletteTabs'
 import { ReadingStrip } from './ReadingStrip'
 import { YouDoorways } from './YouDoorways'
+import { registerOverlay } from '../../overlayHistory'
 
 // The You tab: capture -> review -> the reading, both palettes, the
 // combinations that suit you, and the doorways into Match and Browse.
@@ -23,6 +24,17 @@ export function YouView({ state, dispatch }: {
   const [paletteLabel, setPaletteLabel] = useState('Your colours')
   // Which swatch the visitor picked, for "Start a palette from ...".
   const [selectedColorId, setSelectedColorId] = useState<number | undefined>(undefined)
+  // The task-level dismiss for the capture flow, for the same reason
+  // ColorSampler has one: ProbeReview's own close steps BACK to FaceCapture, so
+  // Back would walk the flow in reverse a screen at a time instead of leaving
+  // it. Registered only while a capture screen is up, so it adds nothing to the
+  // count on the ordinary tab.
+  const capturingNow = capturing || capture !== null
+  useEffect(() => {
+    if (!capturingNow) return
+    return registerOverlay(() => { setCapture(null); setCapturing(false) })
+  }, [capturingNow])
+
   const reading = state.you.reading
   // A shared link carries a season but never a reading — the owner's privacy
   // decision, enforced by tests/urlPrivacy.test.ts. So "somebody sent me this"

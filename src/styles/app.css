@@ -184,32 +184,54 @@ main { flex: 1; min-height: 0; position: relative; }
    `box-sizing: border-box` is global (line 4), so max-width has to carry the
    gutters as well as the column. */
 .browse-view, .match-view, .you-view {
-  max-width: calc(var(--page-w) + 2 * var(--page-gutter));
-  margin-inline: auto;
-  padding-left: var(--page-gutter);
-  padding-right: var(--page-gutter);
+  /* CENTRED WITH PADDING, NOT max-width, and that is the whole point of writing
+     it this way. `.browse-view` and `.match-view` are the scroll containers
+     (height:100% + overflow-y:auto), so constraining their WIDTH moves the
+     scrollbar inward to the column edge — owner, 2026-07-30: "there is now a
+     hideous scrollbar on the edge where the new boundry is. that scroll bar
+     shoudl just say on the edge of the browser like before."
+     Padding leaves the box full-bleed, so the scrollbar stays where the browser
+     puts it and only the content is inset. `max()` handles small screens: below
+     the 45rem floor the halved remainder goes negative and the gutter wins. */
+  padding-inline: max(var(--page-gutter), calc((100% - var(--page-w)) / 2));
 }
 .browse-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
 .browse-filters { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
-/* Keep the filter controls clear of the accessibility goggles, which are
-   absolutely positioned at the top right and float over this row at every width.
-   ON DESKTOP, reserve the width; there is plenty of it.
-   ON A PHONE there is not. 10rem is 41% of a 390px screen, and reserving it on
-   every row pushed each select onto a row of its own: the bar stood 157.75px
+/* Keep the filter controls clear of the accessibility goggles, which float at
+   the top right of the window.
+   RESERVE ONLY WHAT THE MARGIN DOES NOT ALREADY GIVE. `(100vw - 100%) / 2` is
+   the free space beside this row — the page is a centred column, so once that
+   exceeds the goggles' width the row cannot reach them and no reserve is needed
+   at all. A flat `padding-right: 10rem` was wrong in both directions: dead space
+   inside a 890px column at 1440px, and too small at 1024px.
+   It was also applied unconditionally, which is 41% of a 390px phone. That
+   pushed each select onto a row of its own, so the filter bar stood 157.75px
    tall and the first colour plate landed at y=471 of an 844px screen, below the
-   halfway line. So break the line after the size pills instead. The pills are
-   narrow enough to sit beside the goggles, and the selects get a full-width row
-   underneath with nothing floating over it.
+   halfway line. Now 0 there, with the line break below doing the work instead.
    Measured 2026-07-30: bar 157.75px -> 97px, first plate y=471 -> y=410.
    DROPPING THE RESERVE ALONE IS NOT THE FIX, and looked like one — the bar
    shrank exactly as intended and the goggles came down on top of the family
    select. Found by screenshotting; the tests were checking height and padding,
    neither of which can see two boxes overlapping. */
-@media (min-width: 761px) { .browse-filters { padding-right: 10rem; } }
-@media (max-width: 760px) {
-  .browse-filters { gap: var(--s2) var(--s3); }
+/* No padding reserve at all. A LINE BREAK buys the space instead, and it costs
+   nothing: the size pills are ~110px, so the goggles sit comfortably beside them
+   and the selects get a clean row underneath. Padding took the space out of
+   EVERY row, which is what made the phone bar three rows tall.
+   Scoped to the widths where the goggles can actually reach this row: the page
+   is a centred column, so above ~1100px the free margin is wider than the
+   goggles and they never come near it. Measured 2026-07-30 — free margin per
+   side: 390px->16, 768px->32, 1024px->152, 1280px->244, against a ~150px
+   control. */
+@media (max-width: 1100px) {
   .browse-filters .size-filter { flex: 1 1 100%; }
+  /* Same remedy for Match's header. `justify-content: space-between` throws the
+     level pills at the right edge, which is exactly where the goggles are;
+     measured 2026-07-30, "Shades" and "Families" ran underneath at 768px and
+     "Families" at 1024px. A full-basis row drops them below the heading and
+     clear of it, left-aligned, instead of squeezing the heading with padding. */
+  .match-head .level { flex: 1 1 100%; }
 }
+@media (max-width: 760px) { .browse-filters { gap: var(--s2) var(--s3); } }
 .browse-filters select {
   font-family: var(--font-ui); font-size: 0.85rem; color: var(--ink);
   background: none; border: 1px solid var(--hairline); border-radius: var(--radius);
@@ -374,7 +396,7 @@ main { flex: 1; min-height: 0; position: relative; }
 
 /* Match page */
 .match-view { height: 100%; overflow-y: auto; padding-top: var(--s6); padding-bottom: var(--s12); }
-.match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; padding-right: 10rem; }
+.match-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
 .match-head h1 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; }
 .match-view .lede { color: var(--ink-muted); font-size: 0.9rem; margin-top: var(--s2); max-width: 80ch; }
 .match-view .level { display: inline-flex; gap: var(--s2); }
@@ -1015,22 +1037,17 @@ main { flex: 1; min-height: 0; position: relative; }
 /* Accessibility goggles — multi-select filter. Floats in the top-right corner
    of the content area (just below the header), in the same spot on every view.
    It's the positioning context for its own drop-down menu. */
-/* Pinned to the CONTENT COLUMN's right edge, not the viewport's.
-   Once the three pages became a centred column in golden section, a control
-   fixed to the window edge floated out in the margin — 335px clear of the
-   content on a 1920px screen, visually belonging to nothing. Worse, the 10rem
-   reserve that `.browse-filters` and `.match-head` keep for it became dead
-   space inside the column at wide sizes (where the goggles no longer reach it)
-   while still being too small at ~1024px (where they do).
-   Aligning it to the column makes that reserve exactly right at every width,
-   which is what turns it from a guess into a measurement.
-   `100%` of `main`, not `100vw`: vw includes the scrollbar. */
-.a11y-goggles {
-  position: absolute; top: var(--s4); z-index: 5; text-align: left;
-  right: calc(
-    (100% - min(100%, var(--page-w) + 2 * var(--page-gutter))) / 2
-    + var(--page-gutter));
-}
+/* Back on the WINDOW edge, where it was.
+   It was briefly aligned to the content column, on the reasoning that a control
+   floating 335px out in the margin belongs to nothing. The owner disagreed and
+   they are the one looking at it: "i also liked it when the accessibilty
+   goggles were on the right side, so not bound by the actual area in
+   wheel/match/browse/you, now that it's moved in towards the main content, it's
+   a bit distracting." It is a utility that applies to the whole site rather
+   than to the page under it, and out of the way is the point.
+   The reserve the filter rows keep for it is computed from this rather than
+   assumed — see `.browse-filters` and `.match-head`. */
+.a11y-goggles { position: absolute; top: var(--s4); right: var(--s8); z-index: 5; text-align: left; }
 .a11y-goggles > summary {
   list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: var(--s2);
   padding: var(--s1) var(--s3); border: 1px solid var(--ink-faint); border-radius: var(--radius);

@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { RGB } from '../../core/colorMath'
 import { keyColorId } from '../../core/dataset'
 import type { Action, MatchLevel } from '../../core/state'
 import { cameraSupported } from '../camera/cameraStream'
 import { ColorCapture } from '../camera/ColorCapture'
 import { Overlay } from '../Overlay'
+import { registerOverlay } from '../../overlayHistory'
 import { ColorEntry, type EntrySource } from './ColorEntry'
 import { ColorMatches } from './ColorMatches'
 import { ColorPicker } from './ColorPicker'
@@ -30,6 +31,16 @@ export function ColorSampler({ dispatch, onClose, initialSource = null }: {
   // already asked the question this overlay would ask again.
   initialSource?: Source | null
 }) {
+  // The TASK-level dismiss, registered alongside whichever screen is showing.
+  //
+  // Each capture screen's own onClose steps back to the card list
+  // (`setSource(null)`), which is right for its x button and wrong for Back:
+  // the owner asked for Back to "close that drop down", not to walk the task
+  // backwards a screen at a time. Registering this here means closeAllOverlays
+  // reaches the end of the task in one press however deep the visitor is —
+  // innermost closer first, then this one, which unmounts the lot.
+  useEffect(() => registerOverlay(onClose), [onClose])
+
   const [source, setSource] = useState<Source | null>(initialSource)
   const [rgb, setRgb] = useState<RGB | null>(null)
 

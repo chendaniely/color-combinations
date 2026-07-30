@@ -72,27 +72,27 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Known gap: Back does not close a full-screen overlay
 
-- [ ] **On a phone, Back with the camera or picker open leaves the site.** There
-      is no Escape key on a phone, these overlays fill the screen, and Back is
-      what "cancel" means — so the most natural gesture does the worst thing.
-      Found by probing on 2026-07-29. **Two implementations were tried and both
-      reverted**, so a third attempt should start from what they taught:
-      • *Push an entry per overlay, pop it on close.* Broke the capture flow.
-        FaceCapture unmounts straight into ProbeReview, `history.back()` is
-        asynchronous, and the queued pop landed AFTER the next overlay had
-        pushed — closing the review screen the instant it opened.
-      • *Pool one entry per RUN of overlays, module-level count, deferred pop.*
-        Fixed the handoff, then lost to `urlSync`: its `replaceState` overwrites
-        whatever entry is current, which is the overlay's, wiping the
-        `{ overlay: true }` marker the cleanup keys off. Result was a dead entry
-        and a Back press that visibly did nothing.
-      The diagnosis is that `Overlay` and `urlSync` are fighting over the same
-      history entry, so the fix is a SHARED OWNER for it — most likely urlSync
-      learning that an overlay is open, rather than either side pushing
-      independently. `Overlay.tsx` carries the same note at the code.
-      Not attempted a third time mid-loop: three distinct failure modes on one
-      issue is the signal to stop and design, which is what CLAUDE.md's
-      debugging guidance says.
+- [x] ~~**On a phone, Back with the camera or picker open leaves the site.**~~ —
+      fixed on 2026-07-30, at the third attempt, after the owner hit it on a
+      desktop too: *"clicking back on sample should close that drop down, right
+      now back actually goes back on the URL. so i will kick myself out of the
+      site."*
+      The diagnosis recorded here was right: the fix was a SHARED OWNER for the
+      history entry, not a third attempt from either side. `src/overlayHistory.ts`
+      is a registry of open overlays and their closers; `urlSync` reads it and is
+      the only thing that touches `history`. `Overlay` now only reports that it
+      is open.
+      Two details the earlier attempts had no way to get right:
+      • The count is observed through `useSyncExternalStore`, so the
+        FaceCapture -> ProbeReview handoff (one overlay unmounting into the next
+        in a single commit) never presents as a dip to zero.
+      • The state-sync effect is SUSPENDED while an overlay is up, so its
+        `replaceState` can no longer overwrite the marker — the exact way
+        attempt 2 died.
+      Closing with the x pops the marker; closing by choosing a destination lets
+      the marker become that destination's entry, so Back lands on the state
+      from before the overlay opened. `tests/browser/overlayBack.spec.ts` covers
+      both, plus both historic failure modes.
 
 ## Owner's queued ideas (2026-07-30)
 
