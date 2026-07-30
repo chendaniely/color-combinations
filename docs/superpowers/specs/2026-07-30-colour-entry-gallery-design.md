@@ -1,7 +1,10 @@
 # The colour-entry gallery — design
 
 **Date:** 2026-07-30
-**Status:** approved in conversation, not yet implemented
+**Status:** shipped in v1.9.0 (2026-07-30), as designed. The one thing to know
+that this document could not: the header button needed a layout fix after the
+fact — sized for a bare glyph, it clipped the new label to "SAMP" — and the
+inline gallery needed two columns rather than one. Neither is visible to a test.
 
 ## The problem
 

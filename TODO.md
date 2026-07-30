@@ -62,21 +62,13 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Owner's next feature idea
 
-- [ ] **Match > Colors is empty, and the ways to find a colour should live
-      there.** Owner, 2026-07-29: *"i think the sample a color next to the find
-      a color should also appear as different card/'apps' under the match >
-      colors feature. there's nothing tehre right now, and the options we have
-      to find a color, and the sample a color shoudl all fit in this section."*
-      Today the Colors level of Match shows only a line of text — "Search a
-      colour name above, or snap a colour with the camera" — pointing at
-      affordances that live in the header. The four ways in (search by name,
-      camera, upload a photo, pick a colour) should be cards on that empty
-      panel, the same way `ColorSampler` already presents three of them.
-      Worth noting the pieces exist: `ColorSampler` renders exactly this card
-      list, so this is likely a matter of surfacing it inline rather than only
-      inside the overlay, plus a name-search card. Open questions: does picking
-      a source open the existing overlay or work inline, and does the same
-      block belong on Browse's empty state too.
+- [x] ~~**Match > Colors is empty, and the ways to find a colour should live
+      there.**~~ — shipped in v1.9.0. The four ways in are cards on that panel,
+      drawn from one `ColorEntry` component the header overlay uses too. Both
+      open questions were answered: picking a source opens the existing overlay
+      already set to it (so the flow and the result screen stay identical), and
+      **Browse's empty state does not get the gallery yet** — the component
+      allows it, but putting it in one place first kept the change reviewable.
 
 ## Known gap: Back does not close a full-screen overlay
 
@@ -104,18 +96,12 @@ a check that needs a person. See `TODO-completed.md` for what went.
 
 ## Owner's queued ideas (2026-07-30)
 
-- [ ] **The pencil icon should be a camera**, with a visible label. The pencil
-      means "edit"; the button means "sample a colour". Owner: *"i think people
-      will better grivitate to a camera knowing it's for a picture."* A bare icon
-      is undiscoverable whatever the glyph, so the label does most of the work.
-- [ ] **Match > Colors is a DEAD END, not merely undiscoverable.** Levels 1 and 2
-      render a `ShadePicker`; level 0 renders a sentence pointing at affordances
-      elsewhere. Owner: *"it only really populates after i come from the you page
-      … on its own there's no way to get to a similar page."* Fill it with entry
-      cards — search, camera, photo, wheel — extracted from `ColorSampler` so the
-      overlay and the inline gallery share one component, feeding the existing
-      `ColorMatches` hub. Do NOT change the default level: Shades has a working
-      picker and 23 options against 157.
+- [x] ~~**The pencil icon should be a camera**, with a visible label.~~ — shipped
+      in v1.9.0. It is a camera glyph plus the word "Sample".
+- [x] ~~**Match > Colors is a DEAD END, not merely undiscoverable.**~~ — shipped
+      in v1.9.0. Level 0 renders `ColorEntry`, the same four cards the header
+      overlay shows, feeding the same `ColorMatches` hub. The default level
+      stayed Shades, as noted here.
 - [ ] **Browse should have season filters that work independently**, so it
       connects to the You tab without requiring it. Composes with the palette
       filter shipped in v1.8.2 — a season simply supplies the palette. Note the

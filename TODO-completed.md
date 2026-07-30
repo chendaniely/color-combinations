@@ -1,5 +1,32 @@
 # TODO — completed
 
+## v1.9.0 — every way into a colour, in one place (2026-07-30)
+
+Owner: *"the options under the pencil aren't that visable to the user and i want
+more ways to show that there is a camera option avaiable"*, and — correcting an
+earlier reading — *"on its own there's no way to get to a similar page."*
+
+- [x] **Match > Colors is no longer a dead end.** Its level 0 rendered a sentence
+      pointing at buttons in the header; it now renders the four ways into a
+      colour as cards, opening the chosen capture screen directly and landing on
+      the same `ColorMatches` hub as every other route (`94a5b01`).
+- [x] **The ways in live in ONE component.** `ColorEntry` was extracted from
+      `ColorSampler` and made presentational, so the overlay and the inline
+      gallery show the same cards in the same order and cannot drift apart
+      (`94a5b01`).
+- [x] **The pencil became a camera, with the word "Sample" beside it.** The
+      pencil glyph means *edit* while the button's own accessible name said
+      "sample a color"; a bare icon is undiscoverable whichever glyph it wears,
+      so the visible label does most of the work (`94a5b01`).
+- [x] **The default Match level stayed Shades**, against the parenthesis in the
+      owner's prompt: 157 options against 23, and Shades already has a working
+      picker. Recorded because it was considered and rejected, not overlooked
+      (`94a5b01`).
+- [x] **Fixed two visual defects the suite could not see**: the header button was
+      sized for a bare glyph, so the new label wrapped and clipped to "SAMP", and
+      the inline gallery ran as one tall column leaving most of a desktop screen
+      empty. Found by screenshotting after the commit (`9a0edaf`).
+
 ## v1.8.3 — corner mark, version badge, choosing a colour (2026-07-30)
 
 - [x] **The corner seal is pinned.** It lived in a plain `<footer>`, which on

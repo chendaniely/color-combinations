@@ -28,6 +28,46 @@ those are grouped under dated headings in the right chronological place.
 
 ---
 
+## v1.9.0 — 2026-07-30 — Every way into a colour, in one place
+
+**Match > Colors was a dead end.** Its Shades and Families levels each have a
+working picker; the Colors level had a sentence — *"Search a color name above,
+or snap a color with the camera"* — which points at buttons somewhere else and
+leaves you looking at an empty panel. It now shows the four ways in as cards:
+**search by name, camera, upload a photo, pick a color**. Choosing one opens
+that capture screen directly and lands on the same result screen as always.
+
+**And the camera stopped hiding behind a pencil.** The button next to the search
+box carried a pencil glyph, which means *edit* — its own accessible name said
+"sample a color". It is now a camera, and it says **Sample** in words next to
+it, because a bare icon is undiscoverable whichever glyph it wears.
+
+Both places draw the same cards from one component, so they cannot drift apart.
+Search is deliberately the odd one out: it focuses the search box that is always
+in the header rather than opening a second one, which teaches where the
+permanent one lives.
+
+> **The owner's prompts** (from [`PROMPTS.md`](PROMPTS.md)):
+>
+> *"i want to change the pencil icon next to find a color to a camera icon …
+> i think people will better grivitate to a camera knowing it's for a picture …
+> the options under the pencil aren't that visable to the user and i want more
+> ways to show that there is a camera option avaiable"*
+>
+> *"i also misspoke about the match > colors page. it only really populates
+> after i come from the you page > browse a color. but on its own there's no way
+> to get to a similar page. which is why i opted to fill it with some cards of
+> other ways to get in a color"*
+
+**What did NOT change, on purpose:** Match still opens on **Shades**. Colors
+offers 157 options against 23, and Shades has a working picker — a builder that
+narrows should not start at its widest. The dead end was the problem, not the
+default.
+
+Design: [`docs/superpowers/specs/2026-07-30-colour-entry-gallery-design.md`](docs/superpowers/specs/2026-07-30-colour-entry-gallery-design.md).
+
+---
+
 ## v1.8.3 — 2026-07-30 — A mark that stays put, and a colour you choose
 
 Four small things, all reported by the owner from actually using the site.

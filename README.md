@@ -5,7 +5,10 @@ Wada's 1930s classic *A Dictionary of Color Combinations* — as a circular
 chord-diagram "color wheel", a browsable gallery of combination plates, and
 a practical palette picker for websites, presentations, and outfits.
 
-> **Status:** v1.8.3 shipped (2026-07-30) — the corner seal is pinned and now
+> **Status:** v1.9.0 shipped (2026-07-30) — every way into a color now lives in
+> one gallery, shown both in **Match > Colors** (which used to be a dead end) and
+> behind the header button, whose pencil icon is now a **camera with a visible
+> label**. Before it, v1.8.3 — the corner seal is pinned and now
 > carries the version number, linked to its changelog entry; the You tab's
 > doorways appear above the colours as well as below, and "Start a palette
 > from …" follows the swatch you pick. Before it, v1.8.2 — the doorways carry your
@@ -114,7 +117,8 @@ visitors actually do, had no automated test behind them. Both now have one.
 - **Match** (header tab) — build an outfit palette: start from a color, shade,
   or family, see what the book pairs it with, and add more to make a 3-, 4-,
   or more-color set. Also reachable from any Shade or Family group on the
-  wheel via "Build a palette from this →".
+  wheel via "Build a palette from this →", and its **Colors** level offers the
+  same four ways to bring in a color as [Sample a color](#sample-a-color) below.
 - **Find colors that suit you** (the **You** tab) — photograph your face and
   get the book colors that go with your own coloring. See below.
 - **Theme a website or deck** — find a combination you love, then copy its hex
@@ -132,17 +136,23 @@ the edge of the wheel before lifting, and nothing opens.
 
 ### Sample a color
 
-Next to the search box, **Sample a color** opens a small picker with three ways
-to feed in a color — all landing on the same result:
+Next to the search box, the **camera button labelled "Sample"** opens a gallery
+of every way to feed in a color — all landing on the same result:
 
+- **Search by name** — focuses the search box in the header, if you know what
+  the color is called.
 - **Camera** (on devices that have one) — point at something and tap the color.
 - **Upload a photo** — pick an image and tap/eyedrop a region.
 - **Pick a color** — turn a color wheel, or type a hex, RGB, or CMYK value.
 
-You then see the **12 nearest book colors** (with a "very close / close /
-roughly" label), pick one, choose Color / Shade / Family, and jump into **Match**
-or **Browse**. Uploaded photos and camera frames stay on your device — nothing
-is uploaded or saved.
+**The same four cards appear on the Colors level of the Match tab**, so you can
+start a palette from a color you sample rather than one you happen to have open.
+It is the same gallery in both places, not a copy.
+
+Whichever you choose, you then see the **12 nearest book colors** (with a "very
+close / close / roughly" label), pick one, choose Color / Shade / Family, and
+jump into **Match** or **Browse**. Uploaded photos and camera frames stay on
+your device — nothing is uploaded or saved.
 
 ### Find colors that suit you
 

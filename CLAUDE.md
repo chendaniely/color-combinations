@@ -203,6 +203,16 @@ Never treat a plan as a description of the current code.
   `src/plateLayout.ts` (the plate taper, used by `PlateCard` and
   `exportPng`), `--disc-size` (the colour disc, whose pin is placed
   in percentages so TypeScript holds no copy of the size).
+- **The ways into a colour live in `src/components/sample/ColorEntry.tsx`,
+  and nowhere else.** Search, camera, upload, pick — one presentational
+  component rendered both inside `ColorSampler`'s overlay and inline on
+  Match's Colors level. Adding a fifth way in, or reordering them, is then
+  one edit by construction. Do not write a second card list "just for this
+  screen": the reason the camera was undiscoverable up to v1.8.3 is that
+  its only card list was buried in an overlay behind a pencil icon.
+  Search is deliberately the odd card out — it focuses the permanent
+  header input rather than opening a second one — and both suites assert
+  that asymmetry, so it is a decision, not an oversight.
 
 ## Dependency rules
 
