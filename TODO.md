@@ -133,6 +133,24 @@ a check that needs a person. See `TODO-completed.md` for what went.
       than a defect repair. Either raise the specificity and re-approve the look,
       or delete the dead declarations; do not leave the rule claiming both.
 
+## Owner's next request (2026-07-30)
+
+- [ ] **A project icon**, for a card in the owner's personal-website project
+      listing. Their opening idea, verbatim: *"my intiial guess is somethign
+      with the actual chord diagram maybe even with the 色 character."*
+      Starting material that already exists: `public/favicon.svg` is 色 in
+      EB Garamond-ish serif, `--paper-1` on an `--accent` rounded square (227
+      bytes), and `SiteMark.tsx` renders the same glyph as a hanko in the
+      corner. So the seal half of the idea is already the site's mark; the
+      chord half is not.
+      Worth knowing before designing: a listing card is small, and the wheel's
+      ~1000 thin ribbons turn to mud below roughly 100px — the chord diagram
+      reads as a *ring of colour* at icon size, not as a diagram. A few
+      deliberately thick chords, or the ring alone, is likely to survive where
+      a faithful miniature will not. Test any candidate at 32/64/128px before
+      choosing.
+      Formats the card will probably want: SVG plus PNG at 512 and 1024.
+
 ## Owner's queued ideas (2026-07-30)
 
 - [x] ~~**The pencil icon should be a camera**, with a visible label.~~ — shipped
